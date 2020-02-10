@@ -1,15 +1,33 @@
 import React from 'react'
 import {Card} from 'semantic-ui-react'
 import AnimalCard from "./animal-card";
+import HttpClient from "../httpClient";
 
-const AnimalCards = (props) => (
-    <Card.Group>
-        {
-            props.animals.map(animal => (
-                <AnimalCard animal={animal} key={animal.id}/>
-            ))
-        }
-    </Card.Group>
-);
+export default class AnimalCards extends React.Component {
 
-export default AnimalCards
+    constructor(props, context) {
+        super(props, context);
+        this.httpClient = new HttpClient();
+        this.state = {
+            animals: []
+        };
+    }
+
+    componentDidMount() {
+        this.httpClient
+            .getAnimals()
+            .then(animals => this.setState({animals}));
+    }
+
+    render() {
+        const cards = this.state.animals.map(animal => (
+            <AnimalCard animal={animal} key={animal.id} httpClient={this.httpClient}/>
+        ));
+        return (
+            <Card.Group>
+                {cards}
+            </Card.Group>
+        )
+    }
+}
+

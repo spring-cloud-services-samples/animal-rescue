@@ -1,0 +1,13 @@
+{
+  "routes": [
+    {
+      "path": "/backend/animals",
+      "method": "GET"
+    },
+    {
+      "path": "/backend/adoption-requests",
+      "method": "POST",
+      "sso-enabled": true
+    }
+  ]
+}

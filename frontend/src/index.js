@@ -10,3 +10,11 @@ ReactDOM.render(<App />, document.getElementById('root'));
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
+
+const error = console.error;
+console.error = function(warning, ...args) {
+  if (/(Invalid prop|Failed prop type)/.test(warning)) {
+    throw new Error(warning);
+  }
+  error.apply(console, [warning, ...args]);
+};
