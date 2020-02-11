@@ -55,7 +55,6 @@ destroy_all() {
 case $1 in
 build)
   build
-  deploy_all
   ;;
 deploy)
   deploy_all

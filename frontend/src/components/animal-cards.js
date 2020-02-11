@@ -9,7 +9,7 @@ export default class AnimalCards extends React.Component {
         super(props, context);
         this.httpClient = new HttpClient();
         this.state = {
-            animals: []
+            animals: [],
         };
     }
 

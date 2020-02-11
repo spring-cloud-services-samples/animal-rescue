@@ -8,6 +8,11 @@
       "path": "/backend/actuator/**"
     },
     {
+      "path": "/backend/whoami",
+      "token-relay": true,
+      "sso-enabled": true
+    },
+    {
       "path": "/backend/animals/*/adoption-requests",
       "method": "POST",
       "token-relay": true,
