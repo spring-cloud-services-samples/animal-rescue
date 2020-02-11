@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -29,7 +29,7 @@ class AnimalControllerTest {
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody()
-			.jsonPath("$.length()").isEqualTo(3)
+			.jsonPath("$.length()").isEqualTo(10)
 			.jsonPath("$[0].id").isEqualTo(1)
 			.jsonPath("$[0].name").isEqualTo("Chocobo")
 			.jsonPath("$[0].avatarUrl").isNotEmpty()
@@ -38,16 +38,11 @@ class AnimalControllerTest {
 			.jsonPath("$[0].adoptionRequests.length()").isEqualTo(3)
 			.jsonPath("$[0].adoptionRequests[0].adopterName").isNotEmpty()
 			.jsonPath("$[0].adoptionRequests[0].email").isNotEmpty()
-			.jsonPath("$[0].adoptionRequests[0].notes").isNotEmpty()
-			.jsonPath("$[1].id").isEqualTo(2)
-			.jsonPath("$[1].name").isEqualTo("Paprika")
-			.jsonPath("$[1].adoptionRequests.length()").isEqualTo(6)
-			.jsonPath("$[2].id").isEqualTo(3)
-			.jsonPath("$[2].name").isEqualTo("Sam")
-			.jsonPath("$[2].adoptionRequests.length()").isEqualTo(2);
+			.jsonPath("$[0].adoptionRequests[0].notes").isNotEmpty();
 	}
 
 	@Test
+	@WithMockUser(username = "test-user", authorities = { "adoption.request" })
 	void submitAdoptionRequest() {
 		String testEmail = "a@email.com";
 		String testNotes = "Yaaas!";
@@ -69,11 +64,10 @@ class AnimalControllerTest {
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody()
-			.jsonPath("$.length()").isEqualTo(3)
 			.jsonPath("$[0].id").isEqualTo(1)
 			.jsonPath("$[0].name").isEqualTo("Chocobo")
 			.jsonPath("$[0].adoptionRequests.length()").isEqualTo(4)
-			.jsonPath("$[0].adoptionRequests[*].adopterName").value(hasItem("dummy"))
+			.jsonPath("$[0].adoptionRequests[*].adopterName").value(hasItem("test-user"))
 			.jsonPath("$[0].adoptionRequests[*].email").value(hasItem(testEmail))
 			.jsonPath("$[0].adoptionRequests[*].notes").value(hasItem(testNotes));
 	}

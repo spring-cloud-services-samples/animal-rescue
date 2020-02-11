@@ -3,6 +3,18 @@ spring:
     console:
       enabled: true
       path: /h2
+  security:
+    oauth2:
+      client:
+        registration:
+          sso:
+            # The grant type used in the /authorize call by Spring Security 5
+            # This variable is not needed when using both:
+            #   - App SSO 1.10 or newer
+            #   - java-cfenv 1.1.1 or newer
+            authorization-grant-type: authorization_code
+            # The scopes requested when obtaining a token by Spring Security 5
+            scope: openid, profile, roles, user_attributes, adoption.request
 
 management:
   endpoint:

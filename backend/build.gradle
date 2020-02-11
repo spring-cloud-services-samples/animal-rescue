@@ -13,11 +13,22 @@ repositories {
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+	implementation "org.springframework.security:spring-security-web"
+
+	//
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation "org.springframework.security:spring-security-oauth2-resource-server"
+	implementation "org.springframework.security:spring-security-oauth2-jose"
+ 	implementation("io.pivotal.cfenv:java-cfenv-boot:2.1.1.RELEASE")
+//	implementation "io.pivotal.cfenv:java-cfenv-boot-pivotal-sso:1.1.1.RELEASE"
+
     runtime 'com.h2database:h2'
 
+	testImplementation('org.springframework.security:spring-security-test')
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}

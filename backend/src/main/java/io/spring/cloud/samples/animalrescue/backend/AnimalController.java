@@ -1,6 +1,6 @@
 package io.spring.cloud.samples.animalrescue.backend;
 
-import java.net.URI;
+import java.security.Principal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,14 +32,18 @@ public class AnimalController {
 
 	@PostMapping("/animals/{id}/adoption-requests")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void submitAdoptionRequest(@PathVariable("id") Long animalId, @RequestBody AdoptionRequest adoptionRequest) {
-		LOGGER.info("Received submit adoption request");
+	public void submitAdoptionRequest(
+		@PathVariable("id") Long animalId,
+		@RequestBody AdoptionRequest adoptionRequest,
+		Principal principal
+	) {
+		LOGGER.info("Received submit adoption request from {}", principal);
 		Animal animal = animalRepository
 			.findById(animalId)
 			.orElseThrow(() ->
 				new IllegalArgumentException(String.format("Animal with id %s doesn't exist!", animalId)));
 
-		adoptionRequest.setAdopterName("dummy");
+		adoptionRequest.setAdopterName(principal.getName());
 		animal.getAdoptionRequests().add(adoptionRequest);
 		animalRepository.save(animal);
 	}

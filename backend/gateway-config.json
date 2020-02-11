@@ -5,8 +5,12 @@
       "method": "GET"
     },
     {
-      "path": "/backend/adoption-requests",
+      "path": "/backend/actuator/**"
+    },
+    {
+      "path": "/backend/animals/*/adoption-requests",
       "method": "POST",
+      "token-relay": true,
       "sso-enabled": true
     }
   ]
