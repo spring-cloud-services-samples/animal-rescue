@@ -12,9 +12,17 @@ build() {
   cd ..
 }
 
+gatewayDetailContains() {
+  [[ $(cf service $GATEWAY_NAME) =~ $1 ]]
+}
+
+serviceSummaryContains() {
+  [[ $(cf services) =~ $1 ]]
+}
+
 deploy_all() {
   gatewayServiceInstanceIsReady() {
-    [[ $(cf service $GATEWAY_NAME) =~ "create succeeded" ]]
+    gatewayDetailContains "create service instance completed"
   }
 
   if ! gatewayServiceInstanceIsReady; then
@@ -30,26 +38,43 @@ deploy_all() {
     sleep 1
   done
 
-  cf bind-service $FRONTEND_APP_NAME $GATEWAY_NAME -c ./frontend/gateway-config.json
   cf bind-service $BACKEND_APP_NAME $GATEWAY_NAME -c ./backend/gateway-config.json
+  cf bind-service $FRONTEND_APP_NAME $GATEWAY_NAME -c ./frontend/gateway-config.json
+
+  while gatewayDetailContains "create in progress"; do
+    echo "Waiting for bindings to finish..."
+    sleep 1
+  done
+  cf restage $BACKEND_APP_NAME
 }
 
 destroy_all() {
-  gatewayBindingsExist() {
-    [[ $(cf service $GATEWAY_NAME) =~ $FRONTEND_APP_NAME ]] || [[ $(cf service $GATEWAY_NAME) =~ BACKEND_APP_NAME ]]
+
+  unbind() {
+    appName=$1
+    if gatewayDetailContains "$appName"; then
+      cf unbind-service "$appName" "$GATEWAY_NAME"
+    else
+      echo "No need to unbind rescue services"
+    fi
+
+    while gatewayDetailContains "$appName"; do
+      echo "Waiting for $appName to be unbound..."
+      sleep 1
+    done
   }
 
-  cf unbind-service $FRONTEND_APP_NAME $GATEWAY_NAME
-  cf unbind-service $BACKEND_APP_NAME $GATEWAY_NAME
+  unbind $FRONTEND_APP_NAME
+  unbind $BACKEND_APP_NAME
 
-  while gatewayBindingsExist; do
-    echo "Waiting for bindings to be gone..."
+  cf delete-service -f $GATEWAY_NAME
+  cf delete -r -f $FRONTEND_APP_NAME
+  cf delete -r -f $BACKEND_APP_NAME
+
+  while ! serviceSummaryContains "Service instance $GATEWAY_NAME not found"; do
+    echo "Waiting for $GATEWAY_NAME to be deleted..."
     sleep 1
   done
-
-  cf ds -f $GATEWAY_NAME
-  cf d -r -f $FRONTEND_APP_NAME
-  cf d -r -f $BACKEND_APP_NAME
 }
 
 case $1 in

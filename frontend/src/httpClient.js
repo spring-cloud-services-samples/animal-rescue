@@ -15,7 +15,7 @@ export default class HttpClient {
             .post(`${this.#backendBaseUrl}/animals/${animalId}/adoption-requests`, {
                 email,
                 notes,
-            });
+            }, {withCredentials: true});
         return postRequest
             .catch(e => {
                 console.info('in catch', e);
