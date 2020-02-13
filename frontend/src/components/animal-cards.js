@@ -24,7 +24,7 @@ export default class AnimalCards extends React.Component {
             <AnimalCard animal={animal} key={animal.id} httpClient={this.httpClient}/>
         ));
         return (
-            <Card.Group>
+            <Card.Group centered>
                 {cards}
             </Card.Group>
         )

@@ -39,6 +39,7 @@ export default class App extends React.Component {
                     </ButtonGroup>
                 </header>
                 <div className={"App-body"}>
+
                     <AnimalCards/>
                 </div>
             </div>
