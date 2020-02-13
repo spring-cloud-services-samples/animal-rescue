@@ -13,7 +13,7 @@
       "sso-enabled": true
     },
     {
-      "path": "/api/animals/*/adoption-requests/**",
+      "path": "/api/animals/*/adoption-requests/**"
     }
   ]
 }
