@@ -13,10 +13,7 @@
       "sso-enabled": true
     },
     {
-      "path": "/api/animals/*/adoption-requests",
-      "method": "POST",
-      "token-relay": true,
-      "sso-enabled": true
+      "path": "/api/animals/*/adoption-requests/**",
     }
   ]
 }

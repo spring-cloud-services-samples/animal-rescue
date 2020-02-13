@@ -42,6 +42,7 @@ cd backend
 Start frontend app:
 ```bash
 cd frontend
+npm install
 npm start
 ```
 

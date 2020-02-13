@@ -2,6 +2,11 @@
   "routes": [
     {
       "path": "/rescue/**"
+    },
+    {
+      "path": "/rescue/admin/**",
+      "sso-enabled": true,
+      "token-relay": true
     }
   ]
 }

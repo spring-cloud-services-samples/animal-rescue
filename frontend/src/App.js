@@ -31,6 +31,10 @@ export default class App extends React.Component {
                         <Button.Content visible>Who am I?</Button.Content>
                         <Button.Content hidden>Click to see!</Button.Content>
                     </Button>
+                    <Button animated='fade' href={'/rescue/admin'}>
+                        <Button.Content visible>Admin view</Button.Content>
+                        <Button.Content hidden>Same app but requires login</Button.Content>
+                    </Button>
                 </header>
                 <div className={"App-body"}>
                     <AnimalCards/>

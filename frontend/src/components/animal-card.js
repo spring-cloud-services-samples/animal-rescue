@@ -28,7 +28,8 @@ export default class AnimalCard extends React.Component {
                         <Icon name='user'/>
                         {this.props.animal.adoptionRequests.length} Pending Adopters
                     </div>
-                    <div className='ui buttons'>
+                    <div className='ui two buttons'>
+                        {/*<ViewAdoptersModal adopters={this.props.animal.adoptionRequests}/>*/}
                         <AdoptionRequestModal animal={this.props.animal} httpClient={this.props.httpClient}/>
                     </div>
                 </Card.Content>

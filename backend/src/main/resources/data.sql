@@ -11,14 +11,14 @@ insert into animal (id, name, rescue_date, avatar_url, description) values
 (10, 'Georgie', '2020-01-29', 'https://cdn.pixabay.com/photo/2017/03/14/19/06/bulldog-2144110_960_720.jpg', 'Georgie will slobber all over you with his kisses. Does not require a lot of physical activity.');
 
 insert into adoption_request (id, animal, adopter_name, email, notes) values
-(1, 1, 'Bella', 'a@b.com', 'Blah blah'),
-(2, 1, 'Gareth', 'a@b.com', 'Blah blah'),
-(3, 1, 'Chris', 'a@b.com', 'Blah blah'),
-(4, 2, 'Alberto', 'a@b.com', 'Blah blah'),
-(5, 2, 'Roy', 'a@b.com', 'Blah blah'),
-(6, 2, 'Dylan', 'a@b.com', 'Blah blah'),
-(7, 2, 'Craig', 'a@b.com', 'Blah blah'),
-(8, 2, 'Alexey', 'a@b.com', 'Blah blah'),
-(9, 2, 'Erick', 'a@b.com', 'Blah blah'),
-(10, 3, 'Ben', 'a@b.com', 'Blah blah'),
-(11, 3, 'Mike', 'a@b.com', 'Blah blah');
+(1, 1, 'Bella', 'bella@email.com', 'Blah blah'),
+(2, 1, 'Gareth', 'gareth@email.com', 'Blah blah'),
+(3, 1, 'Chris', 'chris@email.com', 'Blah blah'),
+(4, 2, 'Alberto', 'alberto@email.com', 'Blah blah'),
+(5, 2, 'Roy', 'roy@email.com', 'Blah blah'),
+(6, 2, 'Dylan', 'dylan@email.com', 'Blah blah'),
+(7, 2, 'Craig', 'craig@email.com', 'Blah blah'),
+(8, 2, 'Alexey', 'alexey@email.com', 'Blah blah'),
+(9, 2, 'Erick', 'erick@email.com', 'Blah blah'),
+(10, 3, 'Ben', 'ben@email.com', 'Blah blah'),
+(11, 3, 'Mike', 'mike@email.com', 'Blah blah');
