@@ -1,19 +1,19 @@
 {
   "routes": [
     {
-      "path": "/backend/animals",
+      "path": "/api/animals",
       "method": "GET"
     },
     {
-      "path": "/backend/actuator/**"
+      "path": "/api/actuator/**"
     },
     {
-      "path": "/backend/whoami",
+      "path": "/api/whoami",
       "token-relay": true,
       "sso-enabled": true
     },
     {
-      "path": "/backend/animals/*/adoption-requests",
+      "path": "/api/animals/*/adoption-requests",
       "method": "POST",
       "token-relay": true,
       "sso-enabled": true

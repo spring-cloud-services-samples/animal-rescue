@@ -16,11 +16,19 @@ public class SecurityConfiguration {
 	private static final Logger LOG = LoggerFactory.getLogger(SecurityConfiguration.class);
 
 	@Bean
-	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity httpSecurity) {
-		String authDomain = new CfEnv().findCredentialsByLabel("p.gateway").getString("auth_domain");
-		if (authDomain != null) {
-			httpSecurity.oauth2ResourceServer()
-				.jwt().jwkSetUri(authDomain + "/token_keys");
+	CfEnv cfEnv() {
+		return new CfEnv();
+	}
+
+	@Bean
+	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity httpSecurity, CfEnv cfEnv) {
+		if (cfEnv.isInCf()) {
+			String authDomain = cfEnv.findCredentialsByLabel("p.gateway").getString("auth_domain");
+			if (authDomain != null) {
+				LOG.info("not in cf");
+				httpSecurity.oauth2ResourceServer()
+					.jwt().jwkSetUri(authDomain + "/token_keys");
+			}
 		}
 
 		// @formatter:off

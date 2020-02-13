@@ -39,17 +39,17 @@ public class AnimalController {
 	@PostMapping("/animals/{id}/adoption-requests")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void submitAdoptionRequest(
+		Principal principal,
 		@PathVariable("id") Long animalId,
-		@RequestBody AdoptionRequest adoptionRequest,
-		Principal principal
+		@RequestBody AdoptionRequest adoptionRequest
 	) {
-		LOGGER.info("Received submit adoption request from {}", principal);
+		LOGGER.info("Received submit adoption request");
 		Animal animal = animalRepository
 			.findById(animalId)
 			.orElseThrow(() ->
 				new IllegalArgumentException(String.format("Animal with id %s doesn't exist!", animalId)));
 
-		adoptionRequest.setAdopterName(principal.getName());
+		adoptionRequest.setAdopterName("dummy");
 		animal.getAdoptionRequests().add(adoptionRequest);
 		animalRepository.save(animal);
 	}

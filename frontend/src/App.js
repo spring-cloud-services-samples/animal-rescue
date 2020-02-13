@@ -11,7 +11,9 @@ export default class App extends React.Component {
 
     signIn = async () => {
       await new HttpClient().signIn()
-          .then(res => res.data)
+          .then(res => {
+              console.info(res)
+          })
     };
 
     render() {
@@ -24,6 +26,10 @@ export default class App extends React.Component {
                     <Button animated='fade' href={'/oauth2/authorization/sso'}>
                         <Button.Content visible>Sign in to adopt</Button.Content>
                         <Button.Content hidden>It only takes a loving heart!</Button.Content>
+                    </Button>
+                    <Button animated='fade' onClick={this.signIn}>
+                        <Button.Content visible>Who am I?</Button.Content>
+                        <Button.Content hidden>Click to see!</Button.Content>
                     </Button>
                 </header>
                 <div className={"App-body"}>
