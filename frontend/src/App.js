@@ -17,24 +17,14 @@ export default class App extends React.Component {
     render() {
         return (
             <div className="App">
-                <header className="App-header">
-                    <p>
-                        Animal Rescue Center
-                    </p>
-                    <ButtonGroup>
-                        <Button animated='fade' color='red' href={'/oauth2/authorization/sso'}>
-                            <Button.Content visible>Sign in to adopt</Button.Content>
-                            <Button.Content hidden>Redirect back to / by design</Button.Content>
+                <header className="App-header">                   
+                    <img src="logo.svg" title="Logo" width="250" alt="Logo"/>
+                    <div className="header-buttons">
+                        <Button animated='fade' href={'/rescue/admin'}>
+                            <Button.Content visible>Sign in to Adopt</Button.Content>
+                            <Button.Content hidden>It only takes a loving heart!</Button.Content>
                         </Button>
-                        <Button animated='fade' color='black' onClick={this.signIn}>
-                            <Button.Content visible>Who am I?</Button.Content>
-                            <Button.Content hidden>XHR doesn't handle redirect correctly</Button.Content>
-                        </Button>
-                        <Button animated='fade' color='green' href={'/rescue/admin'}>
-                            <Button.Content visible>Admin view</Button.Content>
-                            <Button.Content hidden>Same app but requires login</Button.Content>
-                        </Button>
-                    </ButtonGroup>
+                    </div>
                 </header>
                 <div className={"App-body"}>
                     <AnimalCards/>

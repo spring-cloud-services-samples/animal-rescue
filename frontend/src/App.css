@@ -4,25 +4,76 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 5vh;
+  padding: 15px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
-  padding: 1vh;
+  margin-bottom: 40px;
+}
+
+.App-header img {
+  order: 0;
 }
 
 .App-body{
   display: flex;
   align-items: center;
   justify-content: center;
-  max-width: 120vh;
-  margin: auto;
-  padding: 1vh;
+  width: 968px;
+  margin: 0 auto;
+}
+
+.header-buttons {
+  order: 1;
+  flex-grow: 2;
+  text-align: right;
 }
 
 .App-link {
   color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.card .content {
+  text-align: left;
+  position: relative;
+}
+
+.card .content .header {
+  margin-top: 210px!important;
+  font-weight: 700;
+  font-family: 'Quicksand', sans-serif!important;
+}
+
+.ui.card .content {
+  padding: 0!important;
+}
+
+.ui.card .content > div {
+  padding: 0 20px!important;
+}
+
+.card .content > div.pending {
+  padding: 10px 20px!important;
+} 
+
+.card .content .button {
+  margin: 10px 0 20px;
+}
+
+.ui.card .content img {
+  position: absolute;
+  clip: rect(0px,290px,200px,0px);
+  margin-left: 0!important;
 }
