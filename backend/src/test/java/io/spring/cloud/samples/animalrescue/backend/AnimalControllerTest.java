@@ -69,7 +69,7 @@ class AnimalControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "test-user", authorities = { "adoption.request" })
+	@WithMockUser(username = "test-user-1", authorities = { "adoption.request" })
 	void submitAdoptionRequest() {
 		String testEmail = "a@email.com";
 		String testNotes = "Yaaas!";
@@ -85,15 +85,13 @@ class AnimalControllerTest {
 			.jsonPath("$[0].id").isEqualTo(1)
 			.jsonPath("$[0].name").isEqualTo("Chocobo")
 			.jsonPath("$[0].adoptionRequests.length()").isEqualTo(currentAdoptionRequestCountForAnimalId1 + 1)
-			.jsonPath("$[0].adoptionRequests[*].adopterName").value(hasItem("dummy"))
+			.jsonPath("$[0].adoptionRequests[*].adopterName").value(hasItem("test-user-1"))
 			.jsonPath("$[0].adoptionRequests[*].email").value(hasItem(testEmail))
 			.jsonPath("$[0].adoptionRequests[*].notes").value(hasItem(testNotes));
 	}
 
 	private void adopt(String testEmail, String testNotes) {
-		Map<String, String> requestBody = new HashMap<>();
-		requestBody.put("email", testEmail);
-		requestBody.put("notes", testNotes);
+		Map<String, String> requestBody = getRequestBody(testEmail, testNotes);
 
 		webTestClient
 			.post()
@@ -103,41 +101,88 @@ class AnimalControllerTest {
 			.expectStatus().isCreated();
 	}
 
-	@Test
-	@WithMockUser(username = "test-user", authorities = { "adoption.request" })
-	void editAdoptionRequest() {
-		String testEmail = "a@email.com";
-		String testNotes = "Yaaas!";
-
+	private Map<String, String> getRequestBody(String testEmail, String testNotes) {
 		Map<String, String> requestBody = new HashMap<>();
 		requestBody.put("email", testEmail);
 		requestBody.put("notes", testNotes);
+		return requestBody;
+	}
+
+	@Test
+	@WithMockUser(username = "test-user-2", authorities = { "adoption.request" })
+	void editAdoptionRequest() {
+		String testEmail = "b@email.com";
+		String testNotes = "Plzzzz!";
+
+		adopt("dummy", "dummy");
+		long newId = getNewlyCreatedRequestId(1L, "test-user-2");
+
+		webTestClient
+			.put()
+			.uri("/animals/1/adoption-requests/" + newId)
+			.body(BodyInserters.fromValue(getRequestBody(testEmail, testNotes)))
+			.exchange()
+			.expectStatus().isOk();
+
+		Optional<AdoptionRequest> modified = adoptionRequestRepository.findById(newId);
+		assertThat(modified).isPresent();
+		assertThat(modified.get().getEmail()).isEqualTo(testEmail);
+		assertThat(modified.get().getNotes()).isEqualTo(testNotes);
+		assertThat(modified.get().getAdopterName()).isEqualTo("test-user-2");
+		assertThat(getAdoptionRequestCountForAnimalId1()).isEqualTo(currentAdoptionRequestCountForAnimalId1 + 1);
+	}
+
+	private long getNewlyCreatedRequestId(long animalId, String adopterName) {
+		return animalRepository
+			.findById(animalId)
+			.get()
+			.getAdoptionRequests()
+			.stream()
+			.filter(adoptionRequest -> adoptionRequest.getAdopterName().equals(adopterName))
+			.findAny()
+			.get()
+			.getId();
+	}
+
+	@Test
+	@WithMockUser(username = "test-user-2", authorities = { "adoption.request" })
+	void editAdoptionRequestFailsIfNotTheOriginalRequester() {
+		String testEmail = "a@email.com";
+		String testNotes = "Yaaas!";
+
+		Map<String, String> requestBody = getRequestBody(testEmail, testNotes);
 
 		webTestClient
 			.put()
 			.uri("/animals/1/adoption-requests/2")
 			.body(BodyInserters.fromValue(requestBody))
 			.exchange()
+			.expectStatus().isForbidden();
+	}
+
+	@Test
+	@WithMockUser(username = "test-user-3", authorities = { "adoption.request" })
+	void deleteAdoptionRequest() {
+		adopt("dummy", "dummy");
+		long newId = getNewlyCreatedRequestId(1L, "test-user-3");
+
+		webTestClient
+			.delete()
+			.uri("/animals/1/adoption-requests/" + newId)
+			.exchange()
 			.expectStatus().isOk();
 
-		Optional<AdoptionRequest> modified = adoptionRequestRepository.findById(2L);
-		assertThat(modified).isPresent();
-		assertThat(modified.get().getEmail()).isEqualTo(testEmail);
-		assertThat(modified.get().getNotes()).isEqualTo(testNotes);
-		assertThat(modified.get().getAdopterName()).isEqualTo("Gareth");
+		assertThat(adoptionRequestRepository.findById(newId)).isNotPresent();
 		assertThat(getAdoptionRequestCountForAnimalId1()).isEqualTo(currentAdoptionRequestCountForAnimalId1);
 	}
 
 	@Test
-	@WithMockUser(username = "test-user", authorities = { "adoption.request" })
-	void deleteAdoptionRequest() {
+	@WithMockUser(username = "test-user-3", authorities = { "adoption.request" })
+	void deleteAdoptionRequestFailsIfNotTheOriginalRequester() {
 		webTestClient
 			.delete()
-			.uri("/animals/1/adoption-requests/1")
+			.uri("/animals/1/adoption-requests/3")
 			.exchange()
-			.expectStatus().isOk();
-
-		assertThat(adoptionRequestRepository.findById(1L)).isNotPresent();
-		assertThat(getAdoptionRequestCountForAnimalId1()).isEqualTo(currentAdoptionRequestCountForAnimalId1 - 1);
+			.expectStatus().isForbidden();
 	}
 }

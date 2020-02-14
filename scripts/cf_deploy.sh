@@ -1,8 +1,8 @@
 #!/bin/bash
 
 GATEWAY_NAME=gateway-demo
-FRONTEND_APP_NAME=pet-rescue-frontend
-BACKEND_APP_NAME=pet-rescue-backend
+FRONTEND_APP_NAME=animal-rescue-frontend
+BACKEND_APP_NAME=animal-rescue-backend
 
 build() {
   cd frontend || exit 1
@@ -26,21 +26,31 @@ push() {
 
 bind() {
   cf bind-service $BACKEND_APP_NAME $GATEWAY_NAME -c ./backend/gateway-config.json
-  cf bind-service $FRONTEND_APP_NAME $GATEWAY_NAME -c ./frontend/gateway-config.json
 
   while gatewayDetailContains "create in progress"; do
-    echo "Waiting for bindings to finish..."
+    echo "Waiting for binding $BACKEND_APP_NAME to finish..."
     sleep 1
   done
+
+  cf bind-service $FRONTEND_APP_NAME $GATEWAY_NAME -c ./frontend/gateway-config.json
+  while gatewayDetailContains "create in progress"; do
+    echo "Waiting for binding $FRONTEND_APP_NAME to finish..."
+    sleep 1
+  done
+
   cf restage $BACKEND_APP_NAME
 }
 
 unbind() {
   cf unbind-service "$FRONTEND_APP_NAME" "$GATEWAY_NAME"
-  cf unbind-service "$BACKEND_APP_NAME" "$GATEWAY_NAME"
+  while gatewayDetailContains "$FRONTEND_APP_NAME"; do
+    echo "Waiting for unbinding $FRONTEND_APP_NAME to finish..."
+    sleep 1
+  done
 
-  while gatewayDetailContains "$FRONTEND_APP_NAME" || gatewayDetailContains "$BACKEND_APP_NAME"; do
-    echo "Waiting for apps to be unbound..."
+  cf unbind-service "$BACKEND_APP_NAME" "$GATEWAY_NAME"
+  while gatewayDetailContains "$BACKEND_APP_NAME"; do
+    echo "Waiting for unbinding $BACKEND_APP_NAME to finish..."
     sleep 1
   done
 }

@@ -36,7 +36,7 @@ public class SecurityConfiguration {
 			.httpBasic().disable()
 			.csrf().disable()
 			.authorizeExchange()
-			.pathMatchers("/**").permitAll()
+			.pathMatchers("/animals", "/actuators/**").permitAll()
 			.and()
 			.authorizeExchange()
 			.anyExchange().authenticated()

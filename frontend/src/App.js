@@ -10,10 +10,8 @@ export default class App extends React.Component {
     };
 
     signIn = async () => {
-      await new HttpClient().signIn()
-          .then(res => {
-              console.info(res)
-          })
+        const res = await new HttpClient().signIn();
+        console.info(res)
     };
 
     render() {
@@ -39,7 +37,6 @@ export default class App extends React.Component {
                     </ButtonGroup>
                 </header>
                 <div className={"App-body"}>
-
                     <AnimalCards/>
                 </div>
             </div>

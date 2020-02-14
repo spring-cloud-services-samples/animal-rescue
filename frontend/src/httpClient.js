@@ -11,18 +11,21 @@ export default class HttpClient {
     }
 
     async submitAdoptionRequest({animalId, email, notes}) {
-        // const testURL = `${this.#backendBaseUrl}/animals/${animalId}/adoption-requests`;
-        // const myInit = {
-        //     method: 'POST',
-        //     body: JSON.stringify({email, notes}),
-        //     mode: 'no-cors',
-        //     withCredentials: true,
-        // };
-        // return fetch(new Request(testURL, myInit));
-        return axios
-            .post(`${this.#backendBaseUrl}/animals/${animalId}/adoption-requests`, {
-                email,
-                notes,
+        const testURL = `${this.#backendBaseUrl}/animals/${animalId}/adoption-requests`;
+        const myInit = {
+            method: 'POST',
+            body: JSON.stringify({email, notes}),
+            mode: 'no-cors', // TODO: this should go away once CORS issue is solved on gateway, then no need to use fetch,
+            credentials: 'include',
+        };
+        return fetch(new Request(testURL, myInit)) // #TODO: this is a hack, we make a request to set session cookie for this domain.
+            .then(response => {
+                console.log(response);
+                return axios
+                    .post(`${this.#backendBaseUrl}/animals/${animalId}/adoption-requests`, {
+                        email,
+                        notes,
+                    })
             });
     }
 
@@ -30,12 +33,15 @@ export default class HttpClient {
         const testURL = `${this.#backendBaseUrl}/whoami`;
         const myInit = {
             method: 'GET',
-            mode: 'no-cors',
-            credentials: 'include',
-            // withCredentials: true,
+            mode: 'no-cors', // TODO: this should go away once CORS issue is solved on gateway, then we can switch back to axios
+            credentials: 'include'
         };
-        return fetch(new Request(testURL, myInit));
-        // return axios
-        //     .get(`${this.#backendBaseUrl}/whoami`, {withCredentials: true});
+        return fetch(new Request(testURL, myInit))
+            .then(response => {
+                console.log(response);
+                return axios
+                    .get(`${this.#backendBaseUrl}/whoami`, {withCredentials: true});
+            });
+
     }
 }
