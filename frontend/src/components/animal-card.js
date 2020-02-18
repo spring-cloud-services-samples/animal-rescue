@@ -7,6 +7,11 @@ import AdoptionRequestModal from "./adoption-request-modal";
 
 export default class AnimalCard extends React.Component {
 
+    findExistingRequest() {
+        return this.props.animal.adoptionRequests
+            .find(request => request.adopterName === this.props.username);
+    }
+
     render() {
         return (<Card>
                 <Card.Content>
@@ -29,8 +34,10 @@ export default class AnimalCard extends React.Component {
                         {this.props.animal.adoptionRequests.length} Pending Adopters
                     </div>
                     <div className='ui two buttons'>
-                        {/*<ViewAdoptersModal adopters={this.props.animal.adoptionRequests}/>*/}
-                        <AdoptionRequestModal animal={this.props.animal} httpClient={this.props.httpClient}/>
+                        <AdoptionRequestModal animal={this.props.animal}
+                                              existingRequest={this.findExistingRequest()}
+                                              isSignedIn={this.props.username !== ''}
+                                              httpClient={this.props.httpClient}/>
                     </div>
                 </Card.Content>
             </Card>
@@ -46,10 +53,9 @@ AnimalCard.propTypes = {
         description: PropTypes.string.isRequired,
         adoptionRequests: PropTypes.arrayOf(PropTypes.shape({
             adopterName: PropTypes.string.isRequired,
-            email: PropTypes.string,
-            notes: PropTypes.string,
         })).isRequired
     }).isRequired,
+    username: PropTypes.string.isRequired,
     httpClient: PropTypes.instanceOf(HttpClient).isRequired,
 };
 

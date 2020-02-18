@@ -4,6 +4,10 @@ export default class HttpClient {
 
     #backendBaseUrl = process.env.REACT_APP_BACKEND_BASE_URL || '';
 
+    constructor() {
+        axios.defaults.withCredentials = true;
+    }
+
     async getAnimals() {
         return axios
             .get(`${this.#backendBaseUrl}/animals`)
@@ -11,37 +15,49 @@ export default class HttpClient {
     }
 
     async submitAdoptionRequest({animalId, email, notes}) {
-        const testURL = `${this.#backendBaseUrl}/animals/${animalId}/adoption-requests`;
-        const myInit = {
-            method: 'POST',
-            body: JSON.stringify({email, notes}),
-            mode: 'no-cors', // TODO: this should go away once CORS issue is solved on gateway, then no need to use fetch,
-            credentials: 'include',
-        };
-        return fetch(new Request(testURL, myInit)) // #TODO: this is a hack, we make a request to set session cookie for this domain.
-            .then(response => {
-                console.log(response);
-                return axios
-                    .post(`${this.#backendBaseUrl}/animals/${animalId}/adoption-requests`, {
-                        email,
-                        notes,
-                    })
-            });
+        const request = () =>
+            axios.post(`${this.#backendBaseUrl}/animals/${animalId}/adoption-requests`,
+                {email, notes});
+        return this.hackYesGimmeDaCookies()
+            .then(request);
     }
 
-    async signIn() {
+    async editAdoptionRequest({animalId, adoptionRequestId, email, notes}) {
+        const request = () =>
+            axios.put(`${this.#backendBaseUrl}/animals/${animalId}/adoption-requests/${adoptionRequestId}`,
+                {email, notes});
+        return this.hackYesGimmeDaCookies()
+            .then(request);
+    }
+
+    async deleteAdoptionRequest({animalId, adoptionRequestId}) {
+        const request = () =>
+            axios.delete(`${this.#backendBaseUrl}/animals/${animalId}/adoption-requests/${adoptionRequestId}`);
+        return this.hackYesGimmeDaCookies()
+            .then(request);
+    }
+
+    async getUsername() {
+        const testURL = `${this.#backendBaseUrl}/whoami`;
+        const request = () => axios.get(testURL).then(res => res.data);
+        return this.hackYesGimmeDaCookies()
+            .then(response => {
+                if (response.url !== testURL) {
+                    return request();
+                } else {
+                    return response.json()
+                }
+            });
+
+    }
+
+    async hackYesGimmeDaCookies() {
         const testURL = `${this.#backendBaseUrl}/whoami`;
         const myInit = {
             method: 'GET',
             mode: 'no-cors', // TODO: this should go away once CORS issue is solved on gateway, then we can switch back to axios
-            credentials: 'include'
+            credentials: 'include',
         };
         return fetch(new Request(testURL, myInit))
-            .then(response => {
-                console.log(response);
-                return axios
-                    .get(`${this.#backendBaseUrl}/whoami`, {withCredentials: true});
-            });
-
     }
 }

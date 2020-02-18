@@ -14,35 +14,74 @@ export default class AdoptionRequestModal extends React.Component {
         };
     }
 
-    handleOpen = () => this.setState({modalOpen: true});
+    handleOpen = () => this.setState({
+        modalOpen: true,
+        ...this.props.existingRequest,
+    });
 
     handleClose = () => this.setState({modalOpen: false});
 
     handleChange = (e, {name, value}) => this.setState({[name]: value});
 
-    handleSubmit = async () => {
-        await this.props.httpClient.submitAdoptionRequest({
+    handleDelete = async () => {
+        await this.props.httpClient.deleteAdoptionRequest({
             animalId: this.props.animal.id,
-            email: this.state.email,
-            notes: this.state.notes,
+            adoptionRequestId: this.props.existingRequest.id,
         });
 
+        this.closeModal();
+    };
+
+    handleSubmit = async () => {
+        if (this.props.existingRequest === undefined) {
+            await this.props.httpClient.submitAdoptionRequest({
+                animalId: this.props.animal.id,
+                email: this.state.email,
+                notes: this.state.notes,
+            });
+        } else {
+            await this.props.httpClient.editAdoptionRequest({
+                animalId: this.props.animal.id,
+                adoptionRequestId: this.props.existingRequest.id,
+                email: this.state.email,
+                notes: this.state.notes,
+            });
+        }
+
+        this.closeModal();
+    };
+
+    closeModal() {
         this.setState({
             email: '',
             notes: '',
             modalOpen: false,
         });
 
-        window.location.reload(false);
-    };
+        window.location.reload();
+    }
 
     render() {
-        const triggerButton = (
-            <Button basic color='green' onClick={this.handleOpen}>
+        const haveRequested = this.props.existingRequest !== undefined;
+        const triggerButton = haveRequested ? (
+            <Button basic color='blue'
+                    disabled={!this.props.isSignedIn}
+                    onClick={this.handleOpen}>
+                Edit Adoption Request
+            </Button>
+        ) : (
+            <Button basic color='green'
+                    disabled={!this.props.isSignedIn}
+                    onClick={this.handleOpen}>
                 Adopt
             </Button>
         );
 
+        const deleteButton = haveRequested ? (
+            <Button color='red' onClick={this.handleDelete}>
+                <Icon name='trash alternate outline'/> Delete Request
+            </Button>
+        ) : null;
         return (
             <Modal trigger={triggerButton}
                    open={this.state.modalOpen}
@@ -70,6 +109,7 @@ export default class AdoptionRequestModal extends React.Component {
                     <Button basic color='red' onClick={this.handleClose}>
                         <Icon name='remove'/> Cancel
                     </Button>
+                    {deleteButton}
                     <Button color='green' onClick={this.handleSubmit}>
                         <Icon name='checkmark'/> Apply
                     </Button>
@@ -81,9 +121,15 @@ export default class AdoptionRequestModal extends React.Component {
 
 AdoptionRequestModal.propTypes = {
     animal: PropTypes.shape({
-        id: PropTypes.number,
-        name: PropTypes.string,
+        id: PropTypes.number.isRequired,
+        name: PropTypes.string.isRequired,
+    }).isRequired,
+    existingRequest: PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        email: PropTypes.string,
+        notes: PropTypes.string,
     }),
+    isSignedIn: PropTypes.bool.isRequired,
     httpClient: PropTypes.instanceOf(HttpClient).isRequired,
 };
 
