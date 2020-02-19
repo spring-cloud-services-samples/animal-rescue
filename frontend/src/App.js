@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import logo from './logo.svg';
 import AnimalCards from "./components/animal-cards";
 import {Button} from "semantic-ui-react";
 import HttpClient from "./httpClient";
@@ -50,7 +51,7 @@ export default class App extends React.Component {
         return (
             <div className="App">
                 <header className="App-header">
-                    <img src="logo.svg" title="Logo" width="250" alt="Logo"/>
+                    <img src={logo} title="Logo" width="250" alt="Logo"/>
                     <div className="header-buttons">
                         {actionButton}
                     </div>
