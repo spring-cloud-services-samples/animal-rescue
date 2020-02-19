@@ -2,10 +2,10 @@
 applications:
 - name: animal-rescue-frontend
   path: ./frontend/build
-  domains:
-    - apps.internal
+  routes:
+    - route: animal-rescue-frontend.apps.internal
 - name: animal-rescue-backend
   path: ./backend/build/libs/backend-0.0.1-SNAPSHOT.jar
-  domains:
-    - apps.internal
+  routes:
+    - route: animal-rescue-backend.apps.internal
 
