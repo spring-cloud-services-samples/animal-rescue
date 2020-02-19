@@ -23,11 +23,11 @@ export default class App extends React.Component {
         return window.location.pathname === '/rescue/admin';
     }
 
-    // async componentDidMount() {
-    //     if (this.signedIn()) {
-    //         await this.getUsername();
-    //     }
-    // }
+    componentDidMount() {
+        if (this.signedIn()) {
+            this.getUsername();
+        }
+    }
 
     render() {
         const whoAmI = this.state.username === '' ? (

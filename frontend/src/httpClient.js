@@ -42,10 +42,10 @@ export default class HttpClient {
         const request = () => axios.get(testURL).then(res => res.data);
         return this.hackYesGimmeDaCookies()
             .then(response => {
-                if (response.url !== testURL) {
-                    return request();
+                if (response.url.endsWith(testURL)) {
+                    return response.text()
                 } else {
-                    return response.json()
+                    return request();
                 }
             });
 
