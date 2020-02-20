@@ -16,7 +16,6 @@ export default class App extends React.Component {
 
     getUsername = async () => {
         const res = await this.httpClient.getUsername();
-        console.info('in component getUsername', res);
         this.setState({username: res});
     };
 

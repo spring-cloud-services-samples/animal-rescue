@@ -4,9 +4,15 @@ GATEWAY_NAME=gateway-demo
 FRONTEND_APP_NAME=animal-rescue-frontend
 BACKEND_APP_NAME=animal-rescue-backend
 
+init() {
+  cd frontend || exit 1
+  npm install
+  cd ..
+}
+
 build() {
   cd frontend || exit 1
-  npm run build
+  npm build
   cd ../backend || exit 1
   ./gradlew clean bootJar
   cd ..
@@ -90,7 +96,8 @@ destroy_all() {
 }
 
 case $1 in
-build)
+init)
+  install
   build
   ;;
 push)
@@ -108,6 +115,6 @@ destroy)
   destroy_all
   ;;
 *)
-  echo 'Unknown command. Please specify "build", "rebind", "deploy" or "destroy"'
+  echo 'Unknown command. Please specify "init", "push", "rebind", "deploy" or "destroy"'
   ;;
 esac
