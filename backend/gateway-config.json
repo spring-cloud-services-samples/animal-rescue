@@ -2,21 +2,25 @@
   "routes": [
     {
       "path": "/api/animals",
-      "method": "GET"
+      "method": "GET",
+      "filters": [ "RemoveResponseHeader=Set-Cookie" ]
     },
     {
-      "path": "/api/actuator/**"
+      "path": "/api/actuator/**",
+      "filters": [ "RemoveResponseHeader=Set-Cookie" ]
     },
     {
       "path": "/api/whoami",
       "token-relay": true,
-      "sso-enabled": true
+      "sso-enabled": true,
+      "filters": [ "RemoveResponseHeader=Set-Cookie" ]
     },
     {
       "path": "/api/animals/*/adoption-requests/**",
       "method": "GET,POST,PUT,DELETE",
       "token-relay": true,
-      "sso-enabled": true
+      "sso-enabled": true,
+      "filters": [ "RemoveResponseHeader=Set-Cookie" ]
     }
   ]
 }
