@@ -7,10 +7,12 @@ import io.pivotal.cfenv.core.CfEnv;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 @Configuration
+@Profile("!local")
 public class SecurityConfiguration {
 
 	private static final Logger LOG = LoggerFactory.getLogger(SecurityConfiguration.class);
@@ -36,14 +38,14 @@ public class SecurityConfiguration {
 			.httpBasic().disable()
 			.csrf().disable()
 			.authorizeExchange()
-			.pathMatchers("/animals", "/actuators/**").permitAll()
-			.and()
+				.pathMatchers("/animals", "/actuators/**").permitAll()
+				.and()
 			.authorizeExchange()
-			.anyExchange().authenticated()
-			.and()
+				.anyExchange().authenticated()
+				.and()
 			.oauth2ResourceServer()
-			.jwt()
-			.and()
+				.jwt()
+				.and()
 			.and()
 			.build();
 		// @formatter:on

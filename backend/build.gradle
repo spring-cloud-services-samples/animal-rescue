@@ -12,6 +12,19 @@ repositories {
 	mavenCentral()
 }
 
+
+def propertyDrivenProfiles;
+if (project.hasProperty('local')) {
+    propertyDrivenProfiles = 'local'
+    apply from: rootProject.file('build-local.gradle');
+}
+
+bootRun {
+    systemProperties = [
+        'spring.profiles.active': propertyDrivenProfiles
+    ]
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
@@ -27,6 +40,7 @@ dependencies {
 
     runtime 'com.h2database:h2'
 
+	testImplementation "org.springframework.security:spring-security-oauth2-client"
 	testImplementation('org.springframework.security:spring-security-test')
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'

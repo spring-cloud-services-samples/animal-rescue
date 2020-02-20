@@ -130,6 +130,7 @@ public class AnimalController {
 	}
 
 	private String getUserName(Principal principal) {
+		LOGGER.info(principal.toString());
 		if (principal instanceof JwtAuthenticationToken) {
 			return ((JwtAuthenticationToken) principal).getTokenAttributes().get("user_name").toString();
 		}

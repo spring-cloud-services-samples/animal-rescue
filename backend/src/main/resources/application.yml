@@ -9,9 +9,10 @@ management:
 
 logging.level:
   org.springframework.data: debug
+
 spring:
   security:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8080/token_keys
+          jwk-set-uri: http://any.uaa.uri/token_keys
