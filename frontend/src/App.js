@@ -6,6 +6,9 @@ import {Button} from "semantic-ui-react";
 import HttpClient from "./httpClient";
 
 export default class App extends React.Component {
+
+    #loginLink = process.env.REACT_APP_LOGIN_PATH || '/rescue/admin';
+
     constructor(props, context) {
         super(props, context);
         this.httpClient = new HttpClient();
@@ -40,7 +43,7 @@ export default class App extends React.Component {
         );
 
         const actionButton = (this.signedIn()) ? whoAmI : (
-            <Button animated='fade' color='green' href={'/rescue/admin'}>
+            <Button animated='fade' color='green' href={this.#loginLink}>
                 <Button.Content visible>Sign in to adopt</Button.Content>
                 <Button.Content hidden>It only takes a loving heart</Button.Content>
             </Button>

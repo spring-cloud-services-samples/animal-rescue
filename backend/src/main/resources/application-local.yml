@@ -1,0 +1,20 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          sso:
+            provider: sso
+            client-id: test
+            client-secret: test
+            authorization-grant-type: authorization_code
+            scope: openid
+        provider:
+          sso:
+            issuer-uri: ${uaa.uri}/oauth/token
+            authorization-uri: ${uaa.uri}/oauth/authorize
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${uaa.uri}/token_keys
+uaa:
+  uri: http://localhost:40000/uaa

@@ -60,7 +60,7 @@ Click on the `Edit Adoption Request` again, you can view, edit (`PUT`), and dele
 Start backend app:
 ```bash
 cd backend
-./gradlew bootRun
+./gradlew -Plocal bootRun
 ```
 Start frontend app:
 ```bash

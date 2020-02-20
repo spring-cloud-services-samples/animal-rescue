@@ -14,7 +14,7 @@
     "semantic-ui-react": "^0.88.2"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "REACT_APP_LOGIN_PATH=http://localhost:8080/oauth2/authorization/sso react-scripts start",
     "build": "REACT_APP_BACKEND_BASE_URL=/api react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

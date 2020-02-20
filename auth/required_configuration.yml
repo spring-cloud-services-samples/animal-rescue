@@ -2,27 +2,27 @@ issuer:
   uri: http://localhost:40000/uaa
 oauth:
   clients:
-    cc_admin:
-      override: true
-      secret: cc_admin
-      authorized-grant-types: client_credentials
-      authorities: cloud_controller.admin
     uaa_admin:
       override: true
       secret: uaa_admin
       authorized-grant-types: client_credentials
       authorities: uaa.admin
-    cf_user:
+    test:
       override: true
-      secret: cf_user
-      authorized-grant-types: client_credentials
-      authorities: cloud_controller.read
-    test_adopter:
-      override: true
-      secret: test_adopter
-      authorized-grant-types: client_credentials
-      authorities: adoption.request
-
+      secret: test
+      authorized-grant-types: authorization_code
+      redirect-uri: http://localhost:8080
+      scope: openid,email,profile,roles,adoption.request,user_attributes
+      authorities: openid,email,profile,adoption.request,user_attributes
+scim:
+  user:
+    authorities:
+      - openid
+      - profile
+      - roles
+      - adoption.request
+  users:
+    - test|test|test@example.org|Test|Test|openid,adoption.request,uaa.admin
 encryption:
   active_key_label: CHANGE-THIS-KEY
   encryption_keys:
