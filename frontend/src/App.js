@@ -1,8 +1,10 @@
 import React from 'react';
+import {Button} from "semantic-ui-react";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 import './App.css';
 import logo from './logo.svg';
 import AnimalCards from "./components/animal-cards";
-import {Button} from "semantic-ui-react";
+import Carousel from "./components/carousel";
 import HttpClient from "./httpClient";
 
 export default class App extends React.Component {
@@ -58,6 +60,7 @@ export default class App extends React.Component {
                         {actionButton}
                     </div>
                 </header>
+                <Carousel/>
                 <div className={"App-body"}>
                     <AnimalCards username={this.state.username}
                                  httpClient={this.httpClient}/>
