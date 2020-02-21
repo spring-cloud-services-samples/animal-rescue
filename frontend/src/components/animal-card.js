@@ -31,7 +31,8 @@ export default class AnimalCard extends React.Component {
                 <Card.Content extra>
                     <div className="pending">
                         <Icon name='user'/>
-                        {this.props.animal.adoptionRequests.length} Pending Adopters
+                        <span className="pending-number">{this.props.animal.adoptionRequests.length}</span>
+                        <span> </span>Pending Adopters
                     </div>
                     <div className='ui two buttons'>
                         <AdoptionRequestModal animal={this.props.animal}
