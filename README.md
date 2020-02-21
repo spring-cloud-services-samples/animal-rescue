@@ -1,4 +1,4 @@
-# Animal Rescue ♥️😺 ♥️🐶 ♥️🐰 ♥️🦜
+# Animal Rescue ♥️😺 ♥️🐶 ♥️🐰 ♥️🐦 ♥️🐹
 
 Sample app for Tanzu Spring Cloud Gateway tile. 
 Features we demonstrate with this sample app:
@@ -55,15 +55,36 @@ Then the model should close, and you should see the `Adopt` button you clicked j
 Click on the `Edit Adoption Request` again, you can view, edit (`PUT`), and delete (`DELETE`) the existing request.
 ![view or edit existing adoption request model](./docs/images/edit-or-delete.png)   
 
+**Note**
+Documentation may get out of date. Please refer to the [e2e test](./e2e/cypress/integration/) and the test output video for the most accurate user flow description.
 
-## Run locally [WIP]
-Start backend app:
+## Development
+
+#### Run locally 
+Use the following commands to manage the local lifecycle of animal-rescue
 ```bash
-cd backend
-./gradlew -Plocal bootRun
-```
-Start frontend app:
+./script/local.sh start # start auth server, frontend app, and backend app
+./script/local.sh stop # stop auth server, frontend app, and backend app
+./script/local.sh cleanup # remove the uaa server docker image
+``` 
+
+Here is a list of special treatment in this sample app to make sure frontend and backend can communicate locally without gateway:
+- Backend has a local profile that adds `spring-security-oauth2-client` to it's dependency, and configure `oauth2Login` in it's security configuration. You can also use `formLogin` or `basicAuth` instead to simplify the setup.
+- After a successful login, the redirect uri is set to `${frontendUrl/rescue/admin}` to mimic the user flow with gateway redirect.
+- `auth` module contains a `uaa` Dockerfile that helps finish the oauth2 login flow. You can skip this step if you use `formLogin` or `basicAuth` for your local security configuration.
+- Frontend sign in link has to point at backend login url in dev mode. 
+
+#### Tests
+Execute the following script to run all tests:
 ```bash
-cd frontend
-npm start
+./script/local.sh ci
 ```
+
+This script will run both backend unit tests and e2e tests.
+You can find an e2e test output video showing the whole journey in `./e2e/cypress/videos/` after the test run. 
+If you would like to launch the test in an actual browser and watch the flow live, you may run the following commands:
+```bash
+./script/local.sh start
+./script/local.sh e2e
+``` 
+More detail about the e2e testing framework can be found at [cypress api doc](https://docs.cypress.io/api/api/table-of-contents.html) 

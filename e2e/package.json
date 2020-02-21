@@ -1,0 +1,17 @@
+{
+  "name": "acceptance",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "open": "cypress open",
+    "test": "wait-on tcp:8080 && wait-on tcp:3000 && wait-on tcp:40000 && cypress run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cypress": "^4.0.2",
+    "wait-on": "^4.0.0"
+  }
+}

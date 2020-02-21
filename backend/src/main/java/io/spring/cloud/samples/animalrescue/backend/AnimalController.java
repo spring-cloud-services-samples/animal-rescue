@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -130,7 +131,6 @@ public class AnimalController {
 	}
 
 	private String getUserName(Principal principal) {
-		LOGGER.info(principal.toString());
 		if (principal instanceof JwtAuthenticationToken) {
 			return ((JwtAuthenticationToken) principal).getTokenAttributes().get("user_name").toString();
 		}

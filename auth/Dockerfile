@@ -5,6 +5,7 @@ RUN git clone https://github.com/cloudfoundry/uaa.git /opt/app
 #Pin to UAA v4.28.0
 WORKDIR /opt/app
 RUN git checkout $UAA_VERSION
+ADD V4_21_1_1575556384__add_login_user.sql /opt/app/server/src/main/resources/org/cloudfoundry/identity/uaa/db/hsqldb
 RUN ./gradlew assemble -x :cloudfoundry-identity-samples:assemble -x javadoc
 
 FROM tomcat:8-alpine
