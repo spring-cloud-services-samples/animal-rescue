@@ -2,62 +2,61 @@ import React from "react";
 import { Carousel } from "react-responsive-carousel";
 
 export default () => (
-  <Carousel autoPlay>
+  <Carousel autoPlay infiniteLoop>
     <div>
       <img src="http://lorempixel.com/output/cats-q-c-640-480-1.jpg" />
-      <p className="legend">Legend 1</p>
+      
     </div>
     <div>
-      <img src="http://lorempixel.com/output/cats-q-c-640-480-2.jpg" />
-      <p className="legend">Legend 2</p>
+      <img src="https://cdn.pixabay.com/photo/2017/09/25/13/12/dog-2785074_960_720.jpg" />
     </div>
     <div>
       <img src="http://lorempixel.com/output/cats-q-c-640-480-3.jpg" />
-      <p className="legend">Legend 3</p>
+      
     </div>
     <div>
-      <img src="http://lorempixel.com/output/cats-q-c-640-480-4.jpg" />
-      <p className="legend">Legend 4</p>
+      <img src="https://cdn.pixabay.com/photo/2016/02/18/18/37/puppy-1207816_960_720.jpg" />
+      
     </div>
     <div>
       <img src="http://lorempixel.com/output/cats-q-c-640-480-5.jpg" />
-      <p className="legend">Legend 5</p>
+      
     </div>
     <div>
-      <img src="http://lorempixel.com/output/cats-q-c-640-480-6.jpg" />
-      <p className="legend">Legend 6</p>
+      <img src="https://cdn.pixabay.com/photo/2016/03/09/15/21/dog-1246610_960_720.jpg" />
+      
     </div>
     <div>
       <img src="http://lorempixel.com/output/cats-q-c-640-480-7.jpg" />
-      <p className="legend">Legend 7</p>
+      
     </div>
     <div>
-      <img src="http://lorempixel.com/output/cats-q-c-640-480-8.jpg" />
-      <p className="legend">Legend 8</p>
+      <img src="https://cdn.pixabay.com/photo/2019/02/06/15/18/puppy-3979350_960_720.jpg" />
+      
     </div>
     <div>
-      <img src="http://lorempixel.com/output/cats-q-c-640-480-9.jpg" />
-      <p className="legend">Legend 9</p>
+      <img src="https://cdn.pixabay.com/photo/2018/06/03/08/57/cat-3449999_960_720.jpg" />
+      
     </div>
     <div>
-      <img src="http://lorempixel.com/output/cats-q-c-640-480-10.jpg" />
-      <p className="legend">Legend 10</p>
+      <img src="https://cdn.pixabay.com/photo/2018/03/18/18/06/australian-shepherd-3237735_960_720.jpg" />
+      >
     </div>
     <div>
-      <img src="http://lorempixel.com/output/cats-q-c-640-480-11.jpg" />
-      <p className="legend">Legend 11</p>
+      <img src="https://cdn.pixabay.com/photo/2016/03/28/10/05/kitten-1285341_960_720.jpg" />
+      >
     </div>
     <div>
-      <img src="http://lorempixel.com/output/cats-q-c-640-480-12.jpg" />
-      <p className="legend">Legend 12</p>
+      <img src="https://cdn.pixabay.com/photo/2018/05/07/10/49/husky-3380550_960_720.jpg" />
+      >
     </div>
     <div>
-      <img src="http://lorempixel.com/output/cats-q-c-640-480-13.jpg" />
-      <p className="legend">Legend 13</p>
+      <img src="https://cdn.pixabay.com/photo/2016/01/20/13/05/cat-1151519_960_720.jpg" />
+      >
     </div>
     <div>
-      <img src="http://lorempixel.com/output/cats-q-c-640-480-14.jpg" />
-      <p className="legend">Legend 14</p>
+      <img src="https://cdn.pixabay.com/photo/2016/07/15/15/55/dachshund-1519374_960_720.jpg" />
+      >
     </div>
   </Carousel>
 );

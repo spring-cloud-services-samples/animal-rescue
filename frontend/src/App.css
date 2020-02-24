@@ -12,7 +12,6 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
-  margin-bottom: 40px;
 }
 
 .App-header .content.hidden {
@@ -108,4 +107,42 @@
   position: absolute;
   clip: rect(0px,290px,200px,0px);
   margin-left: 0!important;
+}
+
+
+/* Carousel */
+
+.carousel.carousel-slider {
+  height: 520px;
+  position: relative;
+}
+
+.carousel .control-dots {
+  margin: 10px 0 20px;
+}
+
+.carousel .thumbs-wrapper {
+  margin: 10px 0 50px;
+}
+
+.slider-wrapper {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: url('/slider-background.jpg');
+  background-position: center;
+  background-size: 100%;
+}
+
+.carousel .slide {
+  background: transparent;
+}
+
+.slide > div {
+  height: 100%;
+}
+
+.carousel .slide img {
+  width: auto;
+  height: 100%;
 }
