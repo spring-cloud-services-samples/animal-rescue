@@ -1,4 +1,5 @@
 # Animal Rescue ♥️😺 ♥️🐶 ♥️🐰 ♥️🐦 ♥️🐹
+![Test all](https://github.com/spring-cloud-services-samples/animal-rescue/workflows/Test%20all/badge.svg?branch=master)
 
 Sample app for Tanzu Spring Cloud Gateway tile. 
 Features we demonstrate with this sample app:
@@ -77,7 +78,8 @@ Here is a list of special treatment in this sample app to make sure frontend and
 #### Tests
 Execute the following script to run all tests:
 ```bash
-./script/local.sh ci
+./script/local.sh init # install dependencies for the frontend folder and the e2e folder
+./script/local.sh ci # run backend tests and e2e tests
 ```
 
 This script will run both backend unit tests and e2e tests.
