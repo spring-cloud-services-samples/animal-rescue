@@ -2,16 +2,15 @@ plugins {
 	id 'org.springframework.boot' version '2.2.4.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 	id 'java'
+	id 'jacoco'
 }
 
 group = 'io.spring.cloud.samples.animalrescue'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
 
 repositories {
 	mavenCentral()
 }
-
 
 def propertyDrivenProfiles;
 if (project.hasProperty('local')) {
@@ -32,7 +31,6 @@ dependencies {
 
 	implementation "org.springframework.security:spring-security-web"
 
-	//
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation "org.springframework.security:spring-security-oauth2-resource-server"
 	implementation "org.springframework.security:spring-security-oauth2-jose"
@@ -52,3 +50,14 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+		xml.destination new File("${buildDir}/reports/jacoco/report.xml")
+		html.enabled false
+		csv.enabled false
+    }
+}
+
+jacocoTestReport.dependsOn test
