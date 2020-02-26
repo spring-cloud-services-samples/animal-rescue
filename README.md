@@ -13,8 +13,8 @@ Features we demonstrate with this sample app:
 
 Run the following scripts to set up everything:
 ```bash
-./scripts/cf_deploy init # installs dependencies and builds the deployment artifact
-./scripts/cf_deploy deploy # handles everything you need to deploy the frontend, backend, and gateway
+./scripts/cf_deploy init    # installs dependencies and builds the deployment artifact
+./scripts/cf_deploy deploy  # handles everything you need to deploy the frontend, backend, and gateway
 ```
 Then visit the the frontend url `https://gateway-demo.${appsDomain}/rescue` to view the sample app.
 
@@ -25,8 +25,8 @@ Once you have enough fun with the sample app, run the following script to clean 
 
 Some other commands that might be helpful:
 ```bash
-./scripts/cf_deploy push # builds and pushes frontend and backend
-./scripts/cf_deploy rebind # unbinds and rebinds frontend and backend
+./scripts/cf_deploy push    # builds and pushes frontend and backend
+./scripts/cf_deploy rebind  # unbinds and rebinds frontend and backend
 ```
 
 ## Special frontend config related to gateway
@@ -64,9 +64,10 @@ Documentation may get out of date. Please refer to the [e2e test](./e2e/cypress/
 #### Run locally 
 Use the following commands to manage the local lifecycle of animal-rescue
 ```bash
-./script/local.sh start # start auth server, frontend app, and backend app
-./script/local.sh stop # stop auth server, frontend app, and backend app
-./script/local.sh cleanup # remove the uaa server docker image
+./script/local.sh start         # start auth server, frontend app, and backend app
+./script/local.sh start --quiet # start everything without launching the app in browser, and redirects all output to `./scripts/out/`
+./script/local.sh stop          # stop auth server, frontend app, and backend app
+./script/local.sh cleanup       # remove the uaa server docker image
 ``` 
 
 Here is a list of special treatment in this sample app to make sure frontend and backend can communicate locally without gateway:
@@ -78,13 +79,14 @@ Here is a list of special treatment in this sample app to make sure frontend and
 #### Tests
 Execute the following script to run all tests:
 ```bash
-./script/local.sh init # install dependencies for the frontend folder and the e2e folder
-./script/local.sh ci # run backend tests and e2e tests
+./script/local.sh init          # install dependencies for the frontend folder and the e2e folder
+./script/local.sh ci            # run backend tests and e2e tests
+./script/local.sh backend       # run backend test only
+./script/local.sh e2e --quiet   # run e2e test only without interactive mode
 ```
 
-This script will run both backend unit tests and e2e tests.
 You can find an e2e test output video showing the whole journey in `./e2e/cypress/videos/` after the test run. 
-If you would like to launch the test in an actual browser and watch the flow live, you may run the following commands:
+If you would like to launch the test in an actual browser and run e2e test interactively, you may run the following commands:
 ```bash
 ./script/local.sh start
 ./script/local.sh e2e

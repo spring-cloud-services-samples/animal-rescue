@@ -130,6 +130,11 @@ public class AnimalController {
 		return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.FORBIDDEN);
 	}
 
+	@ExceptionHandler({IllegalArgumentException.class})
+	public ResponseEntity<String> handleIllegalArgumentException(Exception e) {
+		return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
+	}
+
 	private String getUserName(Principal principal) {
 		if (principal instanceof JwtAuthenticationToken) {
 			return ((JwtAuthenticationToken) principal).getTokenAttributes().get("user_name").toString();
