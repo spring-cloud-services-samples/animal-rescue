@@ -8,23 +8,13 @@ export default class AnimalCards extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {
-            animals: [],
-        };
-    }
-
-    componentDidMount() {
-        this.props.httpClient
-            .getAnimals()
-            .then(animals => this.setState({animals}));
     }
 
     render() {
-        const cards = this.state.animals.map(animal => (
+        const cards = this.props.animals.map(animal => (
             <AnimalCard animal={animal}
                         key={animal.id}
-                        username={this.props.username}
-                        httpClient={this.props.httpClient}/>
+                        username={this.props.username}/>
         ));
         return (
             <Card.Group centered>
@@ -36,5 +26,7 @@ export default class AnimalCards extends React.Component {
 
 AnimalCards.propTypes = {
     username: PropTypes.string.isRequired,
-    httpClient: PropTypes.instanceOf(HttpClient).isRequired,
+    animals: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.number.isRequired
+    }))
 };

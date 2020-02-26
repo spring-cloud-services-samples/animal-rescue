@@ -1,9 +1,12 @@
 import React from 'react'
 import {Button, Form, Header, Icon, Modal} from 'semantic-ui-react'
 import * as PropTypes from "prop-types";
-import HttpClient from "../httpClient";
+import {deleteAdoptionRequest, editAdoptionRequest, submitAdoptionRequest} from "../httpClient";
+import {AppContext} from "../AppContext";
 
 export default class AdoptionRequestModal extends React.Component {
+
+    static contextType = AppContext;
 
     constructor(props, context) {
         super(props, context);
@@ -24,7 +27,7 @@ export default class AdoptionRequestModal extends React.Component {
     handleChange = (e, {name, value}) => this.setState({[name]: value});
 
     handleDelete = async () => {
-        await this.props.httpClient.deleteAdoptionRequest({
+        await deleteAdoptionRequest({
             animalId: this.props.animal.id,
             adoptionRequestId: this.props.existingRequest.id,
         });
@@ -34,13 +37,13 @@ export default class AdoptionRequestModal extends React.Component {
 
     handleSubmit = async () => {
         if (this.props.existingRequest === undefined) {
-            await this.props.httpClient.submitAdoptionRequest({
+            await submitAdoptionRequest({
                 animalId: this.props.animal.id,
                 email: this.state.email,
                 notes: this.state.notes,
             });
         } else {
-            await this.props.httpClient.editAdoptionRequest({
+            await editAdoptionRequest({
                 animalId: this.props.animal.id,
                 adoptionRequestId: this.props.existingRequest.id,
                 email: this.state.email,
@@ -58,7 +61,7 @@ export default class AdoptionRequestModal extends React.Component {
             modalOpen: false,
         });
 
-        window.location.reload();
+        this.context.refresh();
     }
 
     render() {
@@ -129,7 +132,6 @@ AdoptionRequestModal.propTypes = {
         email: PropTypes.string,
         notes: PropTypes.string,
     }),
-    isSignedIn: PropTypes.bool.isRequired,
-    httpClient: PropTypes.instanceOf(HttpClient).isRequired,
+    isSignedIn: PropTypes.bool.isRequired
 };
 

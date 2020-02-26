@@ -1,7 +1,6 @@
 import React from 'react'
 import * as PropTypes from 'prop-types';
 import {Card, Icon, Image} from 'semantic-ui-react'
-import HttpClient from "../httpClient";
 import AdoptionRequestModal from "./adoption-request-modal";
 
 
@@ -38,7 +37,7 @@ export default class AnimalCard extends React.Component {
                         <AdoptionRequestModal animal={this.props.animal}
                                               existingRequest={this.findExistingRequest()}
                                               isSignedIn={this.props.username !== ''}
-                                              httpClient={this.props.httpClient}/>
+                         />
                     </div>
                 </Card.Content>
             </Card>
@@ -56,7 +55,6 @@ AnimalCard.propTypes = {
             adopterName: PropTypes.string.isRequired,
         })).isRequired
     }).isRequired,
-    username: PropTypes.string.isRequired,
-    httpClient: PropTypes.instanceOf(HttpClient).isRequired,
+    username: PropTypes.string.isRequired
 };
 
