@@ -5,7 +5,8 @@ import './App.css';
 import logo from './logo.svg';
 import AnimalCards from "./components/animal-cards";
 import Carousel from "./components/carousel";
-import HttpClient from "./httpClient";
+import {getAnimals, getUsername} from "./httpClient";
+import {AppContext} from "./AppContext";
 
 export default class App extends React.Component {
 
@@ -13,14 +14,18 @@ export default class App extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        this.httpClient = new HttpClient();
         this.state = {
             username: '',
+            animals: []
         };
     }
 
+    fetchAnimals() {
+        getAnimals().then(animals => this.setState({animals}));
+    }
+
     getUsername = async () => {
-        const res = await this.httpClient.getUsername();
+        const res = await getUsername();
         this.setState({username: res});
     };
 
@@ -32,6 +37,8 @@ export default class App extends React.Component {
         if (this.signedIn()) {
             this.getUsername();
         }
+
+        this.fetchAnimals();
     }
 
     render() {
@@ -62,8 +69,10 @@ export default class App extends React.Component {
                 </header>
                 <Carousel/>
                 <div className={"App-body"}>
-                    <AnimalCards username={this.state.username}
-                                 httpClient={this.httpClient}/>
+                    <AppContext.Provider value={{refresh: () => this.fetchAnimals()}}>
+                        <AnimalCards username={this.state.username}
+                                     animals={this.state.animals}/>
+                    </AppContext.Provider>
                 </div>
             </div>
         );
