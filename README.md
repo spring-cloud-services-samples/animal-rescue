@@ -1,5 +1,5 @@
 # Animal Rescue ♥️😺 ♥️🐶 ♥️🐰 ♥️🐦 ♥️🐹
-![Test all](https://github.com/spring-cloud-services-samples/animal-rescue/workflows/Test%20all/badge.svg?branch=master)
+![Test All](https://github.com/spring-cloud-services-samples/animal-rescue/workflows/Test%20All/badge.svg?branch=master)
 
 Sample app for Tanzu Spring Cloud Gateway tile. 
 Features we demonstrate with this sample app:
