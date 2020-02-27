@@ -51,7 +51,6 @@ context('Animal Rescue', () => {
         cy.get('[name=notes]').type("She heals my soul!");
         cy.contains('Apply').click();
 
-        cy.wait(500);
         cy.get('.pending')
           .first()
           .contains(`${pendingAdopterNumber + 1} Pending Adopters`);
@@ -91,7 +90,7 @@ context('Animal Rescue', () => {
 
         cy.contains('Delete Request').click();
 
-        cy.get('.ui.card button').first().should('contain', 'Adopt')
+        cy.get('.ui.card button').first().should('contain', 'Adopt');
 
         cy.contains(`${pendingAdopterNumber - 1} Pending Adopters`);
       });
@@ -106,7 +105,7 @@ context('Animal Rescue', () => {
 
       cy.location().then(location => {
         if (location.pathname !== '/rescue/admin') {
-          cy.get('#authorize').click() // authorizes scopes
+          cy.get('#authorize').click(); // authorizes scopes
         }
       });
     });

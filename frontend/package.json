@@ -1,7 +1,6 @@
 {
-  "name": "untitled",
-  "version": "0.1.0",
-  "private": true,
+  "name": "frontend",
+  "version": "1.0.0",
   "dependencies": {
     "axios": "^0.19.2",
     "prop-types": "^15.7.2",
@@ -14,6 +13,7 @@
   "scripts": {
     "start": "wait-on tcp:8080 && REACT_APP_LOGIN_PATH=http://localhost:8080/oauth2/authorization/sso react-scripts start",
     "build": "REACT_APP_BACKEND_BASE_URL=/api react-scripts build",
+    "lint": "eslint src",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

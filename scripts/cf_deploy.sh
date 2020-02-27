@@ -6,7 +6,7 @@ BACKEND_APP_NAME=animal-rescue-backend
 
 init() {
   cd frontend || exit 1
-  npm install
+  npm ci
   cd ..
 }
 

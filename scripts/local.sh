@@ -2,9 +2,9 @@
 
 init() {
   cd frontend || exit 1
-  npm install
+  npm ci
   cd ../e2e || exit 1
-  npm install
+  npm ci
 }
 
 stopFrontend() {

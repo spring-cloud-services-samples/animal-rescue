@@ -1,5 +1,5 @@
-import React from 'react'
-import {Button, Form, Header, Icon, Modal} from 'semantic-ui-react'
+import React from 'react';
+import {Button, Form, Header, Icon, Modal} from 'semantic-ui-react';
 import * as PropTypes from "prop-types";
 import {deleteAdoptionRequest, editAdoptionRequest, submitAdoptionRequest} from "../httpClient";
 import {AppContext} from "../AppContext";
@@ -118,7 +118,7 @@ export default class AdoptionRequestModal extends React.Component {
                     </Button>
                 </Modal.Actions>
             </Modal>
-        )
+        );
     }
 }
 
@@ -132,6 +132,6 @@ AdoptionRequestModal.propTypes = {
         email: PropTypes.string,
         notes: PropTypes.string,
     }),
-    isSignedIn: PropTypes.bool.isRequired
+    isSignedIn: PropTypes.bool.isRequired,
 };
 
