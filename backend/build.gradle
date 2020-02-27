@@ -19,18 +19,6 @@ repositories {
 	mavenCentral()
 }
 
-def propertyDrivenProfiles;
-if (project.hasProperty('oauth2login')) {
-    propertyDrivenProfiles = 'oauth2login'
-    apply from: rootProject.file('build-oauth2login.gradle');
-}
-
-bootRun {
-    systemProperties = [
-        'spring.profiles.active': propertyDrivenProfiles
-    ]
-}
-
 dependencies {
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
@@ -47,7 +35,6 @@ dependencies {
 
     runtime 'com.h2database:h2'
 
-	testImplementation "org.springframework.security:spring-security-oauth2-client"
 	testImplementation('org.springframework.security:spring-security-test')
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'

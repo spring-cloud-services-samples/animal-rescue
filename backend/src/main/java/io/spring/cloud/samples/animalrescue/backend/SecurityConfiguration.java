@@ -15,7 +15,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 
 @Configuration
-@ConditionalOnMissingBean(SecurityWebFilterChain.class) // no security configured, fall back to default Form Login
+@Profile("!cloud") // cloud profile is automatically activated on CloudFoundry
 public class SecurityConfiguration {
 
 	@Bean
@@ -26,8 +26,8 @@ public class SecurityConfiguration {
 	@Bean
 	ReactiveUserDetailsService reactiveUserDetailsService(PasswordEncoder passwordEncoder) {
 		return new MapReactiveUserDetailsService(
-			User.withUsername("test").password(passwordEncoder.encode("test")).roles("USER").build(),
-			User.withUsername("mysterious_adopter").password(passwordEncoder.encode("test")).roles("USER").build()
+			User.withUsername("alice").password(passwordEncoder.encode("test")).roles("USER").build(),
+			User.withUsername("bob").password(passwordEncoder.encode("test")).roles("USER").build()
 		);
 	}
 

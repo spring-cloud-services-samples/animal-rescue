@@ -71,13 +71,10 @@ Use the following commands to manage the local lifecycle of animal-rescue
 ``` 
 
 #### Local security configuration
-Backend uses Form login for local development with two test accounts - `mysterious_adopter / test` and `test / test`. You can optionally run the app with OAuth2 login flow using `LOGIN_MODE` param: `LOGIN_MODE="oauth2" ./scripts/local.sh start`. This command will build and start Docker container with CloudFoundry User Account and Authentication (UAA) to act as a authorization server. Test account is `test / test`.
-
-> You have to have Docker installed locally if you want to run the app with OAuth2 login using UAA. For more details, please refer to the official Docker [documentation](https://www.docker.com/products/docker-desktop). 
-
+Backend uses Form login for local development with two test accounts - `alice / test` and `bob / test`. 
 Note that in a real deployment with Gateway, OAuth2 login will be managed by the gateway itself, and your app should use `TokenRelay` filter to receive OpenID ID Token in `Authorization` header. See `CloudFoundrySecurityConfiguration` class for an example of Spring Security 5 configuration to handle token relay correctly.
 
-When `LOGIN_MODE` is set to `oauth2`, Gradle `oauth2login` profile will be activated. It adds `spring-security-oauth2-client` to the dependencies list, and configure `oauth2Login` in it's security configuration. After a successful login, the redirect uri is set to `${frontendUrl/rescue/login}` to mimic the user flow with gateway redirect. `auth` module contains a `uaa` Dockerfile which acts as an authorization server the oauth2 login flow.
+> It is also possible to use OAuth2 login flow for the app. This requires running an authorization server locally. See `local-oauth2-flow` for an example of using Cloud Foundry User Account and Authentication (UAA) running in a Docker container locally.
 
 #### Tests
 Execute the following script to run all tests:
