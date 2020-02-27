@@ -1,6 +1,6 @@
 context('Animal Rescue', () => {
 
-  const username = "mysterious_adopter";
+  const username = "alice";
   const password = "test";
 
   before(() => {
