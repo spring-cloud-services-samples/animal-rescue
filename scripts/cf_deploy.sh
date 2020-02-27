@@ -12,7 +12,7 @@ init() {
 
 build() {
   cd frontend || exit 1
-  npm build
+  npm run build
   cd ../backend || exit 1
   ./gradlew clean bootJar
   cd ..
@@ -97,7 +97,7 @@ destroy_all() {
 
 case $1 in
 init)
-  install
+  init
   build
   ;;
 push)
