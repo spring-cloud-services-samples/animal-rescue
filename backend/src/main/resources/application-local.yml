@@ -13,6 +13,7 @@ spring:
           sso:
             issuer-uri: ${uaa.uri}/oauth/token
             authorization-uri: ${uaa.uri}/oauth/authorize
+            user-name-attribute: user_name
       resourceserver:
         jwt:
           jwk-set-uri: ${uaa.uri}/token_keys

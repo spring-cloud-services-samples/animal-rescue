@@ -39,18 +39,29 @@ startBackend() {
   cd backend || exit 1
   stopBackend
   printf "\n======== Starting backend ========\n"
+
+  local gradle_opts=''
+
+  if [[ $LOGIN_MODE == 'oauth2' ]]; then
+    gradle_opts='-Plocal'
+  fi
+
   if [[ $1 == '--quiet' ]]; then
     echo "Entering quiet mode, output goes here ./scripts/out/backend_output.log"
-    ./gradlew -Plocal bootRun &>../scripts/out/backend_output.log &
+    ./gradlew $gradle_opts bootRun &>../scripts/out/backend_output.log &
   else
-    ./gradlew -Plocal bootRun &
+    ./gradlew $gradle_opts bootRun &
   fi
   cd ..
 }
 
 start() {
   mkdir -p ./scripts/out
-  ./scripts/auth_server.sh start
+
+  if [[ $LOGIN_MODE == 'oauth2' ]]; then
+    ./scripts/auth_server.sh start
+  fi
+
   startBackend "$1"
   startFrontend "$1"
 }
@@ -58,7 +69,9 @@ start() {
 stop() {
   stopBackend
   stopFrontend
-  ./scripts/auth_server.sh stop
+  if [[ $LOGIN_MODE == 'oauth2' ]]; then
+    ./scripts/auth_server.sh stop
+  fi
 }
 
 testBackend() {

@@ -1,10 +1,9 @@
 {
   "routes": [
     {
-      "path": "/rescue/admin",
-      "filters": ["StripPrefix=2"],
+      "path": "/rescue/admin,/rescue/login",
       "sso-enabled": true,
-      "token-relay": true
+      "filters": ["RedirectTo=302, /rescue"]
     },
     {
       "path": "/rescue/**"
