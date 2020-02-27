@@ -20,9 +20,9 @@ repositories {
 }
 
 def propertyDrivenProfiles;
-if (project.hasProperty('local')) {
-    propertyDrivenProfiles = 'local'
-    apply from: rootProject.file('build-local.gradle');
+if (project.hasProperty('oauth2login')) {
+    propertyDrivenProfiles = 'oauth2login'
+    apply from: rootProject.file('build-oauth2login.gradle');
 }
 
 bootRun {

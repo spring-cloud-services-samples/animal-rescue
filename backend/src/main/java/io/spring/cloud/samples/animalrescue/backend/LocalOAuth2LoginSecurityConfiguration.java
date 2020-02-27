@@ -8,8 +8,8 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 
 @Configuration
-@Profile("local")
-public class LocalRunSecurityConfiguration {
+@Profile("oauth2login")
+public class LocalOAuth2LoginSecurityConfiguration {
 
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity httpSecurity) {
