@@ -8,6 +8,13 @@ plugins {
 group = 'io.spring.cloud.samples.animalrescue'
 version = '0.0.1-SNAPSHOT'
 
+configurations {
+	developmentOnly
+	runtimeClasspath {
+		extendsFrom developmentOnly
+	}
+}
+
 repositories {
 	mavenCentral()
 }
@@ -25,6 +32,8 @@ bootRun {
 }
 
 dependencies {
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'

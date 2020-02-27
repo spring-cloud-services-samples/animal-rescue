@@ -22,11 +22,11 @@ context('Animal Rescue', () => {
   it('greets user and allows for adoption after logging in', () => {
     cy.contains('Sign in to adopt').click();
 
-    optionallyLogIn(username, password);
+    logIn(username, password);
 
     cy.location()
       .should(location => {
-        expect(location.pathname).to.eq('/rescue/admin');
+        expect(location.pathname).to.eq('/rescue');
       });
 
     cy.get('.header-buttons button').should('contain', username);
@@ -96,18 +96,8 @@ context('Animal Rescue', () => {
       });
   });
 
-  const optionallyLogIn = (username, password) => {
-    cy.location().then(location => {
-      if (location.pathname !== '/rescue/admin') { // If cookie exists in browser then we can skip the log in step
-        cy.get('input[name=username]').type(username);
-        cy.get('input[name=password]').type(`${password}{enter}`); // {enter} causes the form to submit
-      }
-
-      cy.location().then(location => {
-        if (location.pathname !== '/rescue/admin') {
-          cy.get('#authorize').click(); // authorizes scopes
-        }
-      });
-    });
+  const logIn = (username, password) => {
+    cy.get('input[name=username]').type(username);
+    cy.get('input[name=password]').type(`${password}{enter}`); // {enter} causes the form to submit
   };
 });

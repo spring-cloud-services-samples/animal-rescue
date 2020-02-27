@@ -9,8 +9,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +32,7 @@ public class AnimalController {
 
 	@GetMapping("/whoami")
 	public String whoami(Principal principal) {
-		return getUserName(principal);
+		return principal.getName();
 	}
 
 	@GetMapping("/animals")
@@ -50,13 +48,13 @@ public class AnimalController {
 		@PathVariable("id") Long animalId,
 		@RequestBody AdoptionRequest adoptionRequest
 	) {
-		LOGGER.info("Received submit adoption request from {}", getUserName(principal));
+		LOGGER.info("Received submit adoption request from {}", principal.getName());
 		Animal animal = animalRepository
 			.findById(animalId)
 			.orElseThrow(() ->
 				new IllegalArgumentException(String.format("Animal with id %s doesn't exist!", animalId)));
 
-		adoptionRequest.setAdopterName(getUserName(principal));
+		adoptionRequest.setAdopterName(principal.getName());
 		animal.getAdoptionRequests().add(adoptionRequest);
 		animalRepository.save(animal);
 	}
@@ -84,9 +82,9 @@ public class AnimalController {
 					adoptionRequestId)));
 
 
-		if (!existing.getAdopterName().equals(getUserName(principal))) {
+		if (!existing.getAdopterName().equals(principal.getName())) {
 			throw new AccessDeniedException(String.format("User %s has cannot edit user %s's adoption request",
-					getUserName(principal), existing.getAdopterName()));
+				principal.getName(), existing.getAdopterName()));
 		}
 
 		existing.setEmail(adoptionRequest.getEmail());
@@ -101,7 +99,7 @@ public class AnimalController {
 		@PathVariable("animalId") Long animalId,
 		@PathVariable("adoptionRequestId") Long adoptionRequestId
 	) {
-		LOGGER.info("Received delete adoption request from {}", getUserName(principal));
+		LOGGER.info("Received delete adoption request from {}", principal.getName());
 		Animal animal = animalRepository
 			.findById(animalId)
 			.orElseThrow(() ->
@@ -116,9 +114,9 @@ public class AnimalController {
 				() -> new IllegalArgumentException(String.format("AdoptionRequest with id %s doesn't exist!",
 					adoptionRequestId)));
 
-		if (!existing.getAdopterName().equals(getUserName(principal))) {
+		if (!existing.getAdopterName().equals(principal.getName())) {
 			throw new AccessDeniedException(String.format("User %s has cannot delete user %s's adoption request",
-					getUserName(principal), existing.getAdopterName()));
+				principal.getName(), existing.getAdopterName()));
 		}
 
 		animal.getAdoptionRequests().remove(existing);
@@ -135,12 +133,4 @@ public class AnimalController {
 		return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
 	}
 
-	private String getUserName(Principal principal) {
-		if (principal instanceof JwtAuthenticationToken) {
-			return ((JwtAuthenticationToken) principal).getTokenAttributes().get("user_name").toString();
-		}
-		else {
-			return principal.getName();
-		}
-	}
 }

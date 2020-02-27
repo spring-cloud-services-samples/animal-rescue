@@ -22,6 +22,12 @@ export async function deleteAdoptionRequest({animalId, adoptionRequestId}) {
 }
 
 export async function getUsername() {
-    return axios.get(`${backendBaseUrl}/whoami`).then(res => res.data);
+    return fetch(`${backendBaseUrl}/whoami`).then(r => {
+        if (r.redirected) {
+            return '';
+        } else {
+            return r.text();
+        }
+    });
 }
 

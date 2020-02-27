@@ -33,7 +33,7 @@ Some other commands that might be helpful:
 
 The frontend application is implemented in ReactJS, and is pushed with static buildpack. Because of it's static nature, we had to do the following 
 1. `homepage` in `package.json` is set to `/rescue`, which is the path we set for the frontend application in gateway config (`frontend/gateway-config.json`). This is to make sure all related assets is requested under `/rescue` path as well.
-1. `Sign in to adopt` button is linked to `/rescue/admin`, which is a path that is `sso-enabled` in gateway config (`frontend/gateway-config.json`). This is necessary for frontend apps bound to a sub path on gateway because the Oauth2 login flow redirects users to the original requested location or back to `/` if no saved request exists. This setting is not necessary if the frontend app is bound to path `/`.
+1. `Sign in to adopt` button is linked to `/rescue/login`, which is a path that is `sso-enabled` in gateway config (`frontend/gateway-config.json`). This is necessary for frontend apps bound to a sub path on gateway because the Oauth2 login flow redirects users to the original requested location or back to `/` if no saved request exists. This setting is not necessary if the frontend app is bound to path `/`.
 1. `REACT_APP_BACKEND_BASE_URL` is set to `/backend` in build script, which is the path we set for the backend application in gateway config (`backend/gateway-config.json`). This is to make sure all our backend API calls are appended with the `backend` path.
 
 
@@ -70,11 +70,14 @@ Use the following commands to manage the local lifecycle of animal-rescue
 ./script/local.sh cleanup       # remove the uaa server docker image
 ``` 
 
-Here is a list of special treatment in this sample app to make sure frontend and backend can communicate locally without gateway:
-- Backend has a local profile that adds `spring-security-oauth2-client` to it's dependency, and configure `oauth2Login` in it's security configuration. You can also use `formLogin` or `basicAuth` instead to simplify the setup.
-- After a successful login, the redirect uri is set to `${frontendUrl/rescue/admin}` to mimic the user flow with gateway redirect.
-- `auth` module contains a `uaa` Dockerfile that helps finish the oauth2 login flow. You can skip this step if you use `formLogin` or `basicAuth` for your local security configuration.
-- Frontend sign in link has to point at backend login url in dev mode. 
+#### Local security configuration
+Backend uses Form login for local development with two test accounts - `mysterious_adopter / test` and `test / test`. You can optionally run the app with OAuth2 login flow using `LOGIN_MODE` param: `LOGIN_MODE="oauth2" ./scripts/local.sh start`. This command will build and start Docker container with CloudFoundry User Account and Authentication (UAA) to act as a authorization server. 
+
+> You have to have Docker installed locally if you want to run the app with OAuth2 login using UAA. For more details, please refer to the official Docker [documentation](https://www.docker.com/products/docker-desktop). 
+
+Note that in a real deployment with Gateway, OAuth2 login will be managed by the gateway itself, and your app should use `TokenRelay` filter to receive OpenID ID Token in `Authorization` header. See `CloudFoundrySecurityConfiguration` class for an example of Spring Security 5 configuration to handle token relay correctly.
+
+When `LOGIN_MODE` is set to `oauth2`, Gradle `local` profile will be activated. It adds `spring-security-oauth2-client` to the dependencies list, and configure `oauth2Login` in it's security configuration. After a successful login, the redirect uri is set to `${frontendUrl/rescue/login}` to mimic the user flow with gateway redirect. `auth` module contains a `uaa` Dockerfile which acts as an authorization server the oauth2 login flow.
 
 #### Tests
 Execute the following script to run all tests:
