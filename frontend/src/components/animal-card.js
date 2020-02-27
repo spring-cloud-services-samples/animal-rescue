@@ -1,6 +1,6 @@
-import React from 'react'
+import React from 'react';
 import * as PropTypes from 'prop-types';
-import {Card, Icon, Image} from 'semantic-ui-react'
+import {Card, Icon, Image} from 'semantic-ui-react';
 import AdoptionRequestModal from "./adoption-request-modal";
 
 
@@ -53,8 +53,8 @@ AnimalCard.propTypes = {
         description: PropTypes.string.isRequired,
         adoptionRequests: PropTypes.arrayOf(PropTypes.shape({
             adopterName: PropTypes.string.isRequired,
-        })).isRequired
+        })).isRequired,
     }).isRequired,
-    username: PropTypes.string.isRequired
+    username: PropTypes.string.isRequired,
 };
 

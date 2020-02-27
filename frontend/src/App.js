@@ -16,7 +16,7 @@ export default class App extends React.Component {
         super(props, context);
         this.state = {
             username: '',
-            animals: []
+            animals: [],
         };
     }
 

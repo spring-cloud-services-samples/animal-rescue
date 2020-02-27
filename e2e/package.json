@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "open": "cypress open",
+    "lint": "eslint cypress",
     "test": "wait-on tcp:8080 && wait-on tcp:3000 && wait-on tcp:40000 && cypress run"
   },
   "keywords": [],
@@ -12,6 +13,9 @@
   "license": "ISC",
   "dependencies": {
     "cypress": "^4.0.2",
+    "eslint": "^6.8.0",
+    "eslint-plugin-cypress": "^2.10.3",
     "wait-on": "^4.0.0"
-  }
+  },
+  "devDependencies": {}
 }
