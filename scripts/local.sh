@@ -43,7 +43,7 @@ startBackend() {
   local gradle_opts=''
 
   if [[ $LOGIN_MODE == 'oauth2' ]]; then
-    gradle_opts='-Plocal'
+    gradle_opts='-Poauth2login'
   fi
 
   if [[ $1 == '--quiet' ]]; then
