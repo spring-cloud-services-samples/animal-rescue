@@ -64,10 +64,10 @@ Documentation may get out of date. Please refer to the [e2e test](./e2e/cypress/
 #### Run locally 
 Use the following commands to manage the local lifecycle of animal-rescue
 ```bash
-./script/local.sh start         # start auth server, frontend app, and backend app
-./script/local.sh start --quiet # start everything without launching the app in browser, and redirects all output to `./scripts/out/`
-./script/local.sh stop          # stop auth server, frontend app, and backend app
-./script/local.sh cleanup       # remove the uaa server docker image
+./scripts/local.sh start         # start auth server, frontend app, and backend app
+./scripts/local.sh start --quiet # start everything without launching the app in browser, and redirects all output to `./scripts/out/`
+./scripts/local.sh stop          # stop auth server, frontend app, and backend app
+./scripts/local.sh cleanup       # remove the uaa server docker image
 ``` 
 
 #### Local security configuration
@@ -79,16 +79,16 @@ Note that in a real deployment with Gateway, OAuth2 login will be managed by the
 #### Tests
 Execute the following script to run all tests:
 ```bash
-./script/local.sh init          # install dependencies for the frontend folder and the e2e folder
-./script/local.sh ci            # run backend tests and e2e tests
-./script/local.sh backend       # run backend test only
-./script/local.sh e2e --quiet   # run e2e test only without interactive mode
+./scripts/local.sh init          # install dependencies for the frontend folder and the e2e folder
+./scripts/local.sh ci            # run backend tests and e2e tests
+./scripts/local.sh backend       # run backend test only
+./scripts/local.sh e2e --quiet   # run e2e test only without interactive mode
 ```
 
 You can find an e2e test output video showing the whole journey in `./e2e/cypress/videos/` after the test run. 
 If you would like to launch the test in an actual browser and run e2e test interactively, you may run the following commands:
 ```bash
-./script/local.sh start
-./script/local.sh e2e
+./scripts/local.sh start
+./scripts/local.sh e2e
 ``` 
 More detail about the e2e testing framework can be found at [cypress api doc](https://docs.cypress.io/api/api/table-of-contents.html) 

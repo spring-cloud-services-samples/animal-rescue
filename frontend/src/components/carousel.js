@@ -14,7 +14,7 @@ export default () => (
       {
           images.map((image, i) => (
               <div key={i}>
-                  <img src={image} alt={`cute-animal-${i}`} />
+                  <img src={process.env.PUBLIC_URL + image} alt={`cute-animal-${i}`} />
               </div>
           ))
       }
