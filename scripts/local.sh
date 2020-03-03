@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 init() {
   cd frontend || exit 1
   npm ci

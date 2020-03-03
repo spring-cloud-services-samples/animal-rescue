@@ -14,7 +14,7 @@ Features we demonstrate with this sample app:
 Run the following scripts to set up everything:
 ```bash
 ./scripts/cf_deploy init    # installs dependencies and builds the deployment artifact
-./scripts/cf_deploy deploy  # handles everything you need to deploy the frontend, backend, and gateway
+./scripts/cf_deploy deploy  # handles everything you need to deploy the frontend, backend, and gateway. This script can be executed repeatedly to deploy new changes.
 ```
 Then visit the the frontend url `https://gateway-demo.${appsDomain}/rescue` to view the sample app.
 
@@ -92,3 +92,23 @@ If you would like to launch the test in an actual browser and run e2e test inter
 ./script/local.sh e2e
 ``` 
 More detail about the e2e testing framework can be found at [cypress api doc](https://docs.cypress.io/api/api/table-of-contents.html) 
+
+## CI
+
+#### GitHub Actions
+GitHub Actions run all checks for the `master` branch and all PR requests. All workflow configuration can be found in `.github/workflows`.
+
+#### Concourse
+If you'd like to get the most updated sample app deployed in a real TAS environment, you can set up a concourse pipeline to do so:
+```bash
+fly -t ${yourConcourseTeamName} set-pipeline -p sample-app-to-demo-environment -c concourse/pipeline.yml -l config.yml
+```
+You will need to update the slack notification settings and add the following environment variables to your concourse credentials manager. Here are the variables we set in our concourse credhub:
+```
+- name: /concourse/main/sample-app-to-demo-environment/CF_API_HOST
+- name: /concourse/main/sample-app-to-demo-environment/CF_USERNAME
+- name: /concourse/main/sample-app-to-demo-environment/CF_PASSWORD
+- name: /concourse/main/sample-app-to-demo-environment/SKIP_SSL_VALIDATION
+- name: /concourse/main/sample-app-to-demo-environment/CF_ORG
+- name: /concourse/main/sample-app-to-demo-environment/CF_SPACE
+```
