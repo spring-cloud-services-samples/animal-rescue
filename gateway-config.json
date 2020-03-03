@@ -1,0 +1,6 @@
+{
+  "sso": {
+    "plan": "uaa"
+  },
+  "host": "gateway-demo"
+}

@@ -6,7 +6,7 @@
   "scripts": {
     "open": "cypress open",
     "lint": "eslint cypress",
-    "test": "wait-on tcp:8080 && wait-on tcp:3000 && wait-on tcp:40000 && cypress run"
+    "test": "wait-on tcp:8080 && wait-on tcp:3000 && cypress run"
   },
   "keywords": [],
   "author": "",
