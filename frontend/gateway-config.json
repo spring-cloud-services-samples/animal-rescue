@@ -3,10 +3,12 @@
     {
       "path": "/rescue/admin,/rescue/login",
       "sso-enabled": true,
-      "filters": ["RedirectTo=302, /rescue"]
+      "filters": ["RedirectTo=302, /rescue"],
+      "order": 0
     },
     {
-      "path": "/rescue/**"
+      "path": "/rescue/**",
+      "order": 1000
     }
   ]
 }

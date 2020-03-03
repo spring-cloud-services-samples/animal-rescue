@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const backendBaseUrl = process.env.REACT_APP_BACKEND_BASE_URL || '';
+const backendBaseUrl = process.env.REACT_APP_BACKEND_BASE_URI || '';
+const logoutUrl = process.env.REACT_APP_LOGOUT_URI || '/scg-logout';
 
 export async function getAnimals() {
     return axios
@@ -31,3 +32,13 @@ export async function getUsername() {
     });
 }
 
+export async function logoutFromGateway() {
+    // Set the cookie
+    await fetch(logoutUrl);
+
+    // Pass cookie value in defined Gateway CSRF header
+    let csrfToken = document.cookie.replace(/.*\bSCG-XSRF-TOKEN=([^;]+).*/, "$1");
+    let headers = new Headers({"X-SCG-XSRF-TOKEN": csrfToken});
+
+    return await fetch(logoutUrl, { method: "POST", headers: headers});
+}

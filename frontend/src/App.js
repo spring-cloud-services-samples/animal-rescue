@@ -5,14 +5,14 @@ import './App.css';
 import logo from './logo.svg';
 import AnimalCards from "./components/animal-cards";
 import Carousel from "./components/carousel";
-import {getAnimals, getUsername} from "./httpClient";
+import {getAnimals, getUsername, logoutFromGateway} from "./httpClient";
 import {AppContext} from "./AppContext";
 
 const PENDING = 'pending', AUTHENTICATED = 'authenticated', ANONYMOUS = 'anonymous';
 
 export default class App extends React.Component {
 
-    #loginLink = process.env.REACT_APP_LOGIN_PATH || '/rescue/login';
+    #loginLink = process.env.REACT_APP_LOGIN_URI || '/rescue/login';
 
     constructor(props, context) {
         super(props, context);
@@ -31,6 +31,13 @@ export default class App extends React.Component {
         getUsername().then(name => this.setState({
             username: name,
             userStatus: name === '' ? ANONYMOUS : AUTHENTICATED,
+        }));
+    };
+
+    logout = () => {
+        logoutFromGateway().then(_ => this.setState({
+            username: '',
+            userStatus: ANONYMOUS,
         }));
     };
 
@@ -67,7 +74,7 @@ export default class App extends React.Component {
                     <Button.Content hidden>It only takes a loving heart</Button.Content>
                 </Button>);
             case AUTHENTICATED:
-                return <Button disabled> Have a cute day {this.state.username}! </Button>;
+                return <Button onClick={this.logout}>Sign out</Button>;
             default:
                 return <div/>;
         }
