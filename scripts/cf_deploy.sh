@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 ROOT_DIR=$(pwd)
 GATEWAY_NAME=gateway-demo
 FRONTEND_APP_NAME=animal-rescue-frontend
@@ -27,7 +29,7 @@ serviceSummaryContains() {
 
 push() {
   cd "$ROOT_DIR" || exit 1
-  cf push
+  cf push || true # The backend app will fail to start due to lack of gateway binding
 }
 
 bind_all() {

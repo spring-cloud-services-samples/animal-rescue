@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+QUIET_MODE="--quiet"
+
 init() {
   cd frontend || exit 1
   npm ci
@@ -21,7 +23,7 @@ startFrontend() {
   stopFrontend
 
   printf "\n======== Starting frontend ========\n"
-  if [[ $1 == '--quiet' ]]; then
+  if [[ $1 == "$QUIET_MODE" ]]; then
     echo "Entering quiet mode, output goes here ./scripts/out/frontend_output.log"
     BROWSER=none npm start &>../scripts/out/frontend_output.log &
   else
@@ -42,7 +44,7 @@ startBackend() {
   stopBackend
   printf "\n======== Starting backend ========\n"
 
-  if [[ $1 == '--quiet' ]]; then
+  if [[ $1 == "$QUIET_MODE" ]]; then
     echo "Entering quiet mode, output goes here ./scripts/out/backend_output.log"
     ./gradlew bootRun &>../scripts/out/backend_output.log &
   else
@@ -72,13 +74,15 @@ testBackend() {
 
 testE2e() {
   cd e2e || exit 1
-  if [[ $1 == '--quiet' ]]; then
+  if [[ $1 == "$QUIET_MODE" ]]; then
     npm test
   else
     npm run open
   fi
   cd ..
 }
+
+trap stop SIGINT
 
 case $1 in
 init)
@@ -89,24 +93,24 @@ backend)
   ;;
 ci)
   testBackend
-  start '--quiet'
-  testE2e '--quiet'
+  start $QUIET_MODE
+  testE2e $QUIET_MODE
   stop
   ;;
 e2e)
   echo 'make sure you have executed the "run" command'
-  testE2e $2
+  testE2e "${2:-}"
   ;;
 start)
-  start $2
+  start "${2:-}"
+  if [[ $1 != "$QUIET_MODE" ]]; then
+    wait
+  fi
   ;;
 stop)
   stop
   ;;
-cleanup)
-  ./scripts/auth_server.sh cleanup
-  ;;
 *)
-  echo 'Unknown command. Please specify "init", "backend", "ci", "e2e", "start", "stop", or "cleanup"'
+  echo 'Unknown command. Please specify "init", "backend", "ci", "e2e", "start( --quiet)", or "stop"'
   ;;
 esac

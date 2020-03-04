@@ -66,8 +66,7 @@ Use the following commands to manage the local lifecycle of animal-rescue
 ```bash
 ./scripts/local.sh start         # start auth server, frontend app, and backend app
 ./scripts/local.sh start --quiet # start everything without launching the app in browser, and redirects all output to `./scripts/out/`
-./scripts/local.sh stop          # stop auth server, frontend app, and backend app
-./scripts/local.sh cleanup       # remove the uaa server docker image
+./scripts/local.sh stop          # stop auth server, frontend app, and backend app. You would only need to do this if you start the app in quiet mode.
 ``` 
 
 #### Local security configuration
