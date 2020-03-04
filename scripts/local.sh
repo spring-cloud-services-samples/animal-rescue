@@ -35,7 +35,7 @@ startFrontend() {
 stopBackend() {
   if lsof -i:8080 -t &> /dev/null; then
     printf "\n======== Stopping backend ========\n"
-    kill "$(lsof -i:8080 -t)"
+    pkill java
   fi
 }
 
@@ -103,7 +103,7 @@ e2e)
   ;;
 start)
   start "${2:-}"
-  if [[ $1 != "$QUIET_MODE" ]]; then
+  if [[ ${2:-} != "$QUIET_MODE" ]]; then
     wait
   fi
   ;;

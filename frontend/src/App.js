@@ -52,6 +52,7 @@ export default class App extends React.Component {
                 <header className="App-header">
                     <img src={logo} title="Logo" width="250" alt="Logo"/>
                     <div className="header-buttons">
+                        {this.getGreetButton()}
                         {this.getActionButton()}
                     </div>
                 </header>
@@ -66,15 +67,27 @@ export default class App extends React.Component {
         );
     }
 
+    getGreetButton() {
+        switch (this.state.userStatus) {
+            case ANONYMOUS:
+                return <Button disabled color='green' basic> Let meow greet ya! </Button>;
+            case AUTHENTICATED:
+                return <Button disabled color='green' basic> Have a cute day {this.state.username}! </Button>;
+            default:
+                return <div/>;
+        }
+    }
     getActionButton() {
         switch (this.state.userStatus) {
             case ANONYMOUS:
-                return (<Button animated='fade' color='green' href={this.#loginLink}>
-                    <Button.Content visible>Sign in to adopt</Button.Content>
-                    <Button.Content hidden>It only takes a loving heart</Button.Content>
-                </Button>);
+                return (
+                    <Button animated='fade' color='green' href={this.#loginLink}>
+                        <Button.Content visible>Sign in to adopt</Button.Content>
+                        <Button.Content hidden>It only takes a loving heart</Button.Content>
+                    </Button>
+                );
             case AUTHENTICATED:
-                return <Button onClick={this.logout}>Sign out</Button>;
+                return <Button color='green' onClick={this.logout}>Sign out</Button>;
             default:
                 return <div/>;
         }

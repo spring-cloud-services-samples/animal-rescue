@@ -23,22 +23,30 @@ export async function deleteAdoptionRequest({animalId, adoptionRequestId}) {
 }
 
 export async function getUsername() {
-    return fetch(`${backendBaseUrl}/whoami`).then(r => {
-        if (r.redirected) {
+    return axios
+        .get(`${backendBaseUrl}/whoami`)
+        .then(res => {
+            if (res.request.responseURL && !res.request.responseURL.endsWith('whoami')) {
+                return '';
+            }
+            return res.data;
+        })
+        .catch(err => {
+            console.error('Failed to fetched username', err);
             return '';
-        } else {
-            return r.text();
-        }
-    });
+        });
 }
 
 export async function logoutFromGateway() {
-    // Set the cookie
-    await fetch(logoutUrl);
+    // Fetch and set the csrf cookie
+    await axios(logoutUrl);
 
     // Pass cookie value in defined Gateway CSRF header
     let csrfToken = document.cookie.replace(/.*\bSCG-XSRF-TOKEN=([^;]+).*/, "$1");
-    let headers = new Headers({"X-SCG-XSRF-TOKEN": csrfToken});
 
-    return await fetch(logoutUrl, { method: "POST", headers: headers});
+    return axios.post(logoutUrl, null, {
+        headers: {
+            "X-SCG-XSRF-TOKEN": csrfToken,
+        },
+    });
 }
