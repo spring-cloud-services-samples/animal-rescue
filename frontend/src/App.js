@@ -5,14 +5,14 @@ import './App.css';
 import logo from './logo.svg';
 import AnimalCards from "./components/animal-cards";
 import Carousel from "./components/carousel";
-import {getAnimals, getUsername} from "./httpClient";
+import {getAnimals, getUsername, logoutFromGateway} from "./httpClient";
 import {AppContext} from "./AppContext";
 
 const PENDING = 'pending', AUTHENTICATED = 'authenticated', ANONYMOUS = 'anonymous';
 
 export default class App extends React.Component {
 
-    #loginLink = process.env.REACT_APP_LOGIN_PATH || '/rescue/login';
+    #loginLink = process.env.REACT_APP_LOGIN_URI || '/rescue/login';
 
     constructor(props, context) {
         super(props, context);
@@ -34,6 +34,13 @@ export default class App extends React.Component {
         }));
     };
 
+    logout = () => {
+        logoutFromGateway().then(_ => this.setState({
+            username: '',
+            userStatus: ANONYMOUS,
+        }));
+    };
+
     componentDidMount() {
         this.fetchAnimals();
         this.getUsername();
@@ -45,6 +52,7 @@ export default class App extends React.Component {
                 <header className="App-header">
                     <img src={logo} title="Logo" width="250" alt="Logo"/>
                     <div className="header-buttons">
+                        {this.getGreetButton()}
                         {this.getActionButton()}
                     </div>
                 </header>
@@ -59,15 +67,27 @@ export default class App extends React.Component {
         );
     }
 
+    getGreetButton() {
+        switch (this.state.userStatus) {
+            case ANONYMOUS:
+                return <Button disabled color='green' basic> Let meow greet ya! </Button>;
+            case AUTHENTICATED:
+                return <Button disabled color='green' basic> Have a cute day {this.state.username}! </Button>;
+            default:
+                return <div/>;
+        }
+    }
     getActionButton() {
         switch (this.state.userStatus) {
             case ANONYMOUS:
-                return (<Button animated='fade' color='green' href={this.#loginLink}>
-                    <Button.Content visible>Sign in to adopt</Button.Content>
-                    <Button.Content hidden>It only takes a loving heart</Button.Content>
-                </Button>);
+                return (
+                    <Button animated='fade' color='green' href={this.#loginLink}>
+                        <Button.Content visible>Sign in to adopt</Button.Content>
+                        <Button.Content hidden>It only takes a loving heart</Button.Content>
+                    </Button>
+                );
             case AUTHENTICATED:
-                return <Button disabled> Have a cute day {this.state.username}! </Button>;
+                return <Button color='green' onClick={this.logout}>Sign out</Button>;
             default:
                 return <div/>;
         }

@@ -96,6 +96,11 @@ context('Animal Rescue', () => {
       });
   });
 
+  it('allows user to log out', () => {
+    cy.contains('Sign out').click();
+    cy.contains('Sign in to adopt');
+  });
+
   const logIn = (username, password) => {
     cy.get('input[name=username]').type(username);
     cy.get('input[name=password]').type(`${password}{enter}`); // {enter} causes the form to submit

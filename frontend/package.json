@@ -11,8 +11,8 @@
     "semantic-ui-react": "^0.88.2"
   },
   "scripts": {
-    "start": "wait-on tcp:8080 && REACT_APP_LOGIN_PATH=http://localhost:8080/login react-scripts start",
-    "build": "REACT_APP_BACKEND_BASE_URL=/api react-scripts build",
+    "start": "wait-on tcp:8080 && REACT_APP_LOGIN_URI=http://localhost:8080/login REACT_APP_LOGOUT_URI=/logout react-scripts start",
+    "build": "REACT_APP_BACKEND_BASE_URI=/api react-scripts build",
     "lint": "eslint src",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

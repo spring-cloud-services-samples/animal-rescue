@@ -167,13 +167,6 @@
     margin: 10px 0 50px;
   }
 
-  .slider-wrapper {
-    background: url('/slider-background.jpg');
-    background-position: center;
-    background-size: 100%;
-    height: 100%;
-  }
-
   .carousel .slide {
     background: transparent;
   }
