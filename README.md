@@ -7,7 +7,7 @@ Features we demonstrate with this sample app:
 - Gateway routes configured through service bindings
 - Simplified route configuration
 - SSO login and token relay on behalf of the routed services
-- (Coming soon) Required scopes on routes
+- Required scopes on routes (tag: `require-sso-scopes`)
 
 ## Deploy to CF
 
@@ -111,3 +111,8 @@ You will need to update the slack notification settings and add the following en
 - name: /concourse/main/sample-app-to-demo-environment/CF_ORG
 - name: /concourse/main/sample-app-to-demo-environment/CF_SPACE
 ```
+
+## Check out our tags:
+Tags that looks like `SCG-VT-v${VERSION}+` indicates that this commit and the commits after are compatible with the specified `VERSION` of the `SCG-VT` tile.
+
+The other tags demonstrate different configuration with `SCG-VT`, have fun exploring what's possible!
