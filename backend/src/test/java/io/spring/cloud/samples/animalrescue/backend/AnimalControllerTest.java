@@ -49,7 +49,7 @@ class AnimalControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "test-user", authorities = {"adoption.request"})
+	@WithMockUser(username = "test-user")
 	void getUserName() {
 		webTestClient
 			.get()
@@ -84,7 +84,7 @@ class AnimalControllerTest {
 	class SubmitAdoptionRequest {
 
 		@Test
-		@WithMockUser(username = "test-user-1", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-1")
 		void succeeds() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
@@ -106,7 +106,7 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-1", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-1")
 		void failsIfAnimalNotFound() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
@@ -126,7 +126,7 @@ class AnimalControllerTest {
 	class EditAdoptionRequest {
 
 		@Test
-		@WithMockUser(username = "test-user-2", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-2")
 		void succeeds() {
 			String testEmail = "b@email.com";
 			String testNotes = "Plzzzz!";
@@ -150,7 +150,7 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-2", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-2")
 		void failsIfNotTheOriginalRequester() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
@@ -166,7 +166,7 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-2", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-2")
 		void failsIfAnimalNotFound() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
@@ -182,7 +182,7 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-2", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-2")
 		void failsIfAdoptionRequestNotFound() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
@@ -202,7 +202,7 @@ class AnimalControllerTest {
 	class DeleteAdoptionRequest {
 
 		@Test
-		@WithMockUser(username = "test-user-3", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-3")
 		void succeeds() {
 			adopt("dummy", "dummy");
 			long newId = getNewlyCreatedRequestId(1L, "test-user-3");
@@ -218,7 +218,7 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-3", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-3")
 		void failsIfNotTheOriginalRequester() {
 			webTestClient
 				.delete()
@@ -228,7 +228,7 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-3", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-3")
 		void failsIfAnimalNotFound() {
 			webTestClient
 				.delete()
@@ -238,7 +238,7 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-3", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-3")
 		void failsIfAdoptionRequestNotFound() {
 			webTestClient
 				.delete()

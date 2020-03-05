@@ -1,6 +1,7 @@
 {
   "sso": {
-    "plan": "uaa"
+    "plan": "custom-plan-id",
+    "scopes": ["request.create", "request.update", "request.delete"]
   },
   "host": "gateway-demo"
 }

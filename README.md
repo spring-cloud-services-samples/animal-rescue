@@ -11,6 +11,10 @@ Features we demonstrate with this sample app:
 
 ## Deploy to CF
 
+You will need [uaac](https://docs.cloudfoundry.org/uaa/uaa-user-management.html) to run the `deploy` script for the sake of setting up a new test user with the required scopes.
+
+To add custom resource you would need to create a custom plan then create resource according to the [documentation](https://docs.run.pivotal.io/sso/manage-resources.html#create-resources).
+
 Run the following scripts to set up everything:
 ```bash
 ./scripts/cf_deploy init    # installs dependencies and builds the deployment artifact

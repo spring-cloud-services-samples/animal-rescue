@@ -113,6 +113,16 @@ destroy_all() {
   done
 }
 
+set_up_user_and_scopes() {
+  uaac user add alice --emails alice -p test
+  uaac group add request.create
+  uaac group add request.update
+  uaac group add request.delete
+  uaac member add request.create alice
+  uaac member add request.update alice
+  uaac member add request.delete alice
+}
+
 case $1 in
 init)
   init
@@ -120,6 +130,7 @@ init)
   ;;
 push)
   build
+  set_up_user_and_scopes
   push
   ;;
 rebind)

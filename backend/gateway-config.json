@@ -16,10 +16,27 @@
       "filters": [ "RemoveResponseHeader=Set-Cookie" ]
     },
     {
-      "path": "/api/animals/*/adoption-requests/**",
-      "method": "GET,POST,PUT,DELETE",
+      "path": "/api/animals/*/adoption-requests/*",
+      "method": "POST",
       "token-relay": true,
       "sso-enabled": true,
+      "scopes": ["request.create"],
+      "filters": [ "RemoveResponseHeader=Set-Cookie" ]
+    },
+    {
+      "path": "/api/animals/*/adoption-requests/*",
+      "method": "PUT",
+      "token-relay": true,
+      "sso-enabled": true,
+      "scopes": ["request.update"],
+      "filters": [ "RemoveResponseHeader=Set-Cookie" ]
+    },
+    {
+      "path": "/api/animals/*/adoption-requests/*",
+      "method": "DELETE",
+      "token-relay": true,
+      "sso-enabled": true,
+      "scopes": ["request.delete"],
       "filters": [ "RemoveResponseHeader=Set-Cookie" ]
     }
   ]
