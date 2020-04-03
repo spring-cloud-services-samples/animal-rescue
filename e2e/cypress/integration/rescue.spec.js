@@ -20,7 +20,7 @@ context('Animal Rescue', () => {
   });
 
   it('greets user and allows for adoption after logging in', () => {
-    cy.contains('Sign in to adopt').click();
+    cy.contains('Sign in to adopt').click({force: true});
 
     logIn(username, password);
 
