@@ -25,8 +25,9 @@ Once you have enough fun with the sample app, run the following script to clean 
 
 Some other commands that might be helpful:
 ```bash
-./scripts/cf_deploy push    # builds and pushes frontend and backend
-./scripts/cf_deploy rebind  # unbinds and rebinds frontend and backend
+./scripts/cf_deploy push                     # builds and pushes frontend and backend
+./scripts/cf_deploy dynamic_route_config_update  # update bound apps' configuration with calling the update endpoint on the backing app. You will need to be a space developer to do so.
+./scripts/cf_deploy rebind                   # unbinds and rebinds frontend and backend
 ```
 
 ## Special frontend config related to gateway
