@@ -22,4 +22,5 @@ echo "* Build"
 ./scripts/cf_deploy.sh init
 
 echo "* Deploy"
+./scripts/cf_deploy.sh upgrade || true
 ./scripts/cf_deploy.sh deploy
