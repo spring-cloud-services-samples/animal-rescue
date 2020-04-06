@@ -29,7 +29,7 @@ serviceSummaryContains() {
 
 push() {
   cd "$ROOT_DIR" || exit 1
-  cf push || true # The backend app will fail to start due to lack of gateway binding
+  cf push
 }
 
 bind_all() {
@@ -75,7 +75,7 @@ unbind_all() {
   unbind $BACKEND_APP_NAME
 }
 
-binding_update() {
+routes_update_for_app() {
   app_name=$1
   sub_dir=$2
 
@@ -94,6 +94,11 @@ binding_update() {
   fi
 }
 
+routes_update_all() {
+  routes_update_for_app $FRONTEND_APP_NAME 'frontend'
+  routes_update_for_app $BACKEND_APP_NAME 'backend'
+}
+
 deploy_all() {
   cd "$ROOT_DIR" || exit 1
 
@@ -109,14 +114,13 @@ deploy_all() {
     cf update-service $GATEWAY_NAME -c ./gateway-config.json
   fi
 
-  push
-
   while ! gatewayServiceInstanceIsReady; do
     echo "Waiting for service instance to be ready..."
     sleep 1
   done
 
-  bind_all
+  push
+  routes_update_all
 }
 
 destroy_all() {
@@ -145,16 +149,18 @@ rebind)
   bind_all
   ;;
 dynamic_route_config_update)
-  binding_update $FRONTEND_APP_NAME 'frontend'
-  binding_update $BACKEND_APP_NAME 'backend'
+  routes_update_all
   ;;
 deploy)
   deploy_all
+  ;;
+upgrade)
+  cf update-service $GATEWAY_NAME -c '{"upgrade": true}'
   ;;
 destroy)
   destroy_all
   ;;
 *)
-  echo 'Unknown command. Please specify "init", "push", "dynamic_route_config_update", "rebind", "deploy" or "destroy"'
+  echo 'Unknown command. Please specify "init", "push", "dynamic_route_config_update", "rebind", "deploy", "upgrade" or "destroy"'
   ;;
 esac
