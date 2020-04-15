@@ -98,6 +98,7 @@ context('Animal Rescue', () => {
 
   it('allows user to log out', () => {
     cy.contains('Sign out').click();
+    cy.contains('Log Out').click(); // This is the log out page provided by spring security
     cy.contains('Sign in to adopt');
   });
 
