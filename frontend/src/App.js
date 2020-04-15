@@ -5,7 +5,7 @@ import './App.css';
 import logo from './logo.svg';
 import AnimalCards from "./components/animal-cards";
 import Carousel from "./components/carousel";
-import {getAnimals, getUsername, logoutFromGateway} from "./httpClient";
+import {getAnimals, getUsername} from "./httpClient";
 import {AppContext} from "./AppContext";
 
 const PENDING = 'pending', AUTHENTICATED = 'authenticated', ANONYMOUS = 'anonymous';
@@ -13,6 +13,7 @@ const PENDING = 'pending', AUTHENTICATED = 'authenticated', ANONYMOUS = 'anonymo
 export default class App extends React.Component {
 
     #loginLink = process.env.REACT_APP_LOGIN_URI || '/rescue/login';
+    #logoutLink = process.env.REACT_APP_LOGOUT_URI || '/scg-logout?redirect=/rescue';
 
     constructor(props, context) {
         super(props, context);
@@ -31,13 +32,6 @@ export default class App extends React.Component {
         getUsername().then(name => this.setState({
             username: name,
             userStatus: name === '' ? ANONYMOUS : AUTHENTICATED,
-        }));
-    };
-
-    logout = () => {
-        logoutFromGateway().then(_ => this.setState({
-            username: '',
-            userStatus: ANONYMOUS,
         }));
     };
 
@@ -87,7 +81,7 @@ export default class App extends React.Component {
                     </Button>
                 );
             case AUTHENTICATED:
-                return <Button color='green' onClick={this.logout}>Sign out</Button>;
+                return <Button color='green' href={this.#logoutLink}>Sign out</Button>;
             default:
                 return <div/>;
         }
