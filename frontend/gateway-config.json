@@ -9,6 +9,7 @@
     },
     {
       "path": "/rescue/**",
+      "documentation": "https://github.com/spring-cloud-services-samples/animal-rescue",
       "order": 1000
     }
   ]
