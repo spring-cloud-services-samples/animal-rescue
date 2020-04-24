@@ -1,18 +1,26 @@
 {
   "routes": [
     {
+      "title": "Retrieve pets for adoption.",
+      "description": "Retrieve all of the animals who are up for pet adoption.",
       "path": "/api/animals",
       "method": "GET"
     },
     {
+      "title": "API Actuator endpoints",
+      "description": "Access API actuator endpoints to provide current status of backend service.",
       "path": "/api/actuator/**"
     },
     {
+      "title": "Retrieve user information",
+      "description": "Retrive the current authenticated user's information.",
       "path": "/api/whoami",
       "token-relay": true,
       "sso-enabled": true
     },
     {
+      "title": "Pet adoption API",
+      "description": "Manage pet adoptions.",
       "path": "/api/animals/*/adoption-requests/**",
       "method": "POST,PUT,DELETE",
       "token-relay": true,
