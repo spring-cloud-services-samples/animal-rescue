@@ -31,6 +31,12 @@ Some other commands that might be helpful:
 ./scripts/cf_deploy upgrade                  # upgrade the gateway instance
 ```
 
+All the gateway configuration can be found and updated here:
+
+- Gateway service instance configuration file used on create/update: `./gateway-config.json` 
+- Frontend routes configuration used on binding used on bind: `./frontend/gateway-config.json`
+- Backend routes configuration used on binding used on bind:`./backend/gateway-config.json` 
+
 ## Special frontend config related to gateway
 
 The frontend application is implemented in ReactJS, and is pushed with static buildpack. Because of it's static nature, we had to do the following 

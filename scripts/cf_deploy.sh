@@ -42,11 +42,6 @@ bind_all() {
 
   cf bind-service $BACKEND_APP_NAME $GATEWAY_NAME -c ./backend/gateway-config.json
 
-  while gatewayDetailContains "create in progress"; do
-    echo "Waiting for binding $BACKEND_APP_NAME to finish..."
-    sleep 1
-  done
-
   # Bind frontend app
   if gatewayDetailContains "$FRONTEND_APP_NAME"; then
     unbind $FRONTEND_APP_NAME
@@ -57,9 +52,6 @@ bind_all() {
     echo "Waiting for binding $FRONTEND_APP_NAME to finish..."
     sleep 1
   done
-
-  # Restage backend app
-  cf restage $BACKEND_APP_NAME
 }
 
 unbind() {
@@ -103,7 +95,7 @@ deploy_all() {
   cd "$ROOT_DIR" || exit 1
 
   gatewayServiceInstanceIsReady() {
-    gatewayDetailContains "[create|udpate] service instance completed"
+    gatewayDetailContains "[create|update] service instance completed"
   }
 
   if ! gatewayServiceInstanceIsReady; then
@@ -115,6 +107,11 @@ deploy_all() {
   fi
 
   while ! gatewayServiceInstanceIsReady; do
+    if gatewayDetailContains "[create|update] service instance failed"; then
+      printf "\033[31m\n=====\nOops, something went wrong.\n%s\n \033[0m" "$(cf service $GATEWAY_NAME)">/dev/stderr
+      exit 1
+    fi
+
     echo "Waiting for service instance to be ready..."
     sleep 1
   done
