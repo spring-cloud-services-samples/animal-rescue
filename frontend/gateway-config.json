@@ -4,12 +4,10 @@
       "path": "/rescue/admin,/rescue/login",
       "sso-enabled": true,
       "filters": ["RedirectTo=302, /rescue"],
-      "documentation": "https://github.com/spring-cloud-services-samples/animal-rescue",
       "order": 0
     },
     {
       "path": "/rescue/**",
-      "documentation": "https://github.com/spring-cloud-services-samples/animal-rescue",
       "order": 1000
     }
   ]
