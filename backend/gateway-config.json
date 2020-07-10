@@ -14,17 +14,17 @@
     {
       "title": "Retrieve user information",
       "description": "Retrive the current authenticated user's information.",
-      "path": "/api/whoami",
-      "token-relay": true,
-      "sso-enabled": true
+      "path": "/api/whoami"
     },
     {
       "title": "Pet adoption API",
       "description": "Manage pet adoptions.",
       "path": "/api/animals/*/adoption-requests/**",
-      "method": "POST,PUT,DELETE",
-      "token-relay": true,
-      "sso-enabled": true
+      "method": "POST,PUT,DELETE"
+    },
+    {
+      "path": "/api/**",
+      "order": 100
     }
   ]
 }

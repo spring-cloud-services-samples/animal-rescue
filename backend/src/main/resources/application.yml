@@ -16,3 +16,15 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://any.uaa.uri/token_keys
+
+redirect-uri: http://localhost:3000/rescue
+login-uri: /login
+
+---
+
+spring:
+  profiles: cloud
+
+redirect-uri: /rescue
+login-uri: /api/login
+
