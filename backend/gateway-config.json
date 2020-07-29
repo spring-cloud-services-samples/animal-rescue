@@ -4,7 +4,8 @@
       "title": "Retrieve pets for adoption.",
       "description": "Retrieve all of the animals who are up for pet adoption.",
       "path": "/api/animals",
-      "method": "GET"
+      "method": "GET",
+      "filters": [ "RateLimit=2,10s" ]
     },
     {
       "title": "API Actuator endpoints",

@@ -2,5 +2,10 @@
   "sso": {
     "plan": "uaa"
   },
-  "host": "gateway-demo"
+  "host": "cs-gateway-demo",
+  "title": "Animal Rescue",
+  "description": "Sample application for Spring Cloud Gateway for VMware Tanzu.",
+  "documentation": "https://github.com/spring-cloud-services-samples/animal-rescue/",
+  "version": "1.0.0-SNAPSHOT",
+  "error-routes": [ { "code": "404", "redirect-path": "/rescue" } ]
 }
