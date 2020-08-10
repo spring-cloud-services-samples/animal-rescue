@@ -2,7 +2,8 @@
   "sso": {
     "plan": "uaa"
   },
-  "host": "cs-gateway-demo",
+  "count": 2,
+  "host": "gateway-demo",
   "title": "Animal Rescue",
   "description": "Sample application for Spring Cloud Gateway for VMware Tanzu.",
   "documentation": "https://github.com/spring-cloud-services-samples/animal-rescue/",

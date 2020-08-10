@@ -14,6 +14,7 @@ export default class AdoptionRequestModal extends React.Component {
             modalOpen: false,
             email: '',
             notes: '',
+            error: '',
         };
     }
 
@@ -27,31 +28,38 @@ export default class AdoptionRequestModal extends React.Component {
     handleChange = (e, {name, value}) => this.setState({[name]: value});
 
     handleDelete = async () => {
-        await deleteAdoptionRequest({
-            animalId: this.props.animal.id,
-            adoptionRequestId: this.props.existingRequest.id,
-        });
+        try {
+            await deleteAdoptionRequest({
+                animalId: this.props.animal.id,
+                adoptionRequestId: this.props.existingRequest.id,
+            });
 
-        this.closeModal();
+            this.closeModal();
+        } catch (e) {
+            this.setState({ error: JSON.stringify(e) });
+        }
     };
 
     handleSubmit = async () => {
-        if (this.props.existingRequest === undefined) {
-            await submitAdoptionRequest({
-                animalId: this.props.animal.id,
-                email: this.state.email,
-                notes: this.state.notes,
-            });
-        } else {
-            await editAdoptionRequest({
-                animalId: this.props.animal.id,
-                adoptionRequestId: this.props.existingRequest.id,
-                email: this.state.email,
-                notes: this.state.notes,
-            });
+        try {
+            if (this.props.existingRequest === undefined) {
+                await submitAdoptionRequest({
+                    animalId: this.props.animal.id,
+                    email: this.state.email,
+                    notes: this.state.notes,
+                });
+            } else {
+                await editAdoptionRequest({
+                    animalId: this.props.animal.id,
+                    adoptionRequestId: this.props.existingRequest.id,
+                    email: this.state.email,
+                    notes: this.state.notes,
+                });
+            }
+            this.closeModal();
+        } catch (e) {
+            this.setState({ error: JSON.stringify(e) });
         }
-
-        this.closeModal();
     };
 
     closeModal() {
@@ -85,6 +93,18 @@ export default class AdoptionRequestModal extends React.Component {
                 <Icon name='trash alternate outline'/> Delete Request
             </Button>
         ) : null;
+
+        const errorMessage = this.state.error === '' ? (
+            <div/>
+        ) : (
+            <div className="ui error message">
+                <div className="content">
+                    <div className="header">Action Forbidden</div>
+                    <p>{this.state.error}</p>
+                </div>
+            </div>
+        );
+
         return (
             <Modal trigger={triggerButton}
                    open={this.state.modalOpen}
@@ -93,7 +113,7 @@ export default class AdoptionRequestModal extends React.Component {
                    closeIcon>
                 <Header icon='heartbeat' content={`Adopt ${this.props.animal.name}`}/>
                 <Modal.Content>
-                    <Form>
+                    <Form error={this.state.error !== ''}>
                         <Form.Input
                             placeholder='Name'
                             label='Email'
@@ -106,6 +126,7 @@ export default class AdoptionRequestModal extends React.Component {
                                        placeholder={`Tell us why you like ${this.props.animal.name}...`}
                                        value={this.state.notes}
                                        onChange={this.handleChange}/>
+                        {errorMessage}
                     </Form>
                 </Modal.Content>
                 <Modal.Actions>

@@ -1,13 +1,19 @@
 {
   "routes": [
     {
-      "path": "/rescue/admin,/rescue/login",
+      "title": "Animal Rescue login link",
+      "description": "SSO enabled path used by the login button",
+      "path": "/rescue/login",
+      "method": "GET",
       "sso-enabled": true,
       "filters": ["RedirectTo=302, /rescue"],
       "order": 0
     },
     {
+      "title": "Animal Rescue home page",
+      "description": "Animal Rescue home page that doesn't require SSO login",
       "path": "/rescue/**",
+      "method": "GET",
       "order": 1000
     }
   ]

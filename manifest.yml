@@ -3,14 +3,14 @@ applications:
 - name: animal-rescue-frontend
   path: ./frontend/build
   routes:
-    - route: cs-animal-rescue-frontend.apps.internal
+    - route: animal-rescue-frontend.apps.internal
   services:
     - gateway-demo
 - name: animal-rescue-backend
   path: ./backend/build/libs/backend-0.0.1-SNAPSHOT.jar
   memory: 1G
   routes:
-    - route: cs-animal-rescue-backend.apps.internal
+    - route: animal-rescue-backend.apps.internal
   services:
     - gateway-demo
 
