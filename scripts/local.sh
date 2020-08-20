@@ -5,10 +5,7 @@ set -euo pipefail
 QUIET_MODE="--quiet"
 
 init() {
-  cd frontend || exit 1
-  npm ci
-  cd ../e2e || exit 1
-  npm ci
+  ./gradlew assemble
 }
 
 stopFrontend() {
@@ -40,17 +37,15 @@ stopBackend() {
 }
 
 startBackend() {
-  cd backend || exit 1
   stopBackend
   printf "\n======== Starting backend ========\n"
 
   if [[ $1 == "$QUIET_MODE" ]]; then
     echo "Entering quiet mode, output goes here ./scripts/out/backend_output.log"
-    ./gradlew bootRun &>../scripts/out/backend_output.log &
+    ./gradlew :backend:bootRun &>../scripts/out/backend_output.log &
   else
-    ./gradlew bootRun &
+    ./gradlew :backend:bootRun &
   fi
-  cd ..
 }
 
 start() {
@@ -66,10 +61,8 @@ stop() {
 }
 
 testBackend() {
-  cd backend || exit 1
   printf "\n======== Running backend unit tests ========\n"
-  ./gradlew test
-  cd ..
+  ./gradlew :backend:test
 }
 
 testE2e() {

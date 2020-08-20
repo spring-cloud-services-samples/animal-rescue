@@ -2,21 +2,17 @@
 
 set -euo pipefail
 
-ROOT_DIR=$(pwd)
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 GATEWAY_NAME=gateway-demo
 FRONTEND_APP_NAME=animal-rescue-frontend
 BACKEND_APP_NAME=animal-rescue-backend
 
 init() {
-  cd "$ROOT_DIR/frontend" || exit 1
-  npm ci
+  ./gradlew :frontend:npm_ci
 }
 
 build() {
-  cd "$ROOT_DIR/frontend" || exit 1
-  npm run build
-  cd "$ROOT_DIR/backend" || exit 1
-  ./gradlew clean bootJar
+  ./gradlew assemble
 }
 
 gatewayDetailContains() {
@@ -28,13 +24,10 @@ serviceSummaryContains() {
 }
 
 push() {
-  cd "$ROOT_DIR" || exit 1
   cf push
 }
 
 bind_all() {
-  cd "$ROOT_DIR" || exit 1
-
   # Bind backend app
   if gatewayDetailContains "$BACKEND_APP_NAME"; then
     unbind $BACKEND_APP_NAME
@@ -52,6 +45,8 @@ bind_all() {
     echo "Waiting for binding $FRONTEND_APP_NAME to finish..."
     sleep 1
   done
+
+  cf restart $BACKEND_APP_NAME
 }
 
 unbind() {
@@ -92,8 +87,6 @@ routes_update_all() {
 }
 
 deploy_all() {
-  cd "$ROOT_DIR" || exit 1
-
   gatewayServiceInstanceIsReady() {
     gatewayDetailContains "[create|update] service instance completed"
   }
@@ -133,10 +126,11 @@ destroy_all() {
   done
 }
 
+cd "$ROOT_DIR" || exit 1
+
 case $1 in
 init)
   init
-  build
   ;;
 push)
   build

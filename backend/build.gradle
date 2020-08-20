@@ -33,7 +33,7 @@ dependencies {
 	implementation "org.springframework.security:spring-security-oauth2-jose"
  	implementation("io.pivotal.cfenv:java-cfenv-boot:2.1.1.RELEASE")
 
-    runtime 'com.h2database:h2'
+    runtimeOnly 'com.h2database:h2'
 
 	testImplementation('org.springframework.security:spring-security-test')
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
@@ -52,6 +52,7 @@ test {
 }
 
 jacocoTestReport {
+	dependsOn test
     reports {
         xml.enabled true
 		xml.destination new File("${buildDir}/reports/jacoco/report.xml")
@@ -59,5 +60,3 @@ jacocoTestReport {
 		csv.enabled false
     }
 }
-
-jacocoTestReport.dependsOn test
