@@ -1,0 +1,17 @@
+plugins {
+    id "base"
+    id "com.github.node-gradle.node"
+}
+
+npm_ci {
+    inputs.file "package.json"
+    outputs.dir "node_modules"
+}
+
+task test {
+    dependsOn npm_test
+}
+
+assemble {
+    dependsOn npm_ci
+}

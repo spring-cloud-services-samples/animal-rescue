@@ -1,0 +1,9 @@
+pluginManagement {
+    plugins {
+      id "com.github.node-gradle.node" version "2.2.4"
+    }
+}
+
+include "backend"
+include "e2e"
+include "frontend"

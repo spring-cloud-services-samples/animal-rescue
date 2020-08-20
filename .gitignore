@@ -1,9 +1,10 @@
 .DS_Store
+.gradle
 
 ### IntelliJ IDEA ###
 .idea
 *.iws
-**/*.iml
+*.iml
 *.ipr
 out/
 scripts/out/
