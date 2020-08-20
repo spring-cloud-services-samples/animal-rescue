@@ -14,7 +14,7 @@
     },
     {
       "title": "Retrieve user information",
-      "description": "Retrive the current authenticated user's information.",
+      "description": "Retrieve the current authenticated user's information.",
       "path": "/api/whoami",
       "method": "GET",
       "token-relay": true,

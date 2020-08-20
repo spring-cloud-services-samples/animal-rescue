@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+readonly ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 QUIET_MODE="--quiet"
 
 init() {
@@ -11,7 +12,7 @@ init() {
 stopFrontend() {
   if lsof -i:3000 -t &> /dev/null; then
     printf "\n======== Stopping frontend ========\n"
-    pkill node
+    pkill node || true
   fi
 }
 
@@ -22,7 +23,7 @@ startFrontend() {
   printf "\n======== Starting frontend ========\n"
   if [[ $1 == "$QUIET_MODE" ]]; then
     echo "Entering quiet mode, output goes here ./scripts/out/frontend_output.log"
-    BROWSER=none npm start &>../scripts/out/frontend_output.log &
+    BROWSER=none npm start &> "$ROOT_DIR/scripts/out/frontend_output.log" &
   else
     npm start &
   fi
@@ -32,7 +33,7 @@ startFrontend() {
 stopBackend() {
   if lsof -i:8080 -t &> /dev/null; then
     printf "\n======== Stopping backend ========\n"
-    pkill java
+    pkill java || true
   fi
 }
 
@@ -42,14 +43,14 @@ startBackend() {
 
   if [[ $1 == "$QUIET_MODE" ]]; then
     echo "Entering quiet mode, output goes here ./scripts/out/backend_output.log"
-    ./gradlew :backend:bootRun &>../scripts/out/backend_output.log &
+    ./gradlew :backend:bootRun > "$ROOT_DIR/scripts/out/backend_output.log" &
   else
     ./gradlew :backend:bootRun &
   fi
 }
 
 start() {
-  mkdir -p ./scripts/out
+  mkdir -p "$ROOT_DIR/scripts/out"
 
   startBackend "$1"
   startFrontend "$1"
@@ -91,7 +92,7 @@ ci)
   stop
   ;;
 e2e)
-  echo 'make sure you have executed the "run" command'
+  echo 'make sure you have executed the "start" command'
   testE2e "${2:-}"
   ;;
 start)

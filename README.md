@@ -16,7 +16,7 @@ Run the following scripts to set up everything:
 ./scripts/cf_deploy init    # installs dependencies and builds the deployment artifact
 ./scripts/cf_deploy deploy  # handles everything you need to deploy the frontend, backend, and gateway. This script can be executed repeatedly to deploy new changes.
 ```
-Then visit the the frontend url `https://gateway-demo.${appsDomain}/rescue` to view the sample app.
+Then visit the frontend url `https://gateway-demo.${appsDomain}/rescue` to view the sample app.
 
 Once you have enough fun with the sample app, run the following script to clean up the environment:
 ```bash

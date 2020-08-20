@@ -27,7 +27,6 @@ jobs:
 
     - name: Run codecov check
       run: |
-        cd backend
         ./gradlew jacocoTestReport
 
     - name: Upload code coverage results
