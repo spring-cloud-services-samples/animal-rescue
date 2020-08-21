@@ -1,9 +1,13 @@
 package io.spring.cloud.samples.animalrescue.backend;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.pivotal.cfenv.core.CfEnv;
+import io.pivotal.cfenv.core.CfService;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnCloudPlatform;
 import org.springframework.boot.cloud.CloudPlatform;
@@ -18,7 +22,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import io.pivotal.cfenv.core.CfEnv;
 
 @Configuration
 @ConditionalOnCloudPlatform(CloudPlatform.CLOUD_FOUNDRY)
@@ -33,6 +36,9 @@ public class CloudFoundrySecurityConfiguration {
 
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity httpSecurity, CfEnv cfEnv) {
+		List<CfService> services = cfEnv.findServicesByLabel("p.gateway");
+		if (services.isEmpty()) return httpSecurity.build();
+
 		String authDomain = cfEnv.findCredentialsByLabel("p.gateway").getString("auth_domain");
 		if (authDomain != null) {
 			LOG.info("Found SSO auth_domain {}, configuring Resource Server support", authDomain);

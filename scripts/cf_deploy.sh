@@ -110,6 +110,7 @@ deploy_all() {
   done
 
   push
+  bind_all
   routes_update_all
 }
 
