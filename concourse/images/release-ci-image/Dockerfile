@@ -1,15 +1,11 @@
 FROM ubuntu:bionic-20181018
 
-RUN apt-get update
-RUN apt-get install -y ca-certificates net-tools git curl jq wget gnupg2
-RUN rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y ca-certificates net-tools git curl jq wget gnupg2
 
 # Install CF CLI
 RUN wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | apt-key add -
 RUN echo "deb https://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list
-RUN apt-get update
-RUN apt-get install -y cf-cli
-
+RUN apt-get update && apt-get install -y cf-cli
 
 # Install Node
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
@@ -25,4 +21,6 @@ RUN mkdir -p /opt/openjdk && \
 ADD https://raw.githubusercontent.com/spring-io/concourse-java-scripts/v0.0.2/concourse-java.sh /opt/
 
 # Install dependencies for Cypress (https://docs.cypress.io/guides/guides/continuous-integration.html#Dependencies)
-RUN apt-get install -y libgtk2.0-0 libgtk-3-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+RUN apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+
+RUN rm -rf /var/lib/apt/lists/*
