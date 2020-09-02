@@ -3,6 +3,11 @@ plugins {
     id "com.github.node-gradle.node"
 }
 
+node {
+    download = true
+    version = "14.8.0"
+}
+
 npm_ci {
     inputs.file "package.json"
     outputs.dir "node_modules"
