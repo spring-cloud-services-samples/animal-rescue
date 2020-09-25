@@ -1,0 +1,20 @@
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGateway
+metadata:
+  name: animal-rescue-gateway
+spec:
+  routes:
+    - id: animal-rescue-frontend
+      uri: http://animal-rescue-frontend.spring-cloud-gateway.svc.cluster.local
+      predicates:
+        - Path=/rescue/**
+      filters:
+        - StripPrefix=1
+    - id: animal-rescue-backend
+      uri: http://animal-rescue-backend.spring-cloud-gateway.svc.cluster.local
+      predicates:
+        - Path=/api/**
+      filters:
+        - StripPrefix=1
+  count: 2
+  tlsCertSecretName: wildcard-cert-tls
