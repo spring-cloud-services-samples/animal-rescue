@@ -14,7 +14,6 @@ spec:
       containers:
         - name: animal-rescue-frontend
           image: springcloudservices/animal-rescue-frontend
-          imagePullPolicy: Always
           ports:
             - containerPort: 80
       restartPolicy: Always
