@@ -10,8 +10,9 @@ build:
       builder: gcr.io/paketo-buildpacks/builder:base-platform-api-latest
       dependencies:
         paths:
-        - src
+        - src/main/**
         - build.gradle
+        - settings.gradle
   - image: springcloudservices/animal-rescue-frontend
     context: frontend
 
