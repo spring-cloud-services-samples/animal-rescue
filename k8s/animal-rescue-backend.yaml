@@ -42,7 +42,7 @@ kind: SpringCloudGatewayBinding
 metadata:
   name: animal-rescue-backend-routes
 spec:
-  gateway: animal-rescue-gateway-with-dynamic-routes
+  gateway: gateway-demo-with-dynamic-routes
   service: animal-rescue-backend
   routes:
     - predicates:

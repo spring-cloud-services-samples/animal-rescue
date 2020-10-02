@@ -6,5 +6,5 @@ resources:
   - namespace.yaml
   - animal-rescue-frontend.yaml
   - animal-rescue-backend.yaml
-  - animal-rescue-gateway.yaml
-  - animal-rescue-gateway-with-dynamic-routes.yaml
+  - gateway-demo.yaml
+  - gateway-demo-with-dynamic-routes.yaml

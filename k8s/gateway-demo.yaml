@@ -1,7 +1,7 @@
 apiVersion: "tanzu.vmware.com/v1"
 kind: SpringCloudGateway
 metadata:
-  name: animal-rescue-gateway
+  name: gateway-demo
 spec:
   routes:
     - id: animal-rescue-frontend
