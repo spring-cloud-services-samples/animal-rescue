@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: animal-rescue-frontend
+spec:
+  selector:
+    matchLabels:
+      app: animal-rescue-frontend
+  template:
+    metadata:
+      labels:
+        app: animal-rescue-frontend
+    spec:
+      containers:
+        - name: animal-rescue-frontend
+          image: springcloudservices/animal-rescue-frontend
+          ports:
+            - containerPort: 80
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: animal-rescue-frontend
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: animal-rescue-frontend
+
+---
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayBinding
+metadata:
+  name: animal-rescue-frontend-routes
+spec:
+  gateway: animal-rescue-gateway-with-dynamic-routes
+  service: animal-rescue-frontend
+  routes:
+    - predicates:
+        - Path=/rescue/**
+      filters:
+        - StripPrefix=1

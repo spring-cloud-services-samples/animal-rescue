@@ -1,0 +1,22 @@
+apiVersion: skaffold/v2beta6
+kind: Config
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+  - image: springcloudservices/animal-rescue-backend
+    context: backend
+    buildpacks:
+      builder: gcr.io/paketo-buildpacks/builder:base-platform-api-latest
+      dependencies:
+        paths:
+        - src/main/**
+        - build.gradle
+        - settings.gradle
+  - image: springcloudservices/animal-rescue-frontend
+    context: frontend
+
+deploy:
+  kustomize:
+    paths:
+      - k8s
