@@ -37,13 +37,32 @@ All the gateway configuration can be found and updated here:
 - Frontend routes configuration used on binding used on bind: `./frontend/gateway-config.json`
 - Backend routes configuration used on binding used on bind:`./backend/gateway-config.json` 
 
+## Deploy to Kubernetes
+
+Make sure you have Spring Cloud Gateway for k8s installed.
+
+If you have `kustomize` installed, you can run the following command:
+
+```bash
+kustomize build ./k8s | kubectl apply -f -
+```
+
+If you don't want to use `kustomize`, you can apply each yaml file in the `k8s` folder manually into the `animal-rescue` namespace (or any namespace you like!).
+
+There are two gateway instance being created - `animal-rescue-gateway` and `animal-rescue-gateway-with-dynamic-routes`. 
+* `animal-rescue-gateway` has all the routes pre-defined when creating the gateway. 
+* `animal-rescue-gateway-with-dynamic-routes` doesn't have any routes defined on creation. The route definition is defined in a `SpringCloudGatewayBinding` object that can be version-controlled with each routed application.
+
+After applying all the manifest files, there should be a SCG deployment and a `ClusterIP` service for each gateway instance deployed in the SCG installation namespace (`spring-cloud-gateway` by default).
+
+Expose your gateway instance in your favorite way, e.g. ingress or port forwarding, then access `/rescue` path` to view the animal-rescue app.
+
 ## Special frontend config related to gateway
 
 The frontend application is implemented in ReactJS, and is pushed with static buildpack. Because of it's static nature, we had to do the following 
 1. `homepage` in `package.json` is set to `/rescue`, which is the path we set for the frontend application in gateway config (`frontend/gateway-config.json`). This is to make sure all related assets is requested under `/rescue` path as well.
 1. `Sign in to adopt` button is linked to `/rescue/login`, which is a path that is `sso-enabled` in gateway config (`frontend/gateway-config.json`). This is necessary for frontend apps bound to a sub path on gateway because the Oauth2 login flow redirects users to the original requested location or back to `/` if no saved request exists. This setting is not necessary if the frontend app is bound to path `/`.
 1. `REACT_APP_BACKEND_BASE_URI` is set to `/backend` in build script, which is the path we set for the backend application in gateway config (`backend/gateway-config.json`). This is to make sure all our backend API calls are appended with the `backend` path.
-
 
 ## Try it out
 Visit `https://gateway-demo.${appsDomain}/rescue`, you should see cute animal bios with the `Adopt` buttons disabled. All the information are fetched from a public `GET` backend endpoint `/animals`. 

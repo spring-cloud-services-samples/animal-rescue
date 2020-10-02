@@ -35,3 +35,17 @@ spec:
       targetPort: 8080
   selector:
     app: animal-rescue-backend
+
+---
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayBinding
+metadata:
+  name: animal-rescue-backend-routes
+spec:
+  gateway: animal-rescue-gateway-with-dynamic-routes
+  service: animal-rescue-backend
+  routes:
+    - predicates:
+        - Path=/api/**
+      filters:
+        - StripPrefix=1

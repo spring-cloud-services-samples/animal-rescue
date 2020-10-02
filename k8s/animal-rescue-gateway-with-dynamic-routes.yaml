@@ -1,0 +1,5 @@
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGateway
+metadata:
+  name: animal-rescue-gateway-with-dynamic-routes
+spec: {}
