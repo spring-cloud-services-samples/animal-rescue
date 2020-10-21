@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: animal-rescue-backend
+spec:
+  template:
+    metadata:
+      labels:
+        app: animal-rescue-backend
+    spec:
+      imagePullSecrets:
+      - name: harborsecrets

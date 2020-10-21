@@ -1,0 +1,14 @@
+bases:
+  - ../../base
+secretGenerator:
+- name: harborsecrets
+  namespace: animal-rescue
+  files:
+  - secrets/.dockerconfigjson
+  type: kubernetes.io/dockerconfigjson
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+patchesStrategicMerge:
+  - harbor-gateway-image.yaml

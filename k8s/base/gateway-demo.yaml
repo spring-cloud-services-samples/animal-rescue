@@ -3,6 +3,7 @@ kind: SpringCloudGateway
 metadata:
   name: gateway-demo
 spec:
+  ssoEnabled: true
   routes:
     - id: animal-rescue-frontend
       uri: http://animal-rescue-frontend.animal-rescue.svc.cluster.local
@@ -12,6 +13,7 @@ spec:
         - StripPrefix=1
     - id: animal-rescue-backend
       uri: http://animal-rescue-backend.animal-rescue.svc.cluster.local
+      ssoEnabled: false
       predicates:
         - Path=/api/**
       filters:

@@ -13,10 +13,22 @@ build:
         - src/main/**
         - build.gradle
         - settings.gradle
-  - image: springcloudservices/animal-rescue-frontend
-    context: frontend
 
 deploy:
   kustomize:
     paths:
-      - k8s
+      - k8s/base
+profiles:
+  - name: harbor-registry
+    patches:
+      - op: replace
+        path: /build/artifacts/0/image
+        value: dev.registry.pivotal.io/spring-cloud-gateway/animal-rescue-backend
+      - op: replace
+        path: /deploy/kustomize/paths/0
+        value: k8s/overlays/harbor-registry
+  - name: ingress
+    patches:
+      - op: add
+        path: /deploy/kustomize/paths
+        value: [k8s/overlays/ingress]

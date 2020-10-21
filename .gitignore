@@ -8,3 +8,4 @@
 *.ipr
 out/
 scripts/out/
+k8s/base/secrets
