@@ -8,4 +8,4 @@
 *.ipr
 out/
 scripts/out/
-k8s/base/secrets
+k8s/overlays/test-sso/secrets
