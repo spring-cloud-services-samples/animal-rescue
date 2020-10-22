@@ -2,4 +2,5 @@ apiVersion: "tanzu.vmware.com/v1"
 kind: SpringCloudGateway
 metadata:
   name: gateway-demo-with-dynamic-routes
-spec: {}
+spec:
+  ssoEnabled: true
