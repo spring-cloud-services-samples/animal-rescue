@@ -13,9 +13,11 @@ build:
         - src/main/**
         - build.gradle
         - settings.gradle
+  - image: springcloudservices/animal-rescue-frontend
+    context: frontend
 
 deploy:
   kustomize:
     paths:
       - k8s/base
-      - k8s/overlays/test-sso
+      - k8s/overlays/sso-secret-for-gateway

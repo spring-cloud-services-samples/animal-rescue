@@ -5,16 +5,48 @@ metadata:
 spec:
   ssoEnabled: true
   routes:
-    - id: animal-rescue-frontend
+    - id: animal-rescue-frontend-0
+      uri: http://animal-rescue-frontend.animal-rescue.svc.cluster.local
+      ssoEnabled: true
+      predicates:
+        - Path=/rescue/login
+        - Method=GET
+      filters:
+        - StripPrefix=1
+        - RedirectTo=302, /rescue
+      order: 0
+    - id: animal-rescue-frontend-1
       uri: http://animal-rescue-frontend.animal-rescue.svc.cluster.local
       predicates:
         - Path=/rescue/**
+        - Method=GET
       filters:
         - StripPrefix=1
-    - id: animal-rescue-backend
+      order: 1000
+
+    - id: animal-rescue-backend-0
       uri: http://animal-rescue-backend.animal-rescue.svc.cluster.local
-      ssoEnabled: false
       predicates:
-        - Path=/api/**
+        - Path=/api/animals
+        - Method=GET
+      filters:
+        - StripPrefix=1
+#        - RateLimit=2,10s
+    - id: animal-rescue-backend-1
+      uri: http://animal-rescue-backend.animal-rescue.svc.cluster.local
+      ssoEnabled: true
+      tokenRelay: true
+      predicates:
+        - Path=/api/whoami
+        - Method=GET
+      filters:
+        - StripPrefix=1
+    - id: animal-rescue-backend-2
+      uri: http://animal-rescue-backend.animal-rescue.svc.cluster.local
+      ssoEnabled: true
+      tokenRelay: true
+      predicates:
+        - Path=/api/animals/*/adoption-requests/**
+        - Method=POST,PUT,DELETE
       filters:
         - StripPrefix=1
