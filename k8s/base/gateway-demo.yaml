@@ -50,3 +50,9 @@ spec:
         - Method=POST,PUT,DELETE
       filters:
         - StripPrefix=1
+    - id: animal-rescue-backend-3
+      uri: http://animal-rescue-backend.animal-rescue.svc.cluster.local
+      predicates:
+        - Path=/api/actuator/
+      filters:
+        - StripPrefix=1

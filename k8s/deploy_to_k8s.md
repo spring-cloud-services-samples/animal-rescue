@@ -12,7 +12,7 @@ For SSO to work, you will need to provide two secret files:
   ``` 
 * ./k8s/overlays/sso-secret-for-gateway/secrets/test-sso-credentials.txt
   ```
-  uaa-uri=https://{your_auth_domain}
+  auth-domain=https://{your_auth_domain}
   client-id={your-client-id}
   client-secret={your-client-secret}
   ```
