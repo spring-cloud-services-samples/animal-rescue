@@ -7,7 +7,7 @@ build:
   - image: springcloudservices/animal-rescue-backend
     context: backend
     buildpacks:
-      builder: gcr.io/paketo-buildpacks/builder:base-platform-api-latest
+      builder: gcr.io/paketo-buildpacks/builder:base
       dependencies:
         paths:
         - src/main/**
