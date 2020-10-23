@@ -17,6 +17,11 @@ spec:
           env:
             - name: spring.profiles.active
               value: k8s
+            - name: spring.security.oauth2.resourceserver.jwt.jwk-set-uri
+              valueFrom:
+                secretKeyRef:
+                  name: sso-credentials
+                  key: jwk-set-uri
           resources:
             requests:
               memory: "256Mi"
@@ -46,6 +51,22 @@ spec:
   service: animal-rescue-backend
   routes:
     - predicates:
-        - Path=/api/**
+        - Path=/api/animals
+        - Method=GET
+      filters:
+        - StripPrefix=1
+#        - RateLimit=2,10s
+    - ssoEnabled: true
+      tokenRelay: true
+      predicates:
+        - Path=/api/whoami
+        - Method=GET
+      filters:
+        - StripPrefix=1
+    - ssoEnabled: true
+      tokenRelay: true
+      predicates:
+        - Path=/api/animals/*/adoption-requests/**
+        - Method=POST,PUT,DELETE
       filters:
         - StripPrefix=1
