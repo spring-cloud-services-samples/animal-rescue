@@ -8,6 +8,7 @@ Features we demonstrate with this sample app:
 - Simplified route configuration
 - SSO login and token relay on behalf of the routed services
 - Required scopes on routes (tag: `require-sso-scopes`)
+- Circuit breaker filter
 
 ## Deploy to CF
 
@@ -65,6 +66,8 @@ Click on the `Edit Adoption Request` again, you can view, edit (`PUT`), and dele
 
 **Note**
 Documentation may get out of date. Please refer to the [e2e test](./e2e/cypress/integration/) and the test output video for the most accurate user flow description.
+
+To see circuit breaker filter in action, stop `animal-rescue-frontend` application and refresh page. You should see a response from `https://example.org` web-site, this is configured in `gateway-config.json` file in `/fallback` route.
 
 ## Development
 

@@ -14,7 +14,8 @@
       "description": "Animal Rescue home page that doesn't require SSO login",
       "path": "/rescue/**",
       "method": "GET",
-      "order": 1000
+      "order": 1000,
+      "filters": [ "CircuitBreaker=frontendCb,forward:/fallback" ]
     }
   ]
 }
