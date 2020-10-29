@@ -4,17 +4,20 @@
 
 Make sure you have Spring Cloud Gateway for k8s installed.
 
-For SSO to work, you will need to provide two secret files:
+For Animal Resuce sample Single Sign-On (SSO) to work, you will need to provide two secret files:
 
 * ./k8s/base/secrets/sso-credentials-for-backend.txt
   ```
-  jwk-set-uri=https://{your_auth_domain}/token_keys
+  jwk-set-uri=https://{your_auth_domain}/{.well-known/jwks.json}
   ``` 
 * ./k8s/overlays/sso-secret-for-gateway/secrets/test-sso-credentials.txt
   ```
-  auth-domain=https://{your_auth_domain}
-  client-id={your-client-id}
-  client-secret={your-client-secret}
+  scope=openid,profile,email
+  client-id={your_client_id}
+  client-secret={your_client_secret}
+  authorization-grant-type=authorization_code
+  issuer-uri=https://animal-rescue-test.us.auth0.com/
+  provider=sso
   ```
   This file structure may change as the product evolves. Please refer to the SCG4K8s doc for the most up-to-date template.
   

@@ -68,7 +68,7 @@ class AnimalControllerTest {
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody()
-			.jsonPath("$.length()").isEqualTo(10)
+			.jsonPath("$.length()").isEqualTo(9)
 			.jsonPath("$[0].id").isEqualTo(1)
 			.jsonPath("$[0].name").isEqualTo("Chocobo")
 			.jsonPath("$[0].avatarUrl").isNotEmpty()
