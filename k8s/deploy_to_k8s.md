@@ -16,7 +16,7 @@ For Animal Resuce sample Single Sign-On (SSO) to work, you will need to provide 
   client-id={your_client_id}
   client-secret={your_client_secret}
   authorization-grant-type=authorization_code
-  issuer-uri=https://animal-rescue-test.us.auth0.com/
+  issuer-uri={your_issuer_uri}
   provider=sso
   ```
   This file structure may change as the product evolves. Please refer to the SCG4K8s doc for the most up-to-date template.
