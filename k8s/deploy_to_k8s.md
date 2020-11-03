@@ -29,10 +29,5 @@ kustomize build ./k8s | kubectl apply -f -
 
 If you don't want to use `kustomize`, you can apply each yaml file in the `k8s` folder manually into the `animal-rescue` namespace (or any namespace you like!). Make sure to create the SSO credentials secret in the SCG installation namespace (`spring-cloud-gateway` by default).
 
-There are two gateway instances created - `gateway-demo` and `gateway-demo-with-dynamic-routes`. 
-* `gateway-demo` has all the routes pre-defined when creating the gateway. 
-* `gateway-demo-with-dynamic-routes` doesn't have any routes defined on creation. The route definition is defined in a `SpringCloudGatewayBinding` object that can be version-controlled with each routed application.
+A gateway instance is created named `gateway-demo` that doesn't have any API routes defined on creation. The API route definitions are defined in a `SpringCloudGatewayBinding` object that can be version-controlled with each routed application.  After applying all the manifest files, there should be a SCG deployment and a `ClusterIP` service for each gateway instance deployed in the SCG installation namespace (`spring-cloud-gateway` by default).  Expose your gateway instance in your favorite way, e.g. ingress or port forwarding, then access `/rescue` path to view the animal-rescue app.
 
-After applying all the manifest files, there should be a SCG deployment and a `ClusterIP` service for each gateway instance deployed in the SCG installation namespace (`spring-cloud-gateway` by default).
-
-Expose your gateway instance in your favorite way, e.g. ingress or port forwarding, then access `/rescue` path` to view the animal-rescue app.
