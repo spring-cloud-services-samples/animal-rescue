@@ -16,4 +16,3 @@ resources:
   - animal-rescue-frontend.yaml
   - animal-rescue-backend.yaml
   - gateway-demo.yaml
-  - gateway-demo-with-dynamic-routes.yaml
