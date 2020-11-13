@@ -1,0 +1,7 @@
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayMapping
+metadata:
+  name: animal-rescue-backend-routes
+spec:
+  gateway: gateway-demo
+  routeConfig: animal-rescue-backend-route-config

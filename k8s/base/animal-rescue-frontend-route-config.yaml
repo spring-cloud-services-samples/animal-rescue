@@ -1,0 +1,22 @@
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayRouteConfig
+metadata:
+  name: animal-rescue-frontend-route-config
+spec:
+  service: animal-rescue-frontend
+  routes:
+    - ssoEnabled: true
+      predicates:
+        - Path=/rescue/login
+        - Method=GET
+      filters:
+        - StripPrefix=1
+        - RedirectTo=302, /rescue
+      order: 0
+    - predicates:
+        - Path=/rescue/**
+        - Method=GET
+      filters:
+        - StripPrefix=1
+      order: 1000
+
