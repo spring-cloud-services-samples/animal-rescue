@@ -13,7 +13,7 @@ context('Animal Rescue', () => {
 
   it('shows animals with "Adopt" buttons disabled on homepage', () => {
     cy.get('.ui.card button')
-      .should('have.length', 9)
+      .should('have.length', 10)
       .each($button => {
         expect($button).to.have.class('disabled');
       });
@@ -31,7 +31,7 @@ context('Animal Rescue', () => {
 
     cy.get('.header-buttons button').should('contain', username);
     cy.get('.ui.card button')
-      .should('have.length', 9)
+      .should('have.length', 10)
       .each($button => {
         expect($button).to.not.have.class('disabled');
       });
