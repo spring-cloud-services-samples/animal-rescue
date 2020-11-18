@@ -3,4 +3,5 @@ kind: SpringCloudGateway
 metadata:
   name: gateway-demo
 spec:
-  ssoEnabled: true
+  sso:
+    secret: animal-rescue-sso
