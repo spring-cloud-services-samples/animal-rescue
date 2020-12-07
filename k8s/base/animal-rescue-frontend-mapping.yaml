@@ -3,5 +3,7 @@ kind: SpringCloudGatewayMapping
 metadata:
   name: animal-rescue-frontend-routes
 spec:
-  gateway: gateway-demo
-  routeConfig: animal-rescue-frontend-route-config
+  gatewayRef:
+    name: gateway-demo
+  routeConfigRef:
+    name: animal-rescue-frontend-route-config
