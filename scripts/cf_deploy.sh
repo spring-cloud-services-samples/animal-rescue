@@ -33,14 +33,14 @@ bind_all() {
     unbind $BACKEND_APP_NAME
   fi
 
-  cf bind-service $BACKEND_APP_NAME $GATEWAY_NAME -c ./backend/gateway-config.json
+  cf bind-service $BACKEND_APP_NAME $GATEWAY_NAME -c ./backend/api-route-config.json
 
   # Bind frontend app
   if gatewayDetailContains "$FRONTEND_APP_NAME"; then
     unbind $FRONTEND_APP_NAME
   fi
 
-  cf bind-service $FRONTEND_APP_NAME $GATEWAY_NAME -c ./frontend/gateway-config.json
+  cf bind-service $FRONTEND_APP_NAME $GATEWAY_NAME -c ./frontend/api-route-config.json
   while gatewayDetailContains "create in progress"; do
     echo "Waiting for binding $FRONTEND_APP_NAME to finish..."
     sleep 1
@@ -71,7 +71,7 @@ routes_update_for_app() {
   gateway_url=$(cf curl /v2/service_instances/"$gateway_service_instance_id" | jq .entity.dashboard_url | sed "s/\/scg-dashboard//" | sed "s/\"//g")
 
   printf "Calling dynamic binding update endpoint for %s...\n=====\n\n" "$app_name"
-  status_code=$(curl -k -XPUT "$gateway_url/actuator/bound-apps/$app_guid/routes" -d "@$ROOT_DIR/$sub_dir/gateway-config.json" \
+  status_code=$(curl -k -XPUT "$gateway_url/actuator/bound-apps/$app_guid/routes" -d "@$ROOT_DIR/$sub_dir/api-route-config.json" \
     -H "Authorization: $(cf oauth-token)" -H "Content-Type: application/json" --write-out %{http_code} -vsS)
   if [[ $status_code == '204' ]]; then
     printf "\n=====\nBound app %s route configuration update response status: %s\n\n" "$app_name" "$status_code"
@@ -93,10 +93,10 @@ deploy_all() {
 
   if ! gatewayServiceInstanceIsReady; then
     echo "Gateway service does not exist, creating..."
-    cf create-service p.gateway standard $GATEWAY_NAME -c ./gateway-config.json
+    cf create-service p.gateway standard $GATEWAY_NAME -c ./api-gateway-config.json
   else
     echo "Gateway service already exists, updating..."
-    cf update-service $GATEWAY_NAME -c ./gateway-config.json
+    cf update-service $GATEWAY_NAME -c ./api-gateway-config.json
   fi
 
   while ! gatewayServiceInstanceIsReady; do

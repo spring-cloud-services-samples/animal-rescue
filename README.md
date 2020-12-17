@@ -34,16 +34,16 @@ Some other commands that might be helpful:
 
 All the gateway configuration can be found and updated here:
 
-- Gateway service instance configuration file used on create/update: `./gateway-config.json` 
-- Frontend routes configuration used on binding used on bind: `./frontend/gateway-config.json`
-- Backend routes configuration used on binding used on bind:`./backend/gateway-config.json` 
+- Gateway service instance configuration file used on create/update: `./api-gateway-config.json` 
+- Frontend routes configuration used on binding used on bind: `./frontend/api-route-config.json`
+- Backend routes configuration used on binding used on bind:`./backend/api-route-config.json` 
 
 ## Special frontend config related to gateway
 
 The frontend application is implemented in ReactJS, and is pushed with static buildpack. Because of it's static nature, we had to do the following 
-1. `homepage` in `package.json` is set to `/rescue`, which is the path we set for the frontend application in gateway config (`frontend/gateway-config.json`). This is to make sure all related assets is requested under `/rescue` path as well.
-1. `Sign in to adopt` button is linked to `/rescue/login`, which is a path that is `sso-enabled` in gateway config (`frontend/gateway-config.json`). This is necessary for frontend apps bound to a sub path on gateway because the Oauth2 login flow redirects users to the original requested location or back to `/` if no saved request exists. This setting is not necessary if the frontend app is bound to path `/`.
-1. `REACT_APP_BACKEND_BASE_URI` is set to `/backend` in build script, which is the path we set for the backend application in gateway config (`backend/gateway-config.json`). This is to make sure all our backend API calls are appended with the `backend` path.
+1. `homepage` in `package.json` is set to `/rescue`, which is the path we set for the frontend application in gateway config (`frontend/api-route-config.json`). This is to make sure all related assets is requested under `/rescue` path as well.
+1. `Sign in to adopt` button is linked to `/rescue/login`, which is a path that is `sso-enabled` in gateway config (`frontend/api-route-config.json`). This is necessary for frontend apps bound to a sub path on gateway because the Oauth2 login flow redirects users to the original requested location or back to `/` if no saved request exists. This setting is not necessary if the frontend app is bound to path `/`.
+1. `REACT_APP_BACKEND_BASE_URI` is set to `/backend` in build script, which is the path we set for the backend application in gateway config (`backend/api-route-config.json`). This is to make sure all our backend API calls are appended with the `backend` path.
 
 ## Try it out
 Visit `https://gateway-demo.${appsDomain}/rescue`, you should see cute animal bios with the `Adopt` buttons disabled. All the information are fetched from a public `GET` backend endpoint `/animals`. 
@@ -67,7 +67,7 @@ Click on the `Edit Adoption Request` again, you can view, edit (`PUT`), and dele
 **Note**
 Documentation may get out of date. Please refer to the [e2e test](./e2e/cypress/integration/) and the test output video for the most accurate user flow description.
 
-To see circuit breaker filter in action, stop `animal-rescue-frontend` application and refresh page. You should see a response from `https://example.org` web-site, this is configured in `gateway-config.json` file in `/fallback` route.
+To see circuit breaker filter in action, stop `animal-rescue-frontend` application and refresh page. You should see a response from `https://example.org` web-site, this is configured in `api-route-config.json` file in `/fallback` route.
 
 ## Development
 
