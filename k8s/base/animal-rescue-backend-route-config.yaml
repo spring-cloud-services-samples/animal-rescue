@@ -1,9 +1,10 @@
-apiVersion: "tanzu.vmware.com/v1"
+apiVersion: "tanzu.vmware.com/v1beta1"
 kind: SpringCloudGatewayRouteConfig
 metadata:
   name: animal-rescue-backend-route-config
 spec:
-  service: animal-rescue-backend
+  service:
+    name: animal-rescue-backend
   routes:
     - predicates:
         - Path=/api/animals

@@ -1,9 +1,10 @@
-apiVersion: "tanzu.vmware.com/v1"
+apiVersion: "tanzu.vmware.com/v1beta1"
 kind: SpringCloudGatewayRouteConfig
 metadata:
   name: animal-rescue-frontend-route-config
 spec:
-  service: animal-rescue-frontend
+  service:
+    name: animal-rescue-frontend
   routes:
     - ssoEnabled: true
       predicates:
