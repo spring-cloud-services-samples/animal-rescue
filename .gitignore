@@ -9,3 +9,8 @@
 out/
 scripts/out/
 **/secrets/
+
+### VS Code ###
+.project
+.settings
+
