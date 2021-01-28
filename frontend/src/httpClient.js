@@ -23,7 +23,7 @@ export async function deleteAdoptionRequest({animalId, adoptionRequestId}) {
 
 export async function getUsername() {
     return axios
-        .get(`${backendBaseUrl}/whoami`)
+        .get(`${backendBaseUrl}/whoami`, { transformResponse: [data  => data] } ) // Transform data to string. Google auth username is in form of bigint so frontend may have trouble handling it without this transformation.
         .then(res => {
             if (res.request.responseURL && !res.request.responseURL.endsWith('whoami')) {
                 return '';
