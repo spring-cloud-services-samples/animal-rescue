@@ -15,7 +15,7 @@ spec:
         - name: animal-rescue-frontend
           image: springcloudservices/animal-rescue-frontend
           ports:
-            - containerPort: 80
+            - containerPort: 8080
       restartPolicy: Always
 ---
 apiVersion: v1
@@ -25,7 +25,7 @@ metadata:
 spec:
   ports:
     - port: 80
-      targetPort: 80
+      targetPort: 8080
   selector:
     app: animal-rescue-frontend
 
