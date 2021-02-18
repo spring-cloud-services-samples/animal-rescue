@@ -26,7 +26,7 @@ $ curl https://dev-1234567.okta.com/oauth2/abcd12345/.well-known/openid-configur
   "jwks_uri": "https://dev-1234567.okta.com/oauth2/abcd12345/v1/keys",
 ....
 
-# Please note that the format used is jwks_uri="<issuer-uri>/v1/keys"
+# Please note that the format used by Okta is jwks_uri="<issuer-uri>/v1/keys"
 ```
 
 SSO file configuration:
