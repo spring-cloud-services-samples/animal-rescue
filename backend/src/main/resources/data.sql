@@ -1,5 +1,5 @@
 insert into animal (id, name, rescue_date, avatar_url, description) values
-(1, 'Castle', '2012-10-02', 'https://raw.githubusercontent.com/dektlong/dekt-animals/main/backend/src/main/resources/images/castle.webp, 'Castle is the ultimate fluffy companion. You will find it hard to stop petting him.'),
+(1, 'Castle', '2012-10-02', 'https://raw.githubusercontent.com/dektlong/dekt-animals/main/backend/src/main/resources/images/castle.webp', 'Castle is the ultimate fluffy companion. You will find it hard to stop petting him.'),
 (2, 'Luke', '2015-07-19', 'https://raw.githubusercontent.com/dektlong/dekt-animals/main/backend/src/main/resources/images/luke.webp', 'Luke will be your number one admirer. You will be forever protected and loved.'),
 (3, 'Sarah', '2012-06-06', 'https://raw.githubusercontent.com/dektlong/dekt-animals/main/backend/src/main/resources/images/sarah.webp', 'Sarah is the smart one. No fooling her easily.'),
 (4, 'Rey', '2018-05-14', 'https://raw.githubusercontent.com/dektlong/dekt-animals/main/backend/src/main/resources/images/rey.webp', 'Rey wants to play all day long. You will never get bored.'),
@@ -10,7 +10,6 @@ insert into animal (id, name, rescue_date, avatar_url, description) values
 (9, 'Sabrina', '2020-01-24', 'https://cdn.pixabay.com/photo/2016/11/29/01/10/adorable-1866475_960_720.jpg', 'Sabrina is a friendly kitten with beautify blue eyes. She does not need lots of attention, but loves a good belly rub.'),
 (10, 'Georgie', '2020-01-29', 'https://cdn.pixabay.com/photo/2017/03/14/19/06/bulldog-2144110_960_720.jpg', 'Georgie will slobber all over you with his kisses. Does not require a lot of physical activity.');
 
-https://www.dropbox.com/s/6tsua2thxy0ouba/Photo%20Mar%2009%2C%2022%2047%2013.jpg?dl=0
 insert into adoption_request (id, animal, adopter_name, email, notes) values
 (1, 1, 'Bella', 'bella@email.com', 'Blah blah'),
 (2, 1, 'Gareth', 'gareth@email.com', 'Blah blah'),
