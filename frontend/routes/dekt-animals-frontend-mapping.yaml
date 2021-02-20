@@ -1,0 +1,9 @@
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayMapping
+metadata:
+  name: dekt-animals-frontend-routes
+spec:
+  gatewayRef:
+    name: dekt-animals-gateway
+  routeConfigRef:
+    name: dekt-animals-frontend-route-config

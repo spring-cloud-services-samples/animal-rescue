@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dekt-animals-frontend
+spec:
+  selector:
+    matchLabels:
+      app: dekt-animals-frontend
+  template:
+    metadata:
+      labels:
+        app: dekt-animals-frontend
+    spec:
+      imagePullSecrets: 
+      - name: dekt-harbor-secret
+      containers:
+        - name: dekt-animals-frontend
+          #image: springcloudservices/animal-rescue-frontend
+          image: harbor.apps.cf.tanzutime.com/dekt-apps/dekt-animal-rescue-frontend:1.0.0
+          ports:
+            - containerPort: 80
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dekt-animals-frontend-service
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: dekt-animals-frontend
+
+

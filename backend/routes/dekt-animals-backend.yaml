@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dekt-animals-backend
+spec:
+  selector:
+    matchLabels:
+      app: dekt-animals-backend
+  template:
+    metadata:
+      labels:
+        app: dekt-animals-backend
+    spec:
+      imagePullSecrets: 
+      - name: dekt-harbor-secret
+      containers:
+        - name: dekt-animals-backend
+          #image: springcloudservices/animal-rescue-backend
+          image: harbor.apps.cf.tanzutime.com/dekt-apps/dekt-animal-rescue-backend:1.0.1
+          env:
+            - name: spring.profiles.active
+              value: k8s
+            - name: spring.security.oauth2.resourceserver.jwt.jwk-set-uri
+              valueFrom:
+                secretKeyRef:
+                  name: dekt-animals-jwk
+                  key: jwk-set-uri
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+       # - name: spring-observer-sidecar
+       #   image: harbor.apps.cf.tanzutime.com/dekt-apps/spring-boot-observer-sidecar:0.0.1-SNAPSHOT
+       #   env:
+       #   - name: spring.boot.observer.sidecar.application-name
+       #     value: dekt-animals-backend
+       #   - name: spring.boot.observer.client.host
+       #     value: spring-boot-observer-server.sbo-system.svc.cluster.local
+       #   resources: {} 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dekt-animals-backend-service
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: dekt-animals-backend
