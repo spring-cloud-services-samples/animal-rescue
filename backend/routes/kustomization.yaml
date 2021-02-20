@@ -5,7 +5,7 @@ namespace: dekt-apps
 secretGenerator:
 - name: dekt-animals-jwk
   envs:
-  - secrets/dekt-animals-jwk-creds.txt
+  - ../secrets/dekt-animals-jwk-creds.txt
   type: Opaque
 generatorOptions:
   disableNameSuffixHash: true

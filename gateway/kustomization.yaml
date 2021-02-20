@@ -5,7 +5,7 @@ namespace: dekt-apps
 secretGenerator:
 - name: dekt-animals-sso
   envs:
-  - secrets/dekt-animals-sso-creds.txt
+  - ../secrets/dekt-animals-sso-creds.txt
   type: Opaque
 
 generatorOptions:
