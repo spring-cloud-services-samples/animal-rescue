@@ -43,8 +43,6 @@ public class AnimalController {
 		LOGGER.info("Received get all animals request");
 		return animalRepository.findAll();
 	}
-	
-	//nothing agin
 
 	@PostMapping("/animals/{id}/adoption-requests")
 	@ResponseStatus(HttpStatus.CREATED)
