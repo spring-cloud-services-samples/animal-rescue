@@ -4,5 +4,5 @@ namespace: dekt-apps
 
 resources:
   - dekt-animals-gateway.yaml
-  - dekt-animals-admin-ingress.yaml
+  #- dekt-animals-admin-ingress.yaml
   
