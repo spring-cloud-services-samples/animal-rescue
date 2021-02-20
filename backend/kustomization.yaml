@@ -12,6 +12,6 @@ generatorOptions:
 
 resources:
   - dekt-animals-backend.yaml
-  - dekt-animals-backend-route-config.yaml
-  - dekt-animals-backend-mapping.yaml
+  - routes/dekt-animals-backend-route-config.yaml
+  - routes/dekt-animals-backend-mapping.yaml
   

@@ -4,7 +4,7 @@ namespace: dekt-apps
 
 resources:
   - dekt-animals-frontend.yaml
-  - dekt-animals-frontend-route-config.yaml
-  - dekt-animals-frontend-mapping.yaml
+  - routes/dekt-animals-frontend-route-config.yaml
+  - routes/dekt-animals-frontend-mapping.yaml
  
 

@@ -39,7 +39,7 @@ public class AnimalController {
 	}
 
 	@GetMapping("/dekt")
-	public String dekt-api() {
+	public String dekt() {
 
 		return "hello from dekt api";
 	}
