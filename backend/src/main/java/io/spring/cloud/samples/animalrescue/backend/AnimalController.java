@@ -38,12 +38,6 @@ public class AnimalController {
 		return principal.getName();
 	}
 
-	@GetMapping("/dekt")
-	public String dekt() {
-
-		return "hello from dekt api";
-	}
-
 	@GetMapping("/animals")
 	public Iterable<Animal> getAllAnimals() {
 		LOGGER.info("Received get all animals request");
