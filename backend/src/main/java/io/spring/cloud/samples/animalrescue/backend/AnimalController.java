@@ -44,6 +44,8 @@ public class AnimalController {
 		return animalRepository.findAll();
 	}
 	
+	//nothing
+	
 	@PostMapping("/animals/{id}/adoption-requests")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void submitAdoptionRequest(
