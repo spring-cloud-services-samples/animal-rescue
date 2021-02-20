@@ -15,8 +15,8 @@ spec:
       - name: dekt-harbor-secret
       containers:
         - name: dekt-animals-backend
-          image: springcloudservices/animal-rescue-backend
-          #image: harbor.apps.cf.tanzutime.com/dekt-apps/dekt-animal-rescue-backend:1.0.0
+          #image: springcloudservices/animal-rescue-backend
+          image: harbor.apps.cf.tanzutime.com/dekt-apps/dekt-animal-rescue-backend:1.0.0
           env:
             - name: spring.profiles.active
               value: k8s
@@ -32,14 +32,14 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
-       # - name: spring-observer-sidecar
-       #   image: harbor.apps.cf.tanzutime.com/dekt-apps/spring-boot-observer-sidecar:0.0.1-SNAPSHOT
-       #   env:
-       #   - name: spring.boot.observer.sidecar.application-name
-       #     value: dekt-animals-backend
-       #   - name: spring.boot.observer.client.host
-       #     value: spring-boot-observer-server.sbo-system.svc.cluster.local
-       #   resources: {} 
+        - name: spring-observer-sidecar
+          image: harbor.apps.cf.tanzutime.com/dekt-apps/spring-boot-observer-sidecar:0.0.1-SNAPSHOT
+          env:
+          - name: spring.boot.observer.sidecar.application-name
+            value: dekt-animals-backend
+          - name: spring.boot.observer.client.host
+            value: spring-boot-observer-server.sbo-system.svc.cluster.local
+          resources: {} 
 ---
 apiVersion: v1
 kind: Service
