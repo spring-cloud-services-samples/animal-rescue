@@ -8,6 +8,6 @@ spec:
     title: Animals rescue
     description: APIs for building the animal rescue online store. 
     version: 0.1.0
-  count: 1
+  count: 2
   sso:
     secret: dekt-animals-sso
