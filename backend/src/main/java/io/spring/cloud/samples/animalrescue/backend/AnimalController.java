@@ -44,6 +44,11 @@ public class AnimalController {
 		return animalRepository.findAll();
 	}
 
+	@GetMapping("/dekt")
+	public String dekt () {
+		return "my new API says dekt";
+	}
+	
 	@PostMapping("/animals/{id}/adoption-requests")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void submitAdoptionRequest(
