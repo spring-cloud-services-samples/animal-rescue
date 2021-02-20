@@ -10,19 +10,17 @@ spec:
         - Path=/api/animals
         - Method=GET
       filters:
-        - StripPrefix=1
-#        - RateLimit=2,10s
-    - ssoEnabled: true
-      tokenRelay: true
-      predicates:
+        - RateLimit=2,10s
+    - predicates:
         - Path=/api/whoami
         - Method=GET
-      filters:
-        - StripPrefix=1
-    - ssoEnabled: true
+      ssoEnabled: true
       tokenRelay: true
-      predicates:
+    - predicates:
         - Path=/api/animals/*/adoption-requests/**
         - Method=POST,PUT,DELETE
-      filters:
-        - StripPrefix=1
+      ssoEnabled: true
+      tokenRelay: true
+    - predicates:
+        - Path=/api/dekt
+        - Method=GET
