@@ -11,10 +11,12 @@ spec:
         - Path=/rescue/login
         - Method=GET
       filters:
+        - StripPrefix=1
         - RedirectTo=302, /rescue
       order: 0
     - predicates:
         - Path=/rescue/**
         - Method=GET
+      filters:
+        - StripPrefix=1
       order: 1000
-
