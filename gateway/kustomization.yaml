@@ -3,5 +3,5 @@ kind: Kustomization
 namespace: dekt-apps
 
 resources:
-  - dekt-animals-gateway.yaml
+  - dekt4pets-gateway.yaml
   

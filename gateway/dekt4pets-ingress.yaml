@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: dekt-animals-ingress
+  name: dekt4pets-ingress
   annotations:
     kubernetes.io/ingress.class: nginx
 spec:
@@ -11,5 +11,5 @@ spec:
         paths:
           - path: "/"
             backend:
-              serviceName: dekt-animals-gateway
+              serviceName: dekt4pets-gateway
               servicePort: 80

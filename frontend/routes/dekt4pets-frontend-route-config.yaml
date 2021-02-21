@@ -1,10 +1,10 @@
 apiVersion: "tanzu.vmware.com/v1"
 kind: SpringCloudGatewayRouteConfig
 metadata:
-  name: dekt-animals-frontend-route-config
+  name: dekt4pets-frontend-route-config
 spec:
   service: 
-    name: dekt-animals-frontend-service
+    name: dekt4pets-frontend-service
   routes:
     - predicates:
         - Path=/rescue/login

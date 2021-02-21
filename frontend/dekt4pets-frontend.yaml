@@ -1,33 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dekt-animals-frontend
+  name: dekt4pets-frontend
 spec:
   selector:
     matchLabels:
-      app: dekt-animals-frontend
+      app: dekt4pets-frontend
   template:
     metadata:
       labels:
-        app: dekt-animals-frontend
+        app: dekt4pets-frontend
     spec:
       imagePullSecrets: 
       - name: dekt-harbor-secret
       containers:
-        - name: dekt-animals-frontend
-          image: harbor.apps.cf.tanzutime.com/dekt-apps/dekt-animals-frontend:latest
+        - name: dekt4pets-frontend
+          image: harbor.apps.cf.tanzutime.com/dekt-apps/dekt4pets-frontend:latest
           ports:
             - containerPort: 8080
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: dekt-animals-frontend-service
+  name: dekt4pets-frontend-service
 spec:
   ports:
     - port: 80
       targetPort: 8080
   selector:
-    app: dekt-animals-frontend
+    app: dekt4pets-frontend
 
 

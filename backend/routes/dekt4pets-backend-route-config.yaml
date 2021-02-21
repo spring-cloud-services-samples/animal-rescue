@@ -1,10 +1,10 @@
 apiVersion: "tanzu.vmware.com/v1"
 kind: SpringCloudGatewayRouteConfig
 metadata:
-  name: dekt-animals-backend-route-config
+  name: dekt4pets-backend-route-config
 spec:
   service: 
-    name: dekt-animals-backend-service
+    name: dekt4pets-backend-service
   routes:
     - predicates:
         - Path=/api/animals
@@ -21,6 +21,3 @@ spec:
         - Method=POST,PUT,DELETE
       ssoEnabled: true
       tokenRelay: true
-    - predicates:
-        - Path=/api/dekt
-        - Method=GET
