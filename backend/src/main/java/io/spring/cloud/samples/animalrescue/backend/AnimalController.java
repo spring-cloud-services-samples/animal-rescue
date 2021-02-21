@@ -47,9 +47,7 @@ public class AnimalController {
 	@GetMapping("/dekt")
 	public String dekt() {
 
-		LOGGER.info("**********  Received dekt **********");
-
-		return "Hello from dekt api";
+		return "dekt made a big change";
 	}
 		
 
