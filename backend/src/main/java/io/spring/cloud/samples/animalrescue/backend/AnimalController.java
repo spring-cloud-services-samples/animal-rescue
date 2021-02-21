@@ -44,7 +44,7 @@ public class AnimalController {
 		return animalRepository.findAll();
 	}
 
-	@GetMapping("/animals/dekt")
+	@GetMapping("/dekt")
 	public String dekt() {
 
 		LOGGER.info("**********  Received dekt **********");
