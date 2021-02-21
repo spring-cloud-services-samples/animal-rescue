@@ -4,7 +4,7 @@ insert into animal (id, name, rescue_date, avatar_url, description) values
 (3, 'Sarah', '2012-06-06', 'https://raw.githubusercontent.com/dektlong/dekt-animals/main/backend/src/main/resources/images/sarah.jpg', 'Sarah is the smart one. No fooling her easily.'),
 (4, 'Rey', '2018-05-14', 'https://raw.githubusercontent.com/dektlong/dekt-animals/main/backend/src/main/resources/images/rey.jpg', 'Rey wants to play all day long. You will never get bored.'),
 (5, 'Tony', '2012-06-06', 'https://raw.githubusercontent.com/dektlong/dekt-animals/main/backend/src/main/resources/images/tony.jpg', 'Tony chooses her friends carefully. But once she does, she gives it all.'),
-(6, 'Ginger', '2020-01-12', 'https://cdn.pixabay.com/photo/2015/12/29/20/51/dog-1113398_960_720.jpg', 'Ginger is a posh Pomeranian that loves to be pampered by her humans.'),
+(6, 'Pepper', '2020-01-12', 'https://raw.githubusercontent.com/dektlong/dekt-animals/main/backend/src/main/resources/images/black-cat.jpg', 'Pepper will be there for you when you need comfort. He is great with kids.'),
 (7, 'Whiskers', '2020-01-20', 'https://cdn.pixabay.com/photo/2017/01/20/21/22/kitten-asleep-in-a-pot-1995961_960_720.jpg', 'Whiskers is a sweet and loving little kitten. She loves cuddling with her humans.'),
 (8, 'Mittens', '2020-01-22', 'https://cdn.pixabay.com/photo/2013/05/17/15/54/cat-111793_960_720.jpg', 'Mittens is a chubby cat that loves spending his days lounging and eating catnip.'),
 (9, 'Sabrina', '2020-01-24', 'https://cdn.pixabay.com/photo/2016/11/29/01/10/adorable-1866475_960_720.jpg', 'Sabrina is a friendly kitten with beautify blue eyes. She does not need lots of attention, but loves a good belly rub.'),
