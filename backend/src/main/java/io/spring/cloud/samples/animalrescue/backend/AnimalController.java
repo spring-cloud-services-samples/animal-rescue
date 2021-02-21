@@ -34,10 +34,11 @@ public class AnimalController {
 	public void adpotCastle(@RequestBody AdoptionRequest adpotCastle)
 	{
 		LOGGER.info("dekt is using a backdoor to win Castle");
+		Long animalId = 1;
 		Animal castle = animalRepository
-			.findById(1)
+			.findById(animalId)
 			.orElseThrow(() ->
-				new IllegalArgumentException(String.format("Animal with id 1 doesn't exist!", animalId)));
+				new IllegalArgumentException(String.format("Castle is already taken :(", animalId)));
 
 		adpotCastle.setAdopterName("dekel");
 		castle.getAdoptionRequests().add(adpotCastle);
