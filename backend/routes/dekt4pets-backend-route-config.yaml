@@ -21,6 +21,3 @@ spec:
         - Method=POST,PUT,DELETE
       ssoEnabled: true
       tokenRelay: true 
-    - predicates:
-        - Path=/api/animals
-        - Method=GET
