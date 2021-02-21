@@ -15,9 +15,7 @@ spec:
       - name: dekt-harbor-secret
       containers:
         - name: dekt-animals-backend
-          #image: springcloudservices/animal-rescue-backend
-          image: harbor.apps.cf.tanzutime.com/dekt-apps/dekt-animals-backend
-          imagePullPolicy: Always
+          image: harbor.apps.cf.tanzutime.com/dekt-apps/dekt-animals-backend:latest
           env:
             - name: spring.profiles.active
               value: k8s
@@ -33,7 +31,6 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
-      restartPolicy: Always
        # - name: spring-observer-sidecar
        #   image: harbor.apps.cf.tanzutime.com/dekt-apps/spring-boot-observer-sidecar:0.0.1-SNAPSHOT
        #   env:
