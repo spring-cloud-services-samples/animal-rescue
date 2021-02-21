@@ -47,7 +47,7 @@ public class AnimalController {
 	@GetMapping("/dekt")
 	public String dekt() {
 
-		return "time to make it work";
+		return "shalom shalom";
 	}
 		
 
