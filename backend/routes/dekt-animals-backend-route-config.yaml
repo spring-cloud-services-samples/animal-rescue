@@ -21,7 +21,3 @@ spec:
         - Method=POST,PUT,DELETE
       ssoEnabled: true
       tokenRelay: true
-    - predicates:
-        - Path=/api/adopt-castle
-        - Method=PUT
-      ssoEnabled: true

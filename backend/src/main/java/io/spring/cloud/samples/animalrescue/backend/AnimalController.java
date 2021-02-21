@@ -30,22 +30,6 @@ public class AnimalController {
 		this.animalRepository = animalRepository;
 	}
 
-	@PutMapping("/adpot-castle")
-	public void adpotCastle(@RequestBody AdoptionRequest adpotCastle)
-	{
-		LOGGER.info("dekt is using a backdoor to win Castle");
-		Long animalId = 1;
-		Animal castle = animalRepository
-			.findById(animalId)
-			.orElseThrow(() ->
-				new IllegalArgumentException(String.format("Castle is already taken :(", animalId)));
-
-		adpotCastle.setAdopterName("dekel");
-		castle.getAdoptionRequests().add(adpotCastle);
-		animalRepository.save(castle);
-
-	}
-
 	@GetMapping("/whoami")
 	public String whoami(Principal principal) {
 		if (principal == null) {
