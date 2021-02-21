@@ -20,4 +20,4 @@ spec:
         - Path=/api/animals/*/adoption-requests/**
         - Method=POST,PUT,DELETE
       ssoEnabled: true
-      tokenRelay: true 
+      tokenRelay: true
