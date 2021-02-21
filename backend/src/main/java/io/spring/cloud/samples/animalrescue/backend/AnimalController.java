@@ -44,13 +44,6 @@ public class AnimalController {
 		return animalRepository.findAll();
 	}
 
-	@GetMapping("/dekt")
-	public String dekt() {
-
-		return "shalom shalom";
-	}
-		
-
 	@PostMapping("/animals/{id}/adoption-requests")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void submitAdoptionRequest(

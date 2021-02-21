@@ -33,6 +33,7 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
+      restartPolicy: Always
        # - name: spring-observer-sidecar
        #   image: harbor.apps.cf.tanzutime.com/dekt-apps/spring-boot-observer-sidecar:0.0.1-SNAPSHOT
        #   env:
