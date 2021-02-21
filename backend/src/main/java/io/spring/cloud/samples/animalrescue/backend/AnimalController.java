@@ -33,8 +33,8 @@ public class AnimalController {
 	@GetMapping("/dekt")
 	public String dekt () {
 
-		return "dekt has a very complicated API";
-		
+		return "hello from dekt new API";
+
 	}
 
 	@GetMapping("/whoami")
