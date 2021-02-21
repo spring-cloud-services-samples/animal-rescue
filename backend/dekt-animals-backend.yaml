@@ -16,7 +16,7 @@ spec:
       containers:
         - name: dekt-animals-backend
           #image: springcloudservices/animal-rescue-backend
-          image: harbor.apps.cf.tanzutime.com/dekt-apps/dekt-animal-rescue-backend:1.0.0
+          image: harbor.apps.cf.tanzutime.com/dekt-apps/dekt-animals-backend-image:1.0.0
           env:
             - name: spring.profiles.active
               value: k8s

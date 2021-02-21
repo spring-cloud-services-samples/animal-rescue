@@ -15,11 +15,11 @@ spec:
       - name: dekt-harbor-secret
       containers:
         - name: dekt-animals-frontend
-          #image: springcloudservices/animal-rescue-frontend
-          image: harbor.apps.cf.tanzutime.com/dekt-apps/dekt-animal-rescue-frontend:1.0.0
+          image: springcloudservices/animal-rescue-frontend
+          #until tbs will succefully compile the frontend
+          #image: harbor.apps.cf.tanzutime.com/dekt-apps/dekt-animals-frontend-image:1.0.0
           ports:
             - containerPort: 8080
-      restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service

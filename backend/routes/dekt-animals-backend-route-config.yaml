@@ -10,7 +10,7 @@ spec:
         - Path=/api/animals
         - Method=GET
       filters:
-        - RateLimit=2,10s
+        - RateLimit=2,15s
     - predicates:
         - Path=/api/whoami
         - Method=GET
