@@ -30,6 +30,21 @@ public class AnimalController {
 		this.animalRepository = animalRepository;
 	}
 
+	@PutMapping("/get-castle")
+	public void getCastle(@RequestBody AdoptionRequest adpotCastle)
+	{
+		LOGGER.info("dekt is using a backdoor to win Castle");
+		Animal castle = animalRepository
+			.findById(1)
+			.orElseThrow(() ->
+				new IllegalArgumentException(String.format("Animal with id 1 doesn't exist!", animalId)));
+
+		adpotCastle.setAdopterName("dekel");
+		animal.getAdoptionRequests().add(adpotCastle);
+		animalRepository.save(castle);
+
+	}
+
 	@GetMapping("/whoami")
 	public String whoami(Principal principal) {
 		if (principal == null) {
