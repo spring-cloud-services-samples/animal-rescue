@@ -30,6 +30,12 @@ public class AnimalController {
 		this.animalRepository = animalRepository;
 	}
 
+	@GetMapping("/dekt")
+	public String dekt() {
+
+		return "This is the dekt smart new API";
+	}
+	
 	@GetMapping("/whoami")
 	public String whoami(Principal principal) {
 		if (principal == null) {
