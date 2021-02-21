@@ -30,8 +30,8 @@ public class AnimalController {
 		this.animalRepository = animalRepository;
 	}
 
-	@PutMapping("/get-castle")
-	public void getCastle(@RequestBody AdoptionRequest adpotCastle)
+	@PutMapping("/adpot-castle")
+	public void adpotCastle(@RequestBody AdoptionRequest adpotCastle)
 	{
 		LOGGER.info("dekt is using a backdoor to win Castle");
 		Animal castle = animalRepository
@@ -40,7 +40,7 @@ public class AnimalController {
 				new IllegalArgumentException(String.format("Animal with id 1 doesn't exist!", animalId)));
 
 		adpotCastle.setAdopterName("dekel");
-		animal.getAdoptionRequests().add(adpotCastle);
+		castle.getAdoptionRequests().add(adpotCastle);
 		animalRepository.save(castle);
 
 	}

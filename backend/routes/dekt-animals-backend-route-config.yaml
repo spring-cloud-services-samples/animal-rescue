@@ -22,6 +22,6 @@ spec:
       ssoEnabled: true
       tokenRelay: true
     - predicates:
-        - Path=/api/get-castle
+        - Path=/api/adopt-castle
         - Method=PUT
       ssoEnabled: true
