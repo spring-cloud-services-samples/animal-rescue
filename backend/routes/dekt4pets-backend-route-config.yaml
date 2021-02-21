@@ -24,3 +24,4 @@ spec:
     - predicates:
         - Path=/api/dekt
         - Method=GET
+  
