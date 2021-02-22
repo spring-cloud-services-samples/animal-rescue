@@ -8,7 +8,8 @@
     "react-dom": "^16.12.0",
     "react-responsive-carousel": "^3.1.51",
     "react-scripts": "3.3.1",
-    "semantic-ui-react": "^0.88.2"
+    "semantic-ui-react": "^0.88.2",
+    "wait-on": "^4.0.0"
   },
   "scripts": {
     "start": "wait-on tcp:8080 && REACT_APP_LOGIN_URI=http://localhost:8080/login REACT_APP_LOGOUT_URI=http://localhost:8080/logout react-scripts start",
@@ -35,6 +36,5 @@
     ]
   },
   "devDependencies": {
-    "wait-on": "^4.0.0"
   }
 }
