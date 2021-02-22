@@ -5,6 +5,9 @@ metadata:
 spec:
   api:
     serverUrl: https://test-gateway.spring.animalrescue.online
+    title: Animal Rescue - Pet Adoption APIs
+    description: Pet adoption requests wanted here! These APIs allow potential pet adopters to make adoption requests.
+    version: 1.0
   count: 2
   sso:
     secret: animal-rescue-sso

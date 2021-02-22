@@ -11,6 +11,8 @@ spec:
         - Method=GET
       filters:
         - RateLimit=2,10s
+      title: List potential pets to adopt
+      description: Shows all of the pets that are currently available for adoption.
     - ssoEnabled: true
       tokenRelay: true
       predicates:
