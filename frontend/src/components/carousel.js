@@ -1,4 +1,3 @@
-import React from "react";
 import { Carousel } from "react-responsive-carousel";
 
 const images = [
@@ -9,7 +8,7 @@ const images = [
     "/carousel-5.jpg",
 ];
 
-export default () => (
+const carousel = () => (
   <Carousel infiniteLoop showThumbs={false} showStatus={false} autoPlay showIndicators={false}>
       {
           images.map((image, i) => (
@@ -20,3 +19,5 @@ export default () => (
       }
   </Carousel>
 );
+
+export default carousel;
