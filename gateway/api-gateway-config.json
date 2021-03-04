@@ -3,6 +3,8 @@
     "plan": "uaa"
   },
   "count": 2,
+  "memory": "2G",
+  "disk": "512M",
   "host": "gateway-demo",
   "title": "Animal Rescue",
   "description": "Sample application for Spring Cloud Gateway for VMware Tanzu.",

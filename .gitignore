@@ -1,5 +1,7 @@
 .DS_Store
 .gradle
+*.yaml
+**/bin/
 
 ### IntelliJ IDEA ###
 .idea
