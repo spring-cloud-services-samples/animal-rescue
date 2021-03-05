@@ -1,8 +1,8 @@
-# Animal Rescue ♥️😺 ♥️🐶 ♥️🐰 ♥️🐦 ♥️🐹
+# Animal Rescue
 ![Test All](https://github.com/spring-cloud-services-samples/animal-rescue/workflows/Test%20All/badge.svg?branch=master)
 
-Sample app for Tanzu Spring Cloud Gateway tile. 
-Features we demonstrate with this sample app:
+Sample app for VMware's Spring Cloud Gateway commercial products. Features we demonstrate with this sample app:
+
 - Routing traffic to configured internal routes with container-to-container network
 - Gateway routes configured through service bindings
 - Simplified route configuration
@@ -10,7 +10,106 @@ Features we demonstrate with this sample app:
 - Required scopes on routes (tag: `require-sso-scopes`)
 - Circuit breaker filter
 
-## Deploy to CF
+## Deploy to Kubernetes
+
+The Kubernetes deployment requires you to install [kustomize](https://kustomize.io/). You will also need to install [Spring Cloud Gateway for Kubernetes](https://network.pivotal.io/products/spring-cloud-gateway-for-kubernetes) successfully onto your target Kubernetes cluster.
+
+### Configure Single Sign-On (SSO)
+
+For Animal Rescue sample Single Sign-On (SSO) to work, you will need to create two text files that will be used to create Kubernetes secrets:
+
+* ./frontend/secrets/sso-credentials.txt
+* ./gateway/sso-secret-for-gateway/secrets/test-sso-credentials.txt
+
+Before you start, and for validation, please locate the JWKS endpoint info `jwks_uri` from your SSO identity provider. The endpoint typically exists at:
+
+```
+https://YOUR_DOMAIN/.well-known/openid-configuration
+```
+
+For example, when using Okta the configured Issuer URI and JWKS URI can be retrieved at:
+
+```
+https://<issuer-uri>/.well-known/openid-configuration
+
+$ curl https://dev-1234567.okta.com/oauth2/abcd12345/.well-known/openid-configuration
+
+{
+  "issuer": "https://dev-1234567.okta.com/oauth2/abcd12345",
+...
+  "jwks_uri": "https://dev-1234567.okta.com/oauth2/abcd12345/v1/keys",
+....
+
+# Please note that the format used by Okta is jwks_uri="<issuer-uri>/v1/keys"
+```
+
+The contents of the `./frontend/secrets/sso-credentials.txt` file for example would be the following:
+
+```
+jwks_uri=https://dev-1234567.okta.com/oauth2/abcd12345/v1/keys
+```
+
+The contents of the `./gateway/sso-secret-for-gateway/secrets/test-sso-credentials.txt` file includes the following values from your OpenID Connect (OIDC) compliant SSO identity provider:
+
+```
+scope=openid,profile,email
+client-id={your_client_id}
+client-secret={your_client_secret}
+issuer-uri={your_issuer_uri}
+```
+
+### Deploy with Kustomize
+
+Assuming you are authenticated onto target Kubernetes cluster, you can run the following command from top-level directory in the repository:
+
+```bash
+kustomize build . | kubectl apply -f -
+```
+
+This will create a namespace named `animal-rescue`, create a new gateway instance named `gateway-demo` in that namespace, deploy the frontend and backend Animal Rescue applications and finally apply the application specific API route configurations to `gateway-demo`.
+
+### Deploy with Kubectl
+
+Make sure to create the SSO credentials secret in the SCG installation namespace (`spring-cloud-gateway` by default).
+
+A gateway instance is created, named `gateway-demo`, and it doesn't have any API routes defined on creation. The API route definitions are defined in a `SpringCloudGatewayBinding` object that can be version-controlled with each routed application. 
+
+### Accessing Animal Rescue Site
+
+After deploying Animal Rescue, there will be a service named `gateway-demo`. Expose the `gateway-demo` Service in your favorite way, e.g. ingress or port forwarding, then access `/rescue` path to view the animal-rescue app.
+
+`Example`: if you have installed the `animal-rescue` app in the `animal-rescue` namespace, and you wish to simply access the app quickly, you can validate the deployment and port-forward the `gateway-demo` service:
+
+```bash
+$ kubectl get all -n animal-rescue
+NAME                                          READY   STATUS    RESTARTS   AGE
+pod/animal-rescue-backend-757bb96466-pzr4l    1/1     Running   0          21h
+pod/animal-rescue-frontend-5c6f9bfc9b-kgxzg   1/1     Running   0          21h
+pod/gateway-demo-0                            1/1     Running   0          22h
+pod/gateway-demo-1                            1/1     Running   0          21h
+
+NAME                             TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
+service/animal-rescue-backend    ClusterIP   10.0.25.68    <none>        80/TCP     7d18h
+service/animal-rescue-frontend   ClusterIP   10.0.31.179   <none>        80/TCP     7d18h
+service/gateway-demo             ClusterIP   10.0.23.250   <none>        80/TCP     7d18h
+service/gateway-demo-headless    ClusterIP   None          <none>        5701/TCP   7d18h
+
+NAME                                     READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/animal-rescue-backend    1/1     1            1           7d18h
+deployment.apps/animal-rescue-frontend   1/1     1            1           7d18h
+
+NAME                                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/animal-rescue-backend-757bb96466    1         1         1       7d18h
+replicaset.apps/animal-rescue-frontend-5c6f9bfc9b   1         1         1       7d18h
+
+# port-forward the gateway-demo service
+$ kubectl -n=animal-rescue  port-forward service/gateway-demo 8080:80
+
+# animal-rescue is available at
+http://localhost:8080/rescue
+```
+
+## Deploy to Tanzu Application Service
 
 Run the following scripts to set up everything:
 ```bash
