@@ -5,7 +5,7 @@ namespace: animal-rescue
 secretGenerator:
 - name: sso-credentials
   envs:
-  - frontend/secrets/sso-credentials.txt
+  - backend/secrets/sso-credentials.txt
   type: Opaque
 
 generatorOptions:
