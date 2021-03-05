@@ -10,6 +10,14 @@ Sample app for VMware's Spring Cloud Gateway commercial products. Features we de
 - Required scopes on routes (tag: `require-sso-scopes`)
 - Circuit breaker filter
 
+## Table of Contents
+
+* [Deploy to Kubernetes](#deploy-to-kubernetes)
+* [Deploy to Tanzu Application Service](#deploy-to-tanzu-application-service)
+* [Special frontend config related to gateway](#special-frontend-config-related-to-gateway)
+* [Gateway and Animal Rescue application features](#gateway-and-animal-rescue-application-features)
+* [Development](#development)
+
 ## Deploy to Kubernetes
 
 The Kubernetes deployment requires you to install [kustomize](https://kustomize.io/). You will also need to install [Spring Cloud Gateway for Kubernetes](https://network.pivotal.io/products/spring-cloud-gateway-for-kubernetes) successfully onto your target Kubernetes cluster.
@@ -70,9 +78,11 @@ This will create a namespace named `animal-rescue`, create a new gateway instanc
 
 ### Deploy with Kubectl
 
+If you don't want to use `kustomize`, you can apply each yaml file in the [`kustomization.yaml`](kustomization.yaml) file manually into the `animal-rescue` namespace (or any namespace you prefer) as well as create the `sso-credentials` secret from `backend/secrets/sso-credentials.txt` and `animal-rescue-sso` secret from `gateway/sso-secret-for-gateway/secrets/test-sso-credentials.txt`. 
+
 Make sure to create the SSO credentials secret in the SCG installation namespace (`spring-cloud-gateway` by default).
 
-A gateway instance is created, named `gateway-demo`, and it doesn't have any API routes defined on creation. The API route definitions are defined in a `SpringCloudGatewayBinding` object that can be version-controlled with each routed application. 
+The gateway instance created, named `gateway-demo`, doesn't have any API routes defined initially. Once the API route definitions defined in a `SpringCloudGatewayRouteConfig` objects are mapped to `gateway-demo` using the `SpringCloudGatewayMapping` objects, you will see the routes added to the gateway.
 
 ### Accessing Animal Rescue Site
 
@@ -145,7 +155,7 @@ The frontend application is implemented in ReactJS, and is pushed with static bu
 1. `Sign in to adopt` button is linked to `/rescue/login`, which is a path that is `sso-enabled` in gateway config (`frontend/api-route-config.json`). This is necessary for frontend apps bound to a sub path on gateway because the Oauth2 login flow redirects users to the original requested location or back to `/` if no saved request exists. This setting is not necessary if the frontend app is bound to path `/`.
 1. `REACT_APP_BACKEND_BASE_URI` is set to `/backend` in build script, which is the path we set for the backend application in gateway config (`backend/api-route-config.json`). This is to make sure all our backend API calls are appended with the `backend` path.
 
-## Try it out
+## Gateway and Animal Rescue application features
 
 Visit `https://gateway-demo.${appsDomain}/rescue`, you should see cute animal bios with the `Adopt` buttons disabled. All the information are fetched from a public `GET` backend endpoint `/animals`.
 ![homepage](./docs/images/homepage.png)
@@ -209,13 +219,13 @@ You can find an e2e test output video showing the whole journey in `./e2e/cypres
 
 More detail about the e2e testing framework can be found at [cypress api doc](https://docs.cypress.io/api/api/table-of-contents.html) 
 
-## CI
+### CI
 
-### GitHub Actions
+#### GitHub Actions
 
 GitHub Actions run all checks for the `master` branch and all PR requests. All workflow configuration can be found in `.github/workflows`.
 
-### Concourse
+#### Concourse
 
 If you'd like to get the most updated sample app deployed in a real TAS environment, you can set up a concourse pipeline to do so:
 
