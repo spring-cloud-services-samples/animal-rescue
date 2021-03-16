@@ -93,10 +93,10 @@ deploy_all() {
 
   if ! gatewayServiceInstanceIsReady; then
     echo "Gateway service does not exist, creating..."
-    cf create-service p.gateway standard $GATEWAY_NAME -c ./api-gateway-config.json
+    cf create-service p.gateway standard $GATEWAY_NAME -c ./gateway/api-gateway-config.json
   else
     echo "Gateway service already exists, updating..."
-    cf update-service $GATEWAY_NAME -c ./api-gateway-config.json
+    cf update-service $GATEWAY_NAME -c ./gateway/api-gateway-config.json
   fi
 
   while ! gatewayServiceInstanceIsReady; do
