@@ -33,7 +33,9 @@ dependencies {
 	implementation "org.springframework.security:spring-security-oauth2-jose"
  	implementation("io.pivotal.cfenv:java-cfenv-boot:2.1.1.RELEASE")
 
-    runtimeOnly 'com.h2database:h2'
+ 	runtimeOnly 'com.h2database:h2'
+	// in-case someone configures Animal Rescue with a reference to a MySQL DB
+ 	runtimeOnly 'mysql:mysql-connector-java'
 
 	testImplementation('org.springframework.security:spring-security-test')
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
