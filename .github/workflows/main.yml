@@ -16,26 +16,6 @@ jobs:
     - name: Run tests
       run: ./scripts/local.sh backend
 
-  codecov:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Java JDK
-      uses: actions/setup-java@v1.4.3
-      with:
-        java-version: 11
-
-    - name: Run codecov check
-      run: |
-        ./gradlew jacocoTestReport
-
-    - name: Upload code coverage results
-      uses: codecov/codecov-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./backend/build/reports/jacoco/report.xml
-        fail_ci_if_error: true
-
   e2e-test:
     runs-on: ubuntu-latest
     steps:
