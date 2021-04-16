@@ -13,6 +13,9 @@ jobs:
       with:
         java-version: 11
 
+    - name: Print out env names
+      run: env | sed 's;=.*;;'
+      
     - name: Run tests
       run: ./scripts/local.sh backend
 
