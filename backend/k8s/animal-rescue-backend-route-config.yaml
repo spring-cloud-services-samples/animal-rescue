@@ -11,13 +11,19 @@ spec:
         - Method=GET
       filters:
         - RateLimit=2,10s
+      tags:
+        - "pet adoption"
     - ssoEnabled: true
       tokenRelay: true
       predicates:
         - Path=/api/whoami
         - Method=GET
+      tags:
+        - sso
     - ssoEnabled: true
       tokenRelay: true
       predicates:
         - Path=/api/animals/*/adoption-requests/**
         - Method=POST,PUT,DELETE
+      tags:
+        - "pet adoption"

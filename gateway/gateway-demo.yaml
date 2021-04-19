@@ -5,6 +5,10 @@ metadata:
 spec:
   api:
     serverUrl: https://test-gateway.spring.animalrescue.online
+    title: "Animal Rescue"
+    description: "Sample application for Spring Cloud Gateway commercial product demos."
+    documentation: "https://github.com/spring-cloud-services-samples/animal-rescue/"
+    version: "1.0.0-K8s"
   count: 2
   sso:
     secret: animal-rescue-sso
