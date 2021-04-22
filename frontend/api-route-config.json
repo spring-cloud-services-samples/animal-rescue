@@ -7,7 +7,8 @@
       "method": "GET",
       "sso-enabled": true,
       "filters": ["RedirectTo=302, /rescue"],
-      "order": 0
+      "order": 0,
+      "tags": ["sso"]
     },
     {
       "title": "Animal Rescue home page",
@@ -15,7 +16,8 @@
       "path": "/rescue/**",
       "method": "GET",
       "order": 1000,
-      "filters": [ "CircuitBreaker=frontendCb,forward:/fallback" ]
+      "filters": [ "CircuitBreaker=frontendCb,forward:/fallback" ],
+      "tags": ["ui"]
     }
   ]
 }

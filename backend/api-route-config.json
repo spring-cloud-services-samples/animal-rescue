@@ -5,12 +5,14 @@
       "description": "Retrieve all of the animals who are up for pet adoption.",
       "path": "/api/animals",
       "method": "GET",
-      "filters": [ "RateLimit=2,10s" ]
+      "filters": [ "RateLimit=2,10s" ],
+      "tags": ["pet adoption"]
     },
     {
       "title": "API Actuator endpoints",
       "description": "Access API actuator endpoints to provide current status of backend service.",
-      "path": "/api/actuator/**"
+      "path": "/api/actuator/**",
+      "tags": ["actuator"]
     },
     {
       "title": "Retrieve user information",
@@ -18,7 +20,8 @@
       "path": "/api/whoami",
       "method": "GET",
       "token-relay": true,
-      "sso-enabled": true
+      "sso-enabled": true,
+      "tags": ["sso"]
     },
     {
       "title": "Pet adoption API",
@@ -26,7 +29,8 @@
       "path": "/api/animals/*/adoption-requests/**",
       "method": "POST,PUT,DELETE",
       "token-relay": true,
-      "sso-enabled": true
+      "sso-enabled": true,
+      "tags": ["pet adoption"]
     }
   ]
 }
