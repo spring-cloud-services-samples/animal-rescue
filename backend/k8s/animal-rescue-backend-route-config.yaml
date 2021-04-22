@@ -13,6 +13,10 @@ spec:
         - RateLimit=2,10s
       tags:
         - "pet adoption"
+    - predicates:
+        - Path=/api/actuator/**
+      tags:
+        - actuator
     - ssoEnabled: true
       tokenRelay: true
       predicates:
