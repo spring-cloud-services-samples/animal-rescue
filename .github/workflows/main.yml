@@ -12,6 +12,7 @@ jobs:
       uses: actions/setup-java@v2.1.0
       with:
         java-version: 11
+        distribution: 'adopt'
 
     - name: Run tests
       run: ./scripts/local.sh backend
@@ -29,6 +30,7 @@ jobs:
         uses: actions/setup-java@v2.1.0
         with:
           java-version: 11
+          distribution: 'adopt'
 
       - name: Install dependencies
         run: ./scripts/local.sh init
