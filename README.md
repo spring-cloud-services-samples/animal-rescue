@@ -67,6 +67,14 @@ client-id={your_client_id}
 client-secret={your_client_secret}
 issuer-uri={your_issuer_uri}
 ```
+### Configure Ingress
+
+The K8s deploy leverages an Ingress object to easily expose your application outside of the cluster.
+Before starting, confirm that you have an ingress controller installed into your cluster.
+[Contour](https://projectcontour.io/) is a good choice if you don't already have a favorite.
+
+Next, edit `gateway/gateway-demo.yaml` to set the domain to your domain.
+If you don't have a domain that you can use, leveraging [`nip.io`](https://nip.io/) is a good choice.
 
 ### Deploy with Kustomize (recommended)
 
