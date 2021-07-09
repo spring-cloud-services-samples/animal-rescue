@@ -10,6 +10,8 @@ Sample app for VMware's Spring Cloud Gateway commercial products. Features we de
 - Required scopes on routes (tag: `require-sso-scopes`)
 - Circuit breaker filter
 
+![architecture](./docs/images/animal-rescue-arch.png)
+
 ## Table of Contents
 
 * [Deploy to Kubernetes](#deploy-to-kubernetes)
