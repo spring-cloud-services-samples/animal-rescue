@@ -1,6 +1,6 @@
 package io.spring.cloud.samples.animalrescue.backend;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 
-public interface AdoptionRequestRepository extends CrudRepository<AdoptionRequest, Long> {
+public interface AdoptionRequestRepository extends ReactiveCrudRepository<AdoptionRequest, Long> {
 }
