@@ -16,6 +16,8 @@ spec:
       order: 0
       tags:
         - sso
+      title: "Animal Rescue login link"
+      description: "SSO enabled path used by the login button"
     - predicates:
         - Path=/rescue/**
         - Method=GET
@@ -24,4 +26,6 @@ spec:
       order: 1000
       tags:
         - ui
+      title: "Animal Rescue home page"
+      description: "Animal Rescue home page that doesn't require SSO login"
 

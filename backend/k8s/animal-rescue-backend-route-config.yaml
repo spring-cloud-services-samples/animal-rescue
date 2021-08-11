@@ -13,10 +13,14 @@ spec:
         - RateLimit=2,10s
       tags:
         - "pet adoption"
+      title: "Retrieve pets for adoption."
+      description: "Retrieve all of the animals who are up for pet adoption."
     - predicates:
         - Path=/api/actuator/**
       tags:
         - actuator
+      title: "API Actuator endpoints"
+      description: "Access API actuator endpoints to provide current status of backend service."
     - ssoEnabled: true
       tokenRelay: true
       predicates:
@@ -24,6 +28,8 @@ spec:
         - Method=GET
       tags:
         - sso
+      title: "Retrieve user information"
+      description: "Retrieve the current authenticated user's information."
     - ssoEnabled: true
       tokenRelay: true
       predicates:
@@ -31,6 +37,8 @@ spec:
         - Method=POST,PUT,DELETE
       tags:
         - "pet adoption"
+      title: "Pet adoption API"
+      description: "Manage pet adoptions."
       model:
         requestBody:
           description: Manage adoption requests
