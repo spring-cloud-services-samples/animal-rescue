@@ -12,7 +12,7 @@ serverUrl:
     version: "1.0.0-K8s"
     cors:
       allowedOrigins:
-        - "*"
+        - "http://api-portal.my.domain.io"
   count: 2
   sso:
     secret: animal-rescue-sso
