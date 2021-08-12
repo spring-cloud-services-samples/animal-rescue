@@ -30,7 +30,33 @@
       "method": "POST,PUT,DELETE",
       "token-relay": true,
       "sso-enabled": true,
-      "tags": ["pet adoption"]
+      "tags": ["pet adoption"],
+      "model": {
+        "requestBody": {
+          "description": "Manage adoption requests",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Adoption request schema",
+                "properties": {
+                  "adopterName": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "notes": {
+                    "type": "string"
+                  }
+                },
+                "required": [ "adopterName", "email" ]
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }
