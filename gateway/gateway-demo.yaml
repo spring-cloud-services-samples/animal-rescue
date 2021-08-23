@@ -4,7 +4,6 @@ metadata:
   name: gateway-demo
 spec:
   api:
-serverUrl: 
     serverUrl: http://animal-rescue.my.domain.io
     title: "Animal Rescue"
     description: "Sample application for Spring Cloud Gateway commercial product demos."
@@ -12,7 +11,7 @@ serverUrl:
     version: "1.0.0-K8s"
     cors:
       allowedOrigins:
-        - "http://api-portal.my.domain.io"
+      - "http://api-portal.my.domain.io"
   count: 2
   sso:
     secret: animal-rescue-sso
