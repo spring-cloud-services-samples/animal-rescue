@@ -19,5 +19,5 @@ build:
 deploy:
   kustomize:
     paths:
-      - k8s/base
-      - k8s/overlays/sso-secret-for-gateway
+      - ./
+      - gateway/sso-secret-for-gateway/
