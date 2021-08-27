@@ -16,25 +16,10 @@ spec:
       title: "Retrieve pets for adoption."
       description: "Retrieve all of the animals who are up for pet adoption."
     - predicates:
-        - Path=/api/actuator/**
-      tags:
-        - actuator
-      title: "API Actuator endpoints"
-      description: "Access API actuator endpoints to provide current status of backend service."
-    - ssoEnabled: true
+        - Path=/api/animals/{animalId}/adoption-requests
+        - Method=POST
+      ssoEnabled: true
       tokenRelay: true
-      predicates:
-        - Path=/api/whoami
-        - Method=GET
-      tags:
-        - sso
-      title: "Retrieve user information"
-      description: "Retrieve the current authenticated user's information."
-    - ssoEnabled: true
-      tokenRelay: true
-      predicates:
-        - Path=/api/animals/*/adoption-requests/**
-        - Method=POST,PUT,DELETE
       tags:
         - "pet adoption"
       title: "Pet adoption API"
@@ -56,3 +41,44 @@ spec:
                   notes:
                     type: string
                 required: [ "adopterName", "email" ]
+    - predicates:
+        - Path=/api/animals/{animalId}/adoption-requests/{adoptionRequestId}
+        - Method=PUT,DELETE
+      ssoEnabled: true
+      tokenRelay: true
+      tags:
+        - "pet adoption"
+      title: "Pet adoption API"
+      description: "Manage pet adoptions."
+      model:
+        requestBody:
+          description: Manage adoption requests
+          content:
+            'application/json':
+              schema:
+                type: object
+                description: Adoption request schema
+                properties:
+                  adopterName:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  notes:
+                    type: string
+                required: [ "adopterName", "email" ]
+    - predicates:
+        - Path=/api/actuator/**
+      tags:
+        - actuator
+      title: "API Actuator endpoints"
+      description: "Access API actuator endpoints to provide current status of backend service."
+    - predicates:
+        - Path=/api/whoami
+        - Method=GET
+      ssoEnabled: true
+      tokenRelay: true
+      tags:
+        - sso
+      title: "Retrieve user information"
+      description: "Retrieve the current authenticated user's information."

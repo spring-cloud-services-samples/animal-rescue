@@ -6,10 +6,10 @@ spec:
   service:
     name: animal-rescue-frontend
   routes:
-    - ssoEnabled: true
-      predicates:
+    - predicates:
         - Path=/rescue/login
         - Method=GET
+      ssoEnabled: true
       filters:
         - StripPrefix=1
         - RedirectTo=302, /rescue
