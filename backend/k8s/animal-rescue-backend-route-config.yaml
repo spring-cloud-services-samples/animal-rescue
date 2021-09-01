@@ -33,8 +33,34 @@ spec:
     - ssoEnabled: true
       tokenRelay: true
       predicates:
-        - Path=/api/animals/*/adoption-requests/**
-        - Method=POST,PUT,DELETE
+        - Path=/api/animals/{animalId}/adoption-requests/{adoptionId}
+        - Method=PUT,DELETE
+      tags:
+        - "pet adoption"
+      title: "Pet adoption API"
+      description: "Manage pet adoptions."
+      model:
+        requestBody:
+          description: Manage adoption requests
+          content:
+            'application/json':
+              schema:
+                type: object
+                description: Adoption request schema
+                properties:
+                  adopterName:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  notes:
+                    type: string
+                required: [ "adopterName", "email" ]
+    - ssoEnabled: true
+      tokenRelay: true
+      predicates:
+        - Path=/api/animals/{animalId}/adoption-requests
+        - Method=POST
       tags:
         - "pet adoption"
       title: "Pet adoption API"
