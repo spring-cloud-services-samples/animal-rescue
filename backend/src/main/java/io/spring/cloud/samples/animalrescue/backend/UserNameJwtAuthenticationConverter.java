@@ -28,10 +28,13 @@ class UserNameJwtAuthenticationConverter implements Converter<Jwt, AbstractAuthe
 
 	private String getUserName(Jwt jwt) {
 		if (jwt.containsClaim("name")) {
+			LOGGER.info("Username from claim 'name'");
 			return jwt.getClaimAsString("name");
 		} else if (jwt.containsClaim("user_name")) {
+			LOGGER.info("Username from claim 'user_name'");
 			return jwt.getClaimAsString("user_name");
 		} else {
+			LOGGER.info("Username from claim 'subject'");
 			return jwt.getSubject();
 		}
 	}
