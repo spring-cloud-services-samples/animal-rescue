@@ -1,6 +1,10 @@
 package io.spring.cloud.samples.animalrescue.backend;
 
 import java.util.Collection;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -10,6 +14,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 
 class UserNameJwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserNameJwtAuthenticationConverter.class);
 
 	private final Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter
 		= new JwtGrantedAuthoritiesConverter();
@@ -21,6 +27,15 @@ class UserNameJwtAuthenticationConverter implements Converter<Jwt, AbstractAuthe
 	}
 
 	private String getUserName(Jwt jwt) {
-		return jwt.containsClaim("user_name") ? jwt.getClaimAsString("user_name") : jwt.getSubject();
+		if (jwt.containsClaim("name")) {
+			LOGGER.info("Username from claim 'name'");
+			return jwt.getClaimAsString("name");
+		} else if (jwt.containsClaim("user_name")) {
+			LOGGER.info("Username from claim 'user_name'");
+			return jwt.getClaimAsString("user_name");
+		} else {
+			LOGGER.info("Username from claim 'subject'");
+			return jwt.getSubject();
+		}
 	}
 }
