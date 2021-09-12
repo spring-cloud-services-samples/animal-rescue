@@ -1,8 +1,6 @@
-apiVersion: skaffold/v2beta6
+apiVersion: skaffold/v2beta22
 kind: Config
 build:
-  tagPolicy:
-    sha256: {}
   artifacts:
   - image: springcloudservices/animal-rescue-backend
     context: backend
@@ -14,10 +12,19 @@ build:
         - build.gradle
         - settings.gradle
   - image: springcloudservices/animal-rescue-frontend
-    context: frontend
-
+    # context: frontend
+    custom:
+      buildCommand: |
+        ./gradlew :frontend:assemble \
+        docker build frontend -t springcloudservices/animal-rescue-frontend:latest
+      dependencies:
+        paths:
+        - frontend/src/**
+        - frontend/build.gradle
+  tagPolicy:
+    sha256: {}
 deploy:
   kustomize:
     paths:
-      - ./
-      - gateway/sso-secret-for-gateway/
+    - ./
+    - gateway/sso-secret-for-gateway/
