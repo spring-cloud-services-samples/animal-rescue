@@ -26,6 +26,8 @@ The Kubernetes deployment requires you to install [kustomize](https://kustomize.
 
 ### Configure Single Sign-On (SSO)
 
+For information configuring Okta as the SSO provider, see [go here](https://docs.pivotal.io/scg-k8s/1-0/sso-setup-guide.html).
+
 For Animal Rescue sample Single Sign-On (SSO) to work, you will need to create two text files that will be used to create Kubernetes secrets:
 
 * ./backend/secrets/sso-credentials.txt
