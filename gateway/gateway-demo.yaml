@@ -26,7 +26,7 @@ metadata:
     app: gateway-demo
 spec:
   rules:
-  - host: gateway-demo.${DOMAIN}
+  - host: animal-rescue.my.domain.io
     http:
       paths:
       - backend:
