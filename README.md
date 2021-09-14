@@ -67,6 +67,14 @@ client-id={your_client_id}
 client-secret={your_client_secret}
 issuer-uri={your_issuer_uri}
 ```
+### Configure Ingress
+
+The K8s deploy leverages an Ingress object to easily expose your application outside of the cluster.
+Before starting, confirm that you have an ingress controller installed into your cluster.
+[Contour](https://projectcontour.io/) is a good choice if you don't already have a favorite.
+
+Next, edit `gateway/gateway-demo.yaml` to set the domain to your domain.
+If you don't have a domain that you can use, leveraging [`nip.io`](https://nip.io/) is a good choice.
 
 ### Deploy with Kustomize (recommended)
 
@@ -88,38 +96,10 @@ The gateway instance created, named `gateway-demo`, doesn't have any API routes 
 
 ### Accessing Animal Rescue Site
 
-After deploying Animal Rescue, there will be a service named `gateway-demo`. Expose the `gateway-demo` Service in your favorite way, e.g. ingress or port forwarding, then access `/rescue` path to view the animal-rescue app.
-
-`Example`: if you have installed the `animal-rescue` app in the `animal-rescue` namespace, and you wish to simply access the app quickly, you can validate the deployment and port-forward the `gateway-demo` service:
-
-```bash
-$ kubectl get all -n animal-rescue
-NAME                                          READY   STATUS    RESTARTS   AGE
-pod/animal-rescue-backend-757bb96466-pzr4l    1/1     Running   0          21h
-pod/animal-rescue-frontend-5c6f9bfc9b-kgxzg   1/1     Running   0          21h
-pod/gateway-demo-0                            1/1     Running   0          22h
-pod/gateway-demo-1                            1/1     Running   0          21h
-
-NAME                             TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
-service/animal-rescue-backend    ClusterIP   10.0.25.68    <none>        80/TCP     7d18h
-service/animal-rescue-frontend   ClusterIP   10.0.31.179   <none>        80/TCP     7d18h
-service/gateway-demo             ClusterIP   10.0.23.250   <none>        80/TCP     7d18h
-service/gateway-demo-headless    ClusterIP   None          <none>        5701/TCP   7d18h
-
-NAME                                     READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/animal-rescue-backend    1/1     1            1           7d18h
-deployment.apps/animal-rescue-frontend   1/1     1            1           7d18h
-
-NAME                                                DESIRED   CURRENT   READY   AGE
-replicaset.apps/animal-rescue-backend-757bb96466    1         1         1       7d18h
-replicaset.apps/animal-rescue-frontend-5c6f9bfc9b   1         1         1       7d18h
-
-# port-forward the gateway-demo service
-$ kubectl -n=animal-rescue  port-forward service/gateway-demo 8080:80
-
-# animal-rescue is available at
-http://localhost:8080/rescue
-```
+After deploying Animal Rescue, there will be an Ingress created.
+You can then access Animal Rescue at the URL set by the Ingress created
+in `gateway/gateway-demo.yaml`.
+For example, `http://animal-rescue.my.domain.io/rescue`.
 
 ## Deploy to Tanzu Application Service
 
