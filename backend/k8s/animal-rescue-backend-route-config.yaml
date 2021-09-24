@@ -5,20 +5,21 @@ metadata:
 spec:
   service:
     name: animal-rescue-backend
+    ssoEnabled: true
+    filters:
+      - RateLimit=10,2s
   routes:
     - predicates:
         - Path=/api/animals
         - Method=GET
-      filters:
-        - RateLimit=2,10s
       tags:
         - "pet adoption"
+      ssoEnabled: false
       title: "Retrieve pets for adoption."
       description: "Retrieve all of the animals who are up for pet adoption."
     - predicates:
         - Path=/api/animals/{animalId}/adoption-requests
         - Method=POST
-      ssoEnabled: true
       tokenRelay: true
       tags:
         - "pet adoption"
@@ -47,7 +48,6 @@ spec:
     - predicates:
         - Path=/api/animals/{animalId}/adoption-requests/{adoptionId}
         - Method=PUT,DELETE
-      ssoEnabled: true
       tokenRelay: true
       tags:
         - "pet adoption"
@@ -74,12 +74,12 @@ spec:
         - Path=/api/actuator/**
       tags:
         - actuator
+      ssoEnabled: false
       title: "API Actuator endpoints"
       description: "Access API actuator endpoints to provide current status of backend service."
     - predicates:
         - Path=/api/whoami
         - Method=GET
-      ssoEnabled: true
       tokenRelay: true
       tags:
         - sso
