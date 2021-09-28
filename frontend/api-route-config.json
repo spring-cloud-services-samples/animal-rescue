@@ -13,6 +13,14 @@
     {
       "title": "Animal Rescue home page",
       "description": "Animal Rescue home page that doesn't require SSO login",
+      "path": "/",
+      "method": "GET",
+      "filters": [ "RedirectTo=302, /rescue" ],
+      "tags": ["ui"]
+    },
+    {
+      "title": "Animal Rescue UI pages",
+      "description": "Animal Rescue UI pages that don't require SSO login",
       "path": "/rescue/**",
       "method": "GET",
       "order": 1000,
