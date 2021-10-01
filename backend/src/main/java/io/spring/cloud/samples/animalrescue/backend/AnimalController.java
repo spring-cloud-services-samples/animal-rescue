@@ -55,11 +55,12 @@ public class AnimalController {
 	) {
 		LOGGER.info("Received submit adoption request from {}", principal.getName());
 		adoptionRequest.setAdopterName(principal.getName());
-		Mono<Animal> animalMono = animalRepository
-			.findById(animalId)
-			.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(String.format("Animal with id %s doesn't exist!", animalId))))
-			.doOnNext(animal -> animal.getAdoptionRequests().add(adoptionRequest));
-		return animalMono.flatMap(animalRepository::save).then();
+		return animalRepository
+				.findById(animalId)
+				.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(String.format("Animal with id %s doesn't exist!", animalId))))
+				.doOnNext(animal -> animal.getAdoptionRequests().add(adoptionRequest))
+				.flatMap(animalRepository::save)
+				.then();
 	}
 
 	@PutMapping("/animals/{animalId}/adoption-requests/{adoptionRequestId}")
@@ -70,7 +71,7 @@ public class AnimalController {
 		@RequestBody AdoptionRequest adoptionRequest
 	) {
 		LOGGER.info("Received edit adoption request");
-		Mono<Animal> animalMono = animalRepository
+		return animalRepository
 				.findById(animalId)
 				.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(String.format("Animal with id %s doesn't exist!", animalId))))
 				.doOnNext(animal -> {
@@ -90,8 +91,9 @@ public class AnimalController {
 
 					existing.setEmail(adoptionRequest.getEmail());
 					existing.setNotes(adoptionRequest.getNotes());
-				});
-		return animalMono.flatMap(animalRepository::save).then();
+				})
+				.flatMap(animalRepository::save)
+				.then();
 	}
 
 	@DeleteMapping("/animals/{animalId}/adoption-requests/{adoptionRequestId}")
@@ -101,7 +103,7 @@ public class AnimalController {
 		@PathVariable("adoptionRequestId") Long adoptionRequestId
 	) {
 		LOGGER.info("Received delete adoption request from {}", principal.getName());
-		Mono<Animal> animalMono = animalRepository
+		return animalRepository
 				.findById(animalId)
 				.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(String.format("Animal with id %s doesn't exist!", animalId))))
 				.doOnNext(animal -> {
@@ -120,8 +122,9 @@ public class AnimalController {
 					}
 
 					animal.getAdoptionRequests().remove(existing);
-				});
-		return animalMono.flatMap(animalRepository::save).then();
+				})
+				.flatMap(animalRepository::save)
+				.then();
 	}
 
 	@ExceptionHandler({AccessDeniedException.class})
