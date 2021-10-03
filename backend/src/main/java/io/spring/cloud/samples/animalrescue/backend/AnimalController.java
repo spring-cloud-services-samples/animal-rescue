@@ -1,6 +1,7 @@
 package io.spring.cloud.samples.animalrescue.backend;
 
 import java.security.Principal;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +28,11 @@ public class AnimalController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AnimalController.class);
 
 	private final AnimalRepository animalRepository;
+	private final AdoptionRequestRepository adoptionRequestRepository;
 
-	public AnimalController(AnimalRepository animalRepository) {
+	public AnimalController(AnimalRepository animalRepository, AdoptionRequestRepository adoptionRequestRepository) {
 		this.animalRepository = animalRepository;
+		this.adoptionRequestRepository = adoptionRequestRepository;
 	}
 
 	@GetMapping("/whoami")
@@ -43,7 +46,12 @@ public class AnimalController {
 	@GetMapping("/animals")
 	public Flux<Animal> getAllAnimals() {
 		LOGGER.info("Received get all animals request");
-		return animalRepository.findAll();
+		// This code is prioritized to be more readable and maintainable
+		// and causes the "N+1 selects problem". Take care of referring to the code.
+		return animalRepository.findAll()
+				.delayUntil(animal -> adoptionRequestRepository.findByAnimal(animal.getId())
+						.collect(Collectors.toSet())
+						.doOnNext(animal::setAdoptionRequests));
 	}
 
 	@PostMapping("/animals/{id}/adoption-requests")
@@ -54,12 +62,12 @@ public class AnimalController {
 		@RequestBody AdoptionRequest adoptionRequest
 	) {
 		LOGGER.info("Received submit adoption request from {}", principal.getName());
+		adoptionRequest.setAnimal(animalId);
 		adoptionRequest.setAdopterName(principal.getName());
 		return animalRepository
 				.findById(animalId)
 				.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(String.format("Animal with id %s doesn't exist!", animalId))))
-				.doOnNext(animal -> animal.getAdoptionRequests().add(adoptionRequest))
-				.flatMap(animalRepository::save)
+				.then(adoptionRequestRepository.save(adoptionRequest))
 				.then();
 	}
 
@@ -74,25 +82,19 @@ public class AnimalController {
 		return animalRepository
 				.findById(animalId)
 				.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(String.format("Animal with id %s doesn't exist!", animalId))))
-				.doOnNext(animal -> {
-					AdoptionRequest existing = animal
-							.getAdoptionRequests()
-							.stream()
-							.filter(ar -> ar.getId().equals(adoptionRequestId))
-							.findAny()
-							.orElseThrow(
-									() -> new IllegalArgumentException(String.format("AdoptionRequest with id %s doesn't exist!",
-											adoptionRequestId)));
-
-					if (!existing.getAdopterName().equals(principal.getName())) {
-						throw new AccessDeniedException(String.format("User %s has cannot edit user %s's adoption request",
-								principal.getName(), existing.getAdopterName()));
-					}
-
-					existing.setEmail(adoptionRequest.getEmail());
-					existing.setNotes(adoptionRequest.getNotes());
-				})
-				.flatMap(animalRepository::save)
+				.delayUntil(animal -> adoptionRequestRepository.findByAnimal(animalId)
+						.filter(ar -> ar.getId().equals(adoptionRequestId))
+						.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(String.format("AdoptionRequest with id %s doesn't exist!",
+								adoptionRequestId))))
+						.doOnNext(existing -> {
+							if (!existing.getAdopterName().equals(principal.getName())) {
+								throw new AccessDeniedException(String.format("User %s has cannot delete user %s's adoption request",
+										principal.getName(), existing.getAdopterName()));
+							}
+							existing.setEmail(adoptionRequest.getEmail());
+							existing.setNotes(adoptionRequest.getNotes());
+						})
+						.flatMap(adoptionRequestRepository::save))
 				.then();
 	}
 
@@ -106,24 +108,17 @@ public class AnimalController {
 		return animalRepository
 				.findById(animalId)
 				.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(String.format("Animal with id %s doesn't exist!", animalId))))
-				.doOnNext(animal -> {
-					AdoptionRequest existing = animal
-							.getAdoptionRequests()
-							.stream()
-							.filter(ar -> ar.getId().equals(adoptionRequestId))
-							.findAny()
-							.orElseThrow(
-									() -> new IllegalArgumentException(String.format("AdoptionRequest with id %s doesn't exist!",
-											adoptionRequestId)));
-
-					if (!existing.getAdopterName().equals(principal.getName())) {
-						throw new AccessDeniedException(String.format("User %s has cannot delete user %s's adoption request",
-								principal.getName(), existing.getAdopterName()));
-					}
-
-					animal.getAdoptionRequests().remove(existing);
-				})
-				.flatMap(animalRepository::save)
+				.delayUntil(animal -> adoptionRequestRepository.findByAnimal(animalId)
+						.filter(ar -> ar.getId().equals(adoptionRequestId))
+						.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(String.format("AdoptionRequest with id %s doesn't exist!",
+								adoptionRequestId))))
+						.doOnNext(existing -> {
+							if (!existing.getAdopterName().equals(principal.getName())) {
+								throw new AccessDeniedException(String.format("User %s has cannot delete user %s's adoption request",
+										principal.getName(), existing.getAdopterName()));
+							}
+						})
+						.flatMap(adoptionRequestRepository::delete))
 				.then();
 	}
 

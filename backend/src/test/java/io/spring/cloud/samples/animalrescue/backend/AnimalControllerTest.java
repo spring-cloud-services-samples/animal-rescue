@@ -44,7 +44,7 @@ class AnimalControllerTest {
 	}
 
 	private int getAdoptionRequestCountForAnimalId1() {
-		return animalRepository.findById(1L).block().getAdoptionRequests().size();
+		return adoptionRequestRepository.findByAnimal(1L).collectList().block().size();
 	}
 
 	@Test
@@ -266,15 +266,11 @@ class AnimalControllerTest {
 	}
 
 	private long getNewlyCreatedRequestId(long animalId, String adopterName) {
-		return animalRepository
-			.findById(animalId)
-			.block()
-			.getAdoptionRequests()
-			.stream()
-			.filter(adoptionRequest -> adoptionRequest.getAdopterName().equals(adopterName))
-			.findAny()
-			.get()
-			.getId();
+		return adoptionRequestRepository
+				.findByAnimal(animalId)
+				.filter(ar -> ar.getAdopterName().equals(adopterName))
+				.blockFirst()
+				.getId();
 	}
 
 }

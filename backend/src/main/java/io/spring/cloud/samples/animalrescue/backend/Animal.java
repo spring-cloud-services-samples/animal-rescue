@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 
 public class Animal {
 
@@ -19,6 +20,7 @@ public class Animal {
 
 	private String description;
 
+	@Transient
 	private Set<AdoptionRequest> adoptionRequests = new HashSet<>();
 
 	@Override
