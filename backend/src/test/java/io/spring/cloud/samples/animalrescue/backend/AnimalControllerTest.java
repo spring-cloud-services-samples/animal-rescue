@@ -2,7 +2,6 @@ package io.spring.cloud.samples.animalrescue.backend;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -45,7 +44,7 @@ class AnimalControllerTest {
 	}
 
 	private int getAdoptionRequestCountForAnimalId1() {
-		return animalRepository.findById(1L).get().getAdoptionRequests().size();
+		return adoptionRequestRepository.findByAnimal(1L).collectList().block().size();
 	}
 
 	@Test
@@ -141,11 +140,11 @@ class AnimalControllerTest {
 				.exchange()
 				.expectStatus().isOk();
 
-			Optional<AdoptionRequest> modified = adoptionRequestRepository.findById(newId);
-			assertThat(modified).isPresent();
-			assertThat(modified.get().getEmail()).isEqualTo(testEmail);
-			assertThat(modified.get().getNotes()).isEqualTo(testNotes);
-			assertThat(modified.get().getAdopterName()).isEqualTo("test-user-2");
+			AdoptionRequest modified = adoptionRequestRepository.findById(newId).block();
+			assertThat(modified).isNotNull();
+			assertThat(modified.getEmail()).isEqualTo(testEmail);
+			assertThat(modified.getNotes()).isEqualTo(testNotes);
+			assertThat(modified.getAdopterName()).isEqualTo("test-user-2");
 			assertThat(getAdoptionRequestCountForAnimalId1()).isEqualTo(currentAdoptionRequestCountForAnimalId1 + 1);
 		}
 
@@ -213,7 +212,7 @@ class AnimalControllerTest {
 				.exchange()
 				.expectStatus().isOk();
 
-			assertThat(adoptionRequestRepository.findById(newId)).isNotPresent();
+			assertThat(adoptionRequestRepository.findById(newId).block()).isNull();
 			assertThat(getAdoptionRequestCountForAnimalId1()).isEqualTo(currentAdoptionRequestCountForAnimalId1);
 		}
 
@@ -267,15 +266,11 @@ class AnimalControllerTest {
 	}
 
 	private long getNewlyCreatedRequestId(long animalId, String adopterName) {
-		return animalRepository
-			.findById(animalId)
-			.get()
-			.getAdoptionRequests()
-			.stream()
-			.filter(adoptionRequest -> adoptionRequest.getAdopterName().equals(adopterName))
-			.findAny()
-			.get()
-			.getId();
+		return adoptionRequestRepository
+				.findByAnimal(animalId)
+				.filter(ar -> ar.getAdopterName().equals(adopterName))
+				.blockFirst()
+				.getId();
 	}
 
 }

@@ -1,26 +1,26 @@
 package io.spring.cloud.samples.animalrescue.backend;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 
 public class Animal {
 
 	@Id
-	private long id;
+	private Long id;
 
 	private String name;
 
-	private Date rescueDate;
+	private LocalDate rescueDate;
 
 	private String avatarUrl;
 
 	private String description;
 
+	@Transient
 	private Set<AdoptionRequest> adoptionRequests = new HashSet<>();
 
 	@Override
@@ -34,11 +34,11 @@ public class Animal {
 			'}';
 	}
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -50,11 +50,11 @@ public class Animal {
 		this.name = name;
 	}
 
-	public Date getRescueDate() {
+	public LocalDate getRescueDate() {
 		return rescueDate;
 	}
 
-	public void setRescueDate(Date rescueDate) {
+	public void setRescueDate(LocalDate rescueDate) {
 		this.rescueDate = rescueDate;
 	}
 
