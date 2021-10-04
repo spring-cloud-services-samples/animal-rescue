@@ -82,7 +82,7 @@ public class AnimalController {
 		return animalRepository
 				.findById(animalId)
 				.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(String.format("Animal with id %s doesn't exist!", animalId))))
-				.delayUntil(animal -> adoptionRequestRepository.findByAnimal(animalId)
+				.thenMany(adoptionRequestRepository.findByAnimal(animalId)
 						.filter(ar -> ar.getId().equals(adoptionRequestId))
 						.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(String.format("AdoptionRequest with id %s doesn't exist!",
 								adoptionRequestId))))
@@ -108,7 +108,7 @@ public class AnimalController {
 		return animalRepository
 				.findById(animalId)
 				.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(String.format("Animal with id %s doesn't exist!", animalId))))
-				.delayUntil(animal -> adoptionRequestRepository.findByAnimal(animalId)
+				.thenMany(adoptionRequestRepository.findByAnimal(animalId)
 						.filter(ar -> ar.getId().equals(adoptionRequestId))
 						.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(String.format("AdoptionRequest with id %s doesn't exist!",
 								adoptionRequestId))))
