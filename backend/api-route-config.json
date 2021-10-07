@@ -9,12 +9,6 @@
       "tags": ["pet adoption"]
     },
     {
-      "title": "API Actuator endpoints",
-      "description": "Access API actuator endpoints to provide current status of backend service.",
-      "path": "/api/actuator/**",
-      "tags": ["actuator"]
-    },
-    {
       "title": "Retrieve user information",
       "description": "Retrieve the current authenticated user's information.",
       "path": "/api/whoami",
@@ -25,9 +19,49 @@
     },
     {
       "title": "Pet adoption API",
-      "description": "Manage pet adoptions.",
-      "path": "/api/animals/*/adoption-requests/**",
-      "method": "POST,PUT,DELETE",
+      "description": "Create pet adoption requests.",
+      "path": "/api/animals/{animalId}/adoption-requests",
+      "method": "POST",
+      "token-relay": true,
+      "sso-enabled": true,
+      "tags": ["pet adoption"],
+      "model": {
+        "requestBody": {
+          "description": "Manage adoption requests",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Adoption request schema",
+                "properties": {
+                  "adopterName": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "notes": {
+                    "type": "string"
+                  }
+                },
+                "required": [ "adopterName", "email" ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Adoption request created successfully."
+          }
+        }
+      }
+    },
+    {
+      "title": "Pet adoption API",
+      "description": "Update/delete pet adoption requests.",
+      "path": "/api/animals/{animalId}/adoption-requests/{adoptionId}",
+      "method": "PUT,DELETE",
       "token-relay": true,
       "sso-enabled": true,
       "tags": ["pet adoption"],
