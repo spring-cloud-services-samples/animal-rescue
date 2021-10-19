@@ -23,8 +23,11 @@ spec:
       tags:
         - "pet adoption"
       title: "Pet adoption API"
-      description: "Manage pet adoptions."
+      description: "Create pet adoption requests."
       model:
+        responses:
+          201:
+            description: "Adoption request created successfully."
         requestBody:
           description: Manage adoption requests
           content:
@@ -49,7 +52,7 @@ spec:
       tags:
         - "pet adoption"
       title: "Pet adoption API"
-      description: "Manage pet adoptions."
+      description: "Update/delete pet adoption requests."
       model:
         requestBody:
           description: Manage adoption requests

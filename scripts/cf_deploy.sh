@@ -90,8 +90,11 @@ deploy_all() {
   gatewayServiceInstanceIsReady() {
     gatewayDetailContains "[create|update] service instance completed"
   }
+  gatewayServiceInstanceFailed() {
+    gatewayDetailContains "[create|update] failed"
+  }
 
-  if ! gatewayServiceInstanceIsReady; then
+  if ! gatewayServiceInstanceIsReady && ! gatewayServiceInstanceFailed; then
     echo "Gateway service does not exist, creating..."
     cf create-service p.gateway standard $GATEWAY_NAME -c ./gateway/api-gateway-config.json
   else
@@ -100,7 +103,7 @@ deploy_all() {
   fi
 
   while ! gatewayServiceInstanceIsReady; do
-    if gatewayDetailContains "[create|update] service instance failed"; then
+    if gatewayServiceInstanceFailed; then
       printf "\033[31m\n=====\nOops, something went wrong.\n%s\n \033[0m" "$(cf service $GATEWAY_NAME)">/dev/stderr
       exit 1
     fi
