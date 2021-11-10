@@ -26,7 +26,7 @@ spec:
       description: "Create pet adoption requests."
       model:
         responses:
-          201:
+          '201':
             description: "Adoption request created successfully."
         requestBody:
           description: Manage adoption requests
