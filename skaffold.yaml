@@ -15,8 +15,7 @@ build:
     # context: frontend
     custom:
       buildCommand: |
-        ./gradlew :frontend:assemble \
-        docker build frontend -t springcloudservices/animal-rescue-frontend:latest
+        ./gradlew :frontend:assemble && docker build frontend -t springcloudservices/animal-rescue-frontend:latest
       dependencies:
         paths:
         - frontend/src/**
