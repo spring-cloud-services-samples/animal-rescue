@@ -90,7 +90,7 @@ This will create a namespace named `animal-rescue`, create a new gateway instanc
 
 ### Deploy with Kubectl
 
-If you don't want to use `kustomize`, you can apply each yaml file in the [`kustomization.yaml`](kustomization.yaml) file manually into the `animal-rescue` namespace (or any namespace you prefer) as well as create the `sso-credentials` secret from `backend/secrets/sso-credentials.txt` and `animal-rescue-sso` secret from `gateway/sso-secret-for-gateway/secrets/test-sso-credentials.txt`. 
+If you don't want to use `kustomize`, you can apply each yaml file in the [`kustomization.yaml`](kustomization.yaml) file manually into the `animal-rescue` namespace (or any namespace you prefer) as well as create the `sso-credentials` secret from `backend/secrets/sso-credentials.txt` and `animal-rescue-sso` secret from `gateway/sso-secret-for-gateway/secrets/test-sso-credentials.txt`.
 
 Make sure to create the SSO credentials secret in the SCG installation namespace (`spring-cloud-gateway` by default).
 
@@ -127,9 +127,9 @@ Some other commands that might be helpful:
 
 All the gateway configuration can be found and updated here:
 
-- Gateway service instance configuration file used on create/update: `./api-gateway-config.json` 
+- Gateway service instance configuration file used on create/update: `./api-gateway-config.json`
 - Frontend routes configuration used on binding used on bind: `./frontend/api-route-config.json`
-- Backend routes configuration used on binding used on bind:`./backend/api-route-config.json` 
+- Backend routes configuration used on binding used on bind:`./backend/api-route-config.json`
 
 ## Special frontend config related to gateway
 
@@ -151,13 +151,13 @@ Once you logged in, you should see a greeting message regarding the username you
 ![logged in view](./docs/images/logged-in.png)
 
 Click on the `Adopt` button, input your contact email and application notes in the model, then click `Apply`, a `POST` request should be sent to a `sso-enabled` backend endpoint `/animals/{id}/adoption-requests`, with the adopter set to your username we parsed from your token.
-![adopt model](./docs/images/adopt.png)   
+![adopt model](./docs/images/adopt.png)
 
 Then the model should close, and you should see the `Adopt` button you clicked just now has turned into `Edit Adoption Request`. This is matched by your SSO log in username.
-![adopted view](./docs/images/adopted.png)   
+![adopted view](./docs/images/adopted.png)
 
 Click on the `Edit Adoption Request` again, you can view, edit (`PUT`), and delete (`DELETE`) the existing request.
-![view or edit existing adoption request model](./docs/images/edit-or-delete.png)   
+![view or edit existing adoption request model](./docs/images/edit-or-delete.png)
 
     **Note**
     Documentation may get out of date. Please refer to the [e2e test](./e2e/cypress/integration/) and the test output video for the most accurate user flow description.
@@ -178,7 +178,7 @@ Use the following commands to manage the local lifecycle of animal-rescue:
 
 ### Local security configuration
 
-Backend uses Form login for local development with two test accounts - `alice / test` and `bob / test`. 
+Backend uses Form login for local development with two test accounts - `alice / test` and `bob / test`.
 Note that in a real deployment with Gateway, OAuth2 login will be managed by the gateway itself, and your app should use `TokenRelay` filter to receive OpenID ID Token in `Authorization` header. See `CloudFoundrySecurityConfiguration` class for an example of Spring Security 5 configuration to handle token relay correctly.
 
 > It is also possible to use OAuth2 login flow for the app. This requires running an authorization server locally. See `local-oauth2-flow` for an example of using Cloud Foundry User Account and Authentication (UAA) running in a Docker container locally.
@@ -201,7 +201,7 @@ You can find an e2e test output video showing the whole journey in `./e2e/cypres
 ./scripts/local.sh e2e
 ```
 
-More detail about the e2e testing framework can be found at [cypress api doc](https://docs.cypress.io/api/api/table-of-contents.html) 
+More detail about the e2e testing framework can be found at [cypress api doc](https://docs.cypress.io/api/api/table-of-contents.html)
 
 ### CI
 
