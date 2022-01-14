@@ -1,0 +1,128 @@
+[
+  {
+    "predicates": [
+      "Path=/api/animals",
+      "Method=GET"
+    ],
+    "filters": [
+      "RateLimit=2,10s"
+    ],
+    "tags": [
+      "pet adoption"
+    ],
+    "title": "Retrieve pets for adoption.",
+    "description": "Retrieve all of the animals who are up for pet adoption."
+  },
+  {
+    "predicates": [
+      "Path=/api/animals/{animalId}/adoption-requests",
+      "Method=POST"
+    ],
+    "ssoEnabled": true,
+    "tokenRelay": true,
+    "tags": [
+      "pet adoption"
+    ],
+    "title": "Pet adoption API",
+    "description": "Create pet adoption requests.",
+    "model": {
+      "responses": {
+        "201": {
+          "description": "Adoption request created successfully."
+        }
+      },
+      "requestBody": {
+        "description": "Manage adoption requests",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "description": "Adoption request schema",
+              "properties": {
+                "adopterName": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "notes": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "adopterName",
+                "email"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "predicates": [
+      "Path=/api/animals/{animalId}/adoption-requests/{adoptionId}",
+      "Method=PUT,DELETE"
+    ],
+    "ssoEnabled": true,
+    "tokenRelay": true,
+    "tags": [
+      "pet adoption"
+    ],
+    "title": "Pet adoption API",
+    "description": "Update/delete pet adoption requests.",
+    "model": {
+      "requestBody": {
+        "description": "Manage adoption requests",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "description": "Adoption request schema",
+              "properties": {
+                "adopterName": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "notes": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "adopterName",
+                "email"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "predicates": [
+      "Path=/api/actuator/**"
+    ],
+    "tags": [
+      "actuator"
+    ],
+    "title": "API Actuator endpoints",
+    "description": "Access API actuator endpoints to provide current status of backend service."
+  },
+  {
+    "predicates": [
+      "Path=/api/whoami",
+      "Method=GET"
+    ],
+    "ssoEnabled": true,
+    "tokenRelay": true,
+    "tags": [
+      "sso"
+    ],
+    "title": "Retrieve user information",
+    "description": "Retrieve the current authenticated user's information."
+  }
+]
