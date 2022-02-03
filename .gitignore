@@ -16,3 +16,4 @@ scripts/out/
 .project
 .settings
 
+/frontend/server/node_modules/
