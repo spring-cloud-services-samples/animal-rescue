@@ -29,7 +29,7 @@ function deploy_backend() {
 }
 
 function deploy_frontend() {
-#  az spring-cloud app create --name $FRONTEND_APP --instance-count 1 --memory 1Gi
+  az spring-cloud app create --name $FRONTEND_APP --instance-count 1 --memory 1Gi
 
   pushd $PROJECT_ROOT/frontend
   az spring-cloud app deploy --name $FRONTEND_APP --builder nodejs-only
@@ -71,12 +71,12 @@ function configure_frontend_routes() {
 }
 
 function main() {
-  #  configure_acs
-  #  deploy_backend
-      configure_gateway
-  #  configure_backend_routes
-#  deploy_frontend
-  #  configure_frontend_routes
+  configure_acs
+  configure_gateway
+  deploy_backend
+  configure_backend_routes
+  deploy_frontend
+  configure_frontend_routes
 }
 
 main
