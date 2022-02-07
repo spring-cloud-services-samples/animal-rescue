@@ -16,6 +16,7 @@ Sample app for VMware's Spring Cloud Gateway commercial products. Features we de
 
 * [Deploy to Kubernetes](#deploy-to-kubernetes)
 * [Deploy to Tanzu Application Service](#deploy-to-tanzu-application-service)
+* [Deploy to Azure Spring Cloud](#deploy-to-azure-spring-cloud)
 * [Special frontend config related to gateway](#special-frontend-config-related-to-gateway)
 * [Gateway and Animal Rescue application features](#gateway-and-animal-rescue-application-features)
 * [Development](#development)
@@ -130,6 +131,56 @@ All the gateway configuration can be found and updated here:
 - Gateway service instance configuration file used on create/update: `./api-gateway-config.json`
 - Frontend routes configuration used on binding used on bind: `./frontend/api-route-config.json`
 - Backend routes configuration used on binding used on bind:`./backend/api-route-config.json`
+
+## Deploy to Azure Spring Cloud
+
+### Configure Nodejs Builder
+
+Though the Azure Portal, create a new Builder with the following configuration:
+* Name: nodejs-only
+* OS Stack: io.buildpacks.stacks.bionic-full
+* Buildpacks: tanzu-buildpacks/nodejs
+* Bindings: None
+
+### Configure SSO
+
+First assign the endpoint to the gateway and get its url:
+
+    az spring-cloud gateway update --assign-endpoint true
+    az spring-cloud gateway show | jq -r '.properties.url'
+
+Use this url in the form of `https://$gateway_url/login/oauth2/code/sso` as the redirect url. 
+
+Create the file `secrets/sso.properties` with the following properties (these will be provided to the gateway in Azure):
+
+```properties
+client-id=<client_id>
+client-secret=<client_secret>
+scope=openid,profile
+issuer-uri=<issuer_uri>
+```
+
+### Deploy to Azure
+
+Configure your subscription (only necessary when you have multiple subscriptions):
+
+    az account set --subscription $subscription_id
+
+Configure default default resource group and Azure Spring Cloud instance
+
+    az configure --defaults group=$resource_group_name spring-cloud=$asc_instance_name
+
+Deploy to Azure Spring Cloud
+
+    ./scripts/asc_deploy.sh
+
+This script:
+* Configures Application Configuration Service for the backend app
+* Configures SSO properties for Spring Cloud Gateway
+* Creates/Deploys the backend and frontend applications
+* Creates the routes for the frontend and backend applications
+
+Once the script has completed, wait 5-10 minutes for gateway routes to be ready. Animal rescue can be accessed at `https://$gateway_url/rescue`.
 
 ## Special frontend config related to gateway
 
