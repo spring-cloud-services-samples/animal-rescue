@@ -186,7 +186,9 @@ This script:
 * Creates/Deploys the backend and frontend applications
 * Creates the routes for the frontend and backend applications
 
-Once the script has completed, wait 5-10 minutes for gateway routes to be ready. Animal rescue can be accessed at `https://$gateway_url/rescue`.
+Once the script has completed, it will print a message that looks like:
+
+    Animal Rescue successfully deployed. The application can be accessed at https://$gateway_url
 
 ### Cleaning up Resources
 
