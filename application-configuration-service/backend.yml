@@ -1,0 +1,6 @@
+logging.level:
+  org.springframework.data: warn
+
+spring:
+  profiles:
+    active: acs
