@@ -12,7 +12,6 @@ RESOURCE_GROUP=''
 SPRING_CLOUD_INSTANCE=''
 JWK_SET_URI=''
 
-
 function configure_defaults() {
   echo "Configure azure defaults resource group: $RESOURCE_GROUP and spring-cloud $SPRING_CLOUD_INSTANCE"
   az configure --defaults group=$RESOURCE_GROUP spring-cloud=$SPRING_CLOUD_INSTANCE
@@ -70,7 +69,7 @@ function configure_gateway() {
   echo "Configuring Spring Cloud Gateway for SSO"
 
   az spring-cloud gateway update --assign-endpoint true
-  export gateway_url=$(az spring-cloud gateway show | jq -r '.properties.url')
+  local gateway_url=$(az spring-cloud gateway show | jq -r '.properties.url')
 
   az spring-cloud gateway update \
     --api-description "animal rescue api" \
@@ -84,6 +83,11 @@ function configure_gateway() {
     --issuer-uri "$(read_secret_prop 'issuer-uri')"
 }
 
+function print_done() {
+  local gateway_url=$(az spring-cloud gateway show | jq -r '.properties.url')
+  echo "Animal Rescue successfully deployed. The application can be accessed at https://$gateway_url"
+}
+
 function main() {
   configure_defaults
   configure_acs
@@ -92,6 +96,7 @@ function main() {
   create_frontend_app
   deploy_backend
   deploy_frontend
+  print_done
 }
 
 function usage() {
@@ -106,20 +111,20 @@ function usage() {
 }
 
 function check_args() {
-    if [[ -z $RESOURCE_GROUP ]]; then
-      echo "Provide a valid resource group with -g"
-      usage
-    fi
+  if [[ -z $RESOURCE_GROUP ]]; then
+    echo "Provide a valid resource group with -g"
+    usage
+  fi
 
-    if [[ -z $SPRING_CLOUD_INSTANCE ]]; then
-      echo "Provide a valid spring cloud instance name with -s"
-      usage
-    fi
+  if [[ -z $SPRING_CLOUD_INSTANCE ]]; then
+    echo "Provide a valid spring cloud instance name with -s"
+    usage
+  fi
 
-    if [[ -z $JWK_SET_URI ]]; then
-      echo "Provide a valid jwk_set_uri with -u"
-      usage
-    fi
+  if [[ -z $JWK_SET_URI ]]; then
+    echo "Provide a valid jwk_set_uri with -u"
+    usage
+  fi
 }
 
 while getopts ":g:s:u:" options; do
