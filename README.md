@@ -188,6 +188,13 @@ This script:
 
 Once the script has completed, wait 5-10 minutes for gateway routes to be ready. Animal rescue can be accessed at `https://$gateway_url/rescue`.
 
+### Cleaning up Resources
+
+To remove the resources created by the `asc_deploy.sh` script, run the following:
+
+    az configure --defaults group=$resource_group_name spring-cloud=$asc_instance_name
+    ./scripts/asc_cleanup.sh
+
 ## Special frontend config related to gateway
 
 The frontend application is implemented in ReactJS, and is pushed with static buildpack. Because of it's static nature, we had to do the following:
