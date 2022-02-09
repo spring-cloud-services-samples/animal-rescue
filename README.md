@@ -134,6 +134,14 @@ All the gateway configuration can be found and updated here:
 
 ## Deploy to Azure Spring Cloud
 
+Configure your subscription (only necessary when you have multiple subscriptions):
+
+    az account set --subscription $subscription_id
+
+Configure default default resource group and Azure Spring Cloud instance
+
+    az configure --defaults group=$resource_group_name spring-cloud=$asc_instance_name
+
 ### Configure Nodejs Builder
 
 Though the Azure Portal, create a new Builder with the following configuration:
@@ -162,17 +170,15 @@ issuer-uri=<issuer_uri>
 
 ### Deploy to Azure
 
-Configure your subscription (only necessary when you have multiple subscriptions):
-
-    az account set --subscription $subscription_id
-
-Configure default default resource group and Azure Spring Cloud instance
-
-    az configure --defaults group=$resource_group_name spring-cloud=$asc_instance_name
-
 Deploy to Azure Spring Cloud
 
-    ./scripts/asc_deploy.sh
+    ./scripts/asc_deploy.sh -g <resource_group> -s <asc_instance_name> -u <sso_jwk_set_uri>
+
+Where:
+
+* `resource_group` is the Azure resource group to use
+* `asc_instance_name` is the instance of Azure Spring Cloud to Use
+* `sso_jwk_set_uri` is the JWKS endpoint info from your SSO identity provider
 
 This script:
 * Configures Application Configuration Service for the backend app

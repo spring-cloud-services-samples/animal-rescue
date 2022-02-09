@@ -8,20 +8,27 @@ readonly FRONTEND_ROUTES="$PROJECT_ROOT/frontend/asc/api-route-config.json"
 readonly BACKEND_APP="animal-rescue-backend"
 readonly FRONTEND_APP="animal-rescue-frontend"
 
-# TODO: set name via param
-# az configure --defaults group=paly-animal-rescue spring-cloud=paly-animal-rescue
+RESOURCE_GROUP=''
+SPRING_CLOUD_INSTANCE=''
+JWK_SET_URI=''
 
-# TODO:
-# create private config repo to load sso secret
+
+function configure_defaults() {
+  echo "Configure azure defaults resource group: $RESOURCE_GROUP and spring-cloud $SPRING_CLOUD_INSTANCE"
+  az configure --defaults group=$RESOURCE_GROUP spring-cloud=$SPRING_CLOUD_INSTANCE
+}
 
 function configure_acs() {
+  echo "Configuring Application Configuration Service to use repo: https://github.com/maly7/animal-rescue-config"
   az spring-cloud application-configuration-service git repo add --name animal-rescue-config --label main --patterns "default,backend" --uri "https://github.com/maly7/animal-rescue-config"
 }
 
 function create_backend_app() {
+  echo "Creating backend application"
   az spring-cloud app create --name $BACKEND_APP --instance-count 1 --memory 1Gi
   az spring-cloud application-configuration-service bind --app $BACKEND_APP
 
+  echo "Adding routes for backend application"
   az spring-cloud gateway route-config create \
     --name $BACKEND_APP \
     --app-name $BACKEND_APP \
@@ -29,8 +36,10 @@ function create_backend_app() {
 }
 
 function create_frontend_app() {
+  echo "Creating frontend application"
   az spring-cloud app create --name $FRONTEND_APP --instance-count 1 --memory 1Gi
 
+  echo "Adding routes for frontend application"
   az spring-cloud gateway route-config create \
     --name $FRONTEND_APP \
     --app-name $FRONTEND_APP \
@@ -38,13 +47,15 @@ function create_frontend_app() {
 }
 
 function deploy_backend() {
+  echo "Deploying backend application, configured to  use jwk_set_uri $JWK_SET_URI"
   pushd $PROJECT_ROOT/backend
-  az spring-cloud app deploy --name $BACKEND_APP --config-file-pattern backend
+  az spring-cloud app deploy --name $BACKEND_APP --config-file-pattern backend --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI"
 
   pushd $PROJECT_ROOT
 }
 
 function deploy_frontend() {
+  echo "Deploying frontend application"
   pushd $PROJECT_ROOT/frontend
   az spring-cloud app deploy --name $FRONTEND_APP --builder nodejs-only
 
@@ -56,6 +67,8 @@ function read_secret_prop() {
 }
 
 function configure_gateway() {
+  echo "Configuring Spring Cloud Gateway for SSO"
+
   az spring-cloud gateway update --assign-endpoint true
   export gateway_url=$(az spring-cloud gateway show | jq -r '.properties.url')
 
@@ -68,11 +81,11 @@ function configure_gateway() {
     --client-id "$(read_secret_prop 'client-id')" \
     --client-secret "$(read_secret_prop 'client-secret')" \
     --scope "$(read_secret_prop 'scope')" \
-    --issuer-uri "$(read_secret_prop 'issuer-uri')" \
-    --allow-credentials true
+    --issuer-uri "$(read_secret_prop 'issuer-uri')"
 }
 
 function main() {
+  configure_defaults
   configure_acs
   configure_gateway
   create_backend_app
@@ -81,4 +94,58 @@ function main() {
   deploy_frontend
 }
 
+function usage() {
+  echo 1>&2
+  echo "Usage: $0 -g <resource_group> -s <spring_cloud_instance> -u <jwk_set_uri>" 1>&2
+  echo 1>&2
+  echo "  -g <namespace>              the Azure resource group to use for the deployment" 1>&2
+  echo "  -s <spring_cloud_instance>  the name of the Azure Spring Cloud Instance to use" 1>&2
+  echo "  -u <jwk_set_uri>            the application property for spring.security.oauth2.resourceserver.jwt.jwk-set-uri to be provided to the backend application" 1>&2
+  echo 1>&2
+  exit 1
+}
+
+function check_args() {
+    if [[ -z $RESOURCE_GROUP ]]; then
+      echo "Provide a valid resource group with -g"
+      usage
+    fi
+
+    if [[ -z $SPRING_CLOUD_INSTANCE ]]; then
+      echo "Provide a valid spring cloud instance name with -s"
+      usage
+    fi
+
+    if [[ -z $JWK_SET_URI ]]; then
+      echo "Provide a valid jwk_set_uri with -u"
+      usage
+    fi
+}
+
+while getopts ":g:s:u:" options; do
+  case "$options" in
+  g)
+    RESOURCE_GROUP="$OPTARG"
+    ;;
+  s)
+    SPRING_CLOUD_INSTANCE="$OPTARG"
+    ;;
+  u)
+    JWK_SET_URI="$OPTARG"
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
+  esac
+
+  case $OPTARG in
+  -*)
+    echo "Option $options needs a valid argument"
+    exit 1
+    ;;
+  esac
+done
+
+check_args
 main
