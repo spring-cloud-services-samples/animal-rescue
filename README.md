@@ -144,7 +144,11 @@ Configure default default resource group and Azure Spring Cloud instance
 
 ### Configure Nodejs Builder
 
-Though the Azure Portal, create a new Builder with the following configuration:
+To deploy the frontend application, you'll need to configure a builder without any bindings that has the nodejs buildpack. 
+
+> Note: this is a temporary workaround until Azure supports bindings for the nodejs buildpack
+
+Through the Azure Portal, create a new Builder with the following configuration:
 * Name: nodejs-only
 * OS Stack: io.buildpacks.stacks.bionic-full
 * Buildpacks: tanzu-buildpacks/nodejs
