@@ -172,6 +172,21 @@ scope=openid,profile
 issuer-uri=<issuer_uri>
 ```
 
+To use Azure AD as the SSO provider, follow these instructions:
+
+1. Log in to your Azure account and navigate to Azure Active Directory > App registrations.
+2. Select + New registration to create a New application registration.
+3. Enter a name of your choice in the Name field.
+4. Select an option for Supported account types. To make an appropriate selection, consult your security organization and the Azure documentation.
+5. Use this url in the form of `https://$gateway_url/login/oauth2/code/sso` as the redirect url.
+6. Click Register. This redirects you to the app configuration page.
+7. Copy the Application (client) ID from the app configuration page. This is the `client-id`
+8. Navigate to the app’s configuration page. If you just completed the previous step, you should already be on this page. Otherwise, search for your app name in the App registrations list.
+9. Select Certificates & secrets.
+10. elect + New client secret. Provide a description and an expiration length that follows your security organization’s guidelines. Then click Add.
+11. Copy the Value corresponding to the newly-created client secret. This is the `client-secret`.
+12. Locate the `Tenant ID`  on the Overview Page on Azure AD. The issuer-uri will take the form `https://login.microsoftonline.com/TENANT_ID/v2.0`
+
 ### Deploy to Azure
 
 Deploy to Azure Spring Cloud
