@@ -197,7 +197,7 @@ Where:
 
 * `resource_group` is the Azure resource group to use
 * `asc_instance_name` is the instance of Azure Spring Cloud to Use
-* `sso_jwk_set_uri` is the JWKS endpoint info from your SSO identity provider
+* `sso_jwk_set_uri` is the JWKS endpoint info from your SSO identity provider (For Azure AD, this will be `https://login.microsoftonline.com/TENANT_ID/discovery/v2.0/keys`)
 
 This script:
 * Configures Application Configuration Service for the backend app
