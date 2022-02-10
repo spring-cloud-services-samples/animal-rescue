@@ -163,7 +163,7 @@ First assign the endpoint to the gateway and get its url:
 
 Use this url in the form of `https://$gateway_url/login/oauth2/code/sso` as the redirect url. 
 
-Create the file `secrets/sso.properties` with the following properties (these will be provided to the gateway in Azure):
+Create the file `secrets/sso.properties` in the project root directory with the following properties (these will be provided to the gateway in Azure):
 
 ```properties
 client-id=<client_id>
