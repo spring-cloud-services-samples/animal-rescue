@@ -154,7 +154,9 @@ Through the Azure Portal, create a new Builder with the following configuration:
 * Buildpacks: tanzu-buildpacks/nodejs
 * Bindings: None
 
-### Configure SSO
+### Configure SSO (Optional)
+
+> Note: SSO Configuration can be skipped in favor of deploying quickly without it. You will be limited to viewing only. 
 
 First assign the endpoint to the gateway and get its url:
 
@@ -189,7 +191,11 @@ To use Azure AD as the SSO provider, follow these instructions:
 
 ### Deploy to Azure
 
-Deploy to Azure Spring Cloud
+Deploy to Azure Spring Cloud (_without_ SSO configured)
+
+    ./scripts/asc_deploy.sh -g <resource_group> -s <asc_instance_name>
+
+Deploy to Azure Spring Cloud (with SSO configured)
 
     ./scripts/asc_deploy.sh -g <resource_group> -s <asc_instance_name> -u <sso_jwk_set_uri>
 

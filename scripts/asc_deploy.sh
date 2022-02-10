@@ -71,16 +71,25 @@ function configure_gateway() {
   az spring-cloud gateway update --assign-endpoint true
   local gateway_url=$(az spring-cloud gateway show | jq -r '.properties.url')
 
-  az spring-cloud gateway update \
-    --api-description "animal rescue api" \
-    --api-title "animal rescue" \
-    --api-version "v.01" \
-    --server-url "https://$gateway_url" \
-    --allowed-origins "*" \
-    --client-id "$(read_secret_prop 'client-id')" \
-    --client-secret "$(read_secret_prop 'client-secret')" \
-    --scope "$(read_secret_prop 'scope')" \
-    --issuer-uri "$(read_secret_prop 'issuer-uri')"
+  if [[ -f "$PROJECT_ROOT/secrets/sso.properties" ]]; then
+    az spring-cloud gateway update \
+      --api-description "animal rescue api" \
+      --api-title "animal rescue" \
+      --api-version "v.01" \
+      --server-url "https://$gateway_url" \
+      --allowed-origins "*" \
+      --client-id "$(read_secret_prop 'client-id')" \
+      --client-secret "$(read_secret_prop 'client-secret')" \
+      --scope "$(read_secret_prop 'scope')" \
+      --issuer-uri "$(read_secret_prop 'issuer-uri')"
+  else
+    az spring-cloud gateway update \
+      --api-description "animal rescue api" \
+      --api-title "animal rescue" \
+      --api-version "v.01" \
+      --server-url "https://$gateway_url" \
+      --allowed-origins "*"
+  fi
 }
 
 function print_done() {
@@ -101,8 +110,9 @@ function main() {
 
 function usage() {
   echo 1>&2
-  echo "Usage: $0 -g <resource_group> -s <spring_cloud_instance> -u <jwk_set_uri>" 1>&2
+  echo "Usage: $0 -g <resource_group> -s <spring_cloud_instance> [-u <jwk_set_uri>]" 1>&2
   echo 1>&2
+  echo "Options:" 1>&2
   echo "  -g <namespace>              the Azure resource group to use for the deployment" 1>&2
   echo "  -s <spring_cloud_instance>  the name of the Azure Spring Cloud Instance to use" 1>&2
   echo "  -u <jwk_set_uri>            the application property for spring.security.oauth2.resourceserver.jwt.jwk-set-uri to be provided to the backend application" 1>&2
@@ -118,11 +128,6 @@ function check_args() {
 
   if [[ -z $SPRING_CLOUD_INSTANCE ]]; then
     echo "Provide a valid spring cloud instance name with -s"
-    usage
-  fi
-
-  if [[ -z $JWK_SET_URI ]]; then
-    echo "Provide a valid jwk_set_uri with -u"
     usage
   fi
 }
