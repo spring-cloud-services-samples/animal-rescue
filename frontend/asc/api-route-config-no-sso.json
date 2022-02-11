@@ -1,0 +1,43 @@
+[
+  {
+    "predicates": [
+      "Path=/rescue/login",
+      "Method=GET"
+    ],
+    "filters": [
+      "RedirectTo=302, /rescue"
+    ],
+    "order": 0,
+    "tags": [
+      "sso"
+    ],
+    "title": "Animal Rescue login link",
+    "description": "SSO enabled path used by the login button"
+  },
+  {
+    "predicates": [
+      "Path=/",
+      "Method=GET"
+    ],
+    "filters": [
+      "RedirectTo=302, /rescue"
+    ],
+    "tags": [
+      "ui"
+    ],
+    "title": "Animal Rescue home page",
+    "description": "Animal Rescue home page that doesn't require SSO login"
+  },
+  {
+    "predicates": [
+      "Path=/rescue/**",
+      "Method=GET"
+    ],
+    "order": 1000,
+    "tags": [
+      "ui"
+    ],
+    "title": "Animal Rescue UI Pages",
+    "description": "Animal Rescue UI pages that don't require SSO login"
+  }
+]

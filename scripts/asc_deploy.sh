@@ -3,8 +3,6 @@
 set -euo pipefail
 
 readonly PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
-readonly BACKEND_ROUTES="$PROJECT_ROOT/backend/asc/api-route-config.json"
-readonly FRONTEND_ROUTES="$PROJECT_ROOT/frontend/asc/api-route-config.json"
 readonly BACKEND_APP="animal-rescue-backend"
 readonly FRONTEND_APP="animal-rescue-frontend"
 
@@ -27,28 +25,48 @@ function create_backend_app() {
   az spring-cloud app create --name $BACKEND_APP --instance-count 1 --memory 1Gi
   az spring-cloud application-configuration-service bind --app $BACKEND_APP
 
-  echo "Adding routes for backend application"
+  local backend_routes=''
+  if [[ -f "$PROJECT_ROOT/secrets/sso.properties" ]]; then
+    backend_routes="$PROJECT_ROOT/backend/asc/api-route-config.json"
+  else
+    backend_routes="$PROJECT_ROOT/backend/asc/api-route-config-no-sso.json"
+  fi
+
+  echo "Adding routes for backend application using definitions at $backend_routes"
   az spring-cloud gateway route-config create \
     --name $BACKEND_APP \
     --app-name $BACKEND_APP \
-    --routes-file "$BACKEND_ROUTES"
+    --routes-file "$backend_routes"
 }
 
 function create_frontend_app() {
   echo "Creating frontend application"
   az spring-cloud app create --name $FRONTEND_APP --instance-count 1 --memory 1Gi
 
-  echo "Adding routes for frontend application"
+  local frontend_routes=''
+  if [[ -f "$PROJECT_ROOT/secrets/sso.properties" ]]; then
+    frontend_routes="$PROJECT_ROOT/frontend/asc/api-route-config.json"
+  else
+    frontend_routes="$PROJECT_ROOT/frontend/asc/api-route-config-no-sso.json"
+  fi
+
+  echo "Adding routes for frontend application using definitions at $frontend_routes"
   az spring-cloud gateway route-config create \
     --name $FRONTEND_APP \
     --app-name $FRONTEND_APP \
-    --routes-file "$FRONTEND_ROUTES"
+    --routes-file "$frontend_routes"
 }
 
 function deploy_backend() {
-  echo "Deploying backend application, configured to  use jwk_set_uri $JWK_SET_URI"
   pushd $PROJECT_ROOT/backend
-  az spring-cloud app deploy --name $BACKEND_APP --config-file-pattern backend --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI"
+
+  if [[ -z "$JWK_SET_URI" ]]; then
+    echo "Deploying backend application without jwk_set_uri being configured, will use default value"
+    az spring-cloud app deploy --name $BACKEND_APP --config-file-pattern backend
+  else
+    echo "Deploying backend application, configured to use jwk_set_uri $JWK_SET_URI"
+    az spring-cloud app deploy --name $BACKEND_APP --config-file-pattern backend --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI"
+  fi
 
   pushd $PROJECT_ROOT
 }
@@ -66,12 +84,11 @@ function read_secret_prop() {
 }
 
 function configure_gateway() {
-  echo "Configuring Spring Cloud Gateway for SSO"
-
   az spring-cloud gateway update --assign-endpoint true
   local gateway_url=$(az spring-cloud gateway show | jq -r '.properties.url')
 
   if [[ -f "$PROJECT_ROOT/secrets/sso.properties" ]]; then
+    echo "Configuring Spring Cloud Gateway with SSO enabled"
     az spring-cloud gateway update \
       --api-description "animal rescue api" \
       --api-title "animal rescue" \
@@ -83,6 +100,7 @@ function configure_gateway() {
       --scope "$(read_secret_prop 'scope')" \
       --issuer-uri "$(read_secret_prop 'issuer-uri')"
   else
+    echo "Configuring Spring Cloud Gateway without SSO enabled"
     az spring-cloud gateway update \
       --api-description "animal rescue api" \
       --api-title "animal rescue" \
