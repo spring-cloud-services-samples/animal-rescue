@@ -115,8 +115,14 @@ function configure_gateway() {
   fi
 }
 
+function configure_portal() {
+  az spring-cloud api-portal update --assign-endpoint true
+}
+
 function print_done() {
   local gateway_url=$(az spring-cloud gateway show | jq -r '.properties.url')
+  local portal_url=$(az spring-cloud api-portal show | jq -r '.properties.url')
+  echo "API Portal is available at https://$portal_url"
   echo "Animal Rescue successfully deployed. The application can be accessed at https://$gateway_url"
 }
 
@@ -125,6 +131,7 @@ function main() {
   create_nodejs_builder
   configure_acs
   configure_gateway
+  configure_portal
   create_backend_app
   create_frontend_app
   deploy_backend
