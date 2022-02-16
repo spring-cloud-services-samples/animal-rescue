@@ -15,6 +15,11 @@ function configure_defaults() {
   az configure --defaults group=$RESOURCE_GROUP spring-cloud=$SPRING_CLOUD_INSTANCE
 }
 
+function create_nodejs_builder() {
+  echo "Creating builder with nodejs buildpack and no bindings"
+  az spring-cloud build-service builder create -n nodejs-only --builder-file "${PROJECT_ROOT}/frontend/asc/nodejs_builder.json" --no-wait
+}
+
 function configure_acs() {
   echo "Configuring Application Configuration Service to use repo: https://github.com/maly7/animal-rescue-config"
   az spring-cloud application-configuration-service git repo add --name animal-rescue-config --label main --patterns "default,backend" --uri "https://github.com/maly7/animal-rescue-config"
@@ -62,10 +67,10 @@ function deploy_backend() {
 
   if [[ -z "$JWK_SET_URI" ]]; then
     echo "Deploying backend application without jwk_set_uri being configured, will use default value"
-    az spring-cloud app deploy --name $BACKEND_APP --config-file-pattern backend
+    az spring-cloud app deploy --name $BACKEND_APP --config-file-pattern backend --source-path .
   else
     echo "Deploying backend application, configured to use jwk_set_uri $JWK_SET_URI"
-    az spring-cloud app deploy --name $BACKEND_APP --config-file-pattern backend --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI"
+    az spring-cloud app deploy --name $BACKEND_APP --config-file-pattern backend --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" --source-path .
   fi
 
   pushd $PROJECT_ROOT
@@ -74,7 +79,7 @@ function deploy_backend() {
 function deploy_frontend() {
   echo "Deploying frontend application"
   pushd $PROJECT_ROOT/frontend
-  az spring-cloud app deploy --name $FRONTEND_APP --builder nodejs-only
+  az spring-cloud app deploy --name $FRONTEND_APP --builder nodejs-only --source-path .
 
   pushd $PROJECT_ROOT
 }
@@ -117,6 +122,7 @@ function print_done() {
 
 function main() {
   configure_defaults
+  create_nodejs_builder
   configure_acs
   configure_gateway
   create_backend_app

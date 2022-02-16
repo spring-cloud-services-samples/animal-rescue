@@ -12,3 +12,4 @@ az spring-cloud app delete --name $BACKEND_APP || true
 az spring-cloud app delete --name $FRONTEND_APP || true
 az spring-cloud application-configuration-service git repo remove --name animal-rescue-config || true
 az spring-cloud gateway update --assign-endpoint false || true
+az spring-cloud build-service builder delete -n nodejs-only -y || true

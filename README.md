@@ -134,6 +134,11 @@ All the gateway configuration can be found and updated here:
 
 ## Deploy to Azure Spring Cloud
 
+Install the latest version of the spring-cloud Azure CLI extension
+
+    az extension remove --name spring-cloud
+    az extension add --name spring-cloud
+
 Configure your subscription (only necessary when you have multiple subscriptions):
 
     az account set --subscription $subscription_id
@@ -141,18 +146,6 @@ Configure your subscription (only necessary when you have multiple subscriptions
 Configure default default resource group and Azure Spring Cloud instance
 
     az configure --defaults group=$resource_group_name spring-cloud=$asc_instance_name
-
-### Configure Nodejs Builder
-
-To deploy the frontend application, you'll need to configure a builder without any bindings that has the nodejs buildpack. 
-
-> Note: this is a temporary workaround until Azure supports bindings for the nodejs buildpack
-
-Through the Azure Portal, create a new Builder with the following configuration:
-* Name: nodejs-only
-* OS Stack: io.buildpacks.stacks.bionic-full
-* Buildpacks: tanzu-buildpacks/nodejs
-* Bindings: None
 
 ### Configure SSO (Optional)
 
