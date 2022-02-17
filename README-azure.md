@@ -2,10 +2,10 @@
 page_type: sample
 languages:
 - java
-  products:
+products:
 - Azure Spring Cloud
-  description: "Deploy Spring Boot apps using Azure Spring Cloud and Spring Cloud Gateway"
-  urlFragment: ""
+description: "Deploy Spring Boot apps using Azure Spring Cloud and Spring Cloud Gateway"
+urlFragment: ""
 ---
 
 # Deploy Spring Boot apps using Azure Spring Cloud and Spring Cloud Gateway
