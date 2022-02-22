@@ -117,6 +117,15 @@ function configure_gateway() {
 
 function configure_portal() {
   az spring-cloud api-portal update --assign-endpoint true
+
+  if [[ -f "$PROJECT_ROOT/secrets/sso.properties" ]]; then
+    echo "Configuring API Portal with SSO properties"
+    az spring-cloud api-portal update \
+      --client-id "$(read_secret_prop 'client-id')" \
+      --client-secret "$(read_secret_prop 'client-secret')" \
+      --scope "$(read_secret_prop 'scope')" \
+      --issuer-uri "$(read_secret_prop 'issuer-uri')"
+  fi
 }
 
 function print_done() {

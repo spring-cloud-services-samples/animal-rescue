@@ -389,6 +389,18 @@ Retrieve the URL for Spring Cloud Gateway and open it in a browser:
 You should see the Animal Rescue Application, and be able to log in using the
 configured SSO provider. 
 
+### Configure SSO for API Portal 
+
+Configure API Portal with SSO enabled:
+
+```bash
+    az spring-cloud api-portal update \
+          --client-id $CLIENT_ID \
+          --client-secret $CLIENT_SECRET \
+          --scope $SCOPE \
+          --issuer-uri $ISSUER_URI
+```
+
 ### Explore the API using API Portal
 
 Open API Portal in a browser, use the "Authorize" button to authenticate with the API:
