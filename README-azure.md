@@ -358,6 +358,15 @@ Create routing rules for the backend and frontend applications:
         --routes-file frontend/asc/api-route-config.json
 ```
 
+### Configure SSO Provider
+
+Add the redirect URL output by the following script to your SSO provider:
+
+```bash
+   echo "https://$GATEWAY_URL/login/oauth2/code/sso"
+```
+
+
 ### Deploy Spring Boot app with SSO
 
 Deploy the backend application again, this time providing the environment variable:
