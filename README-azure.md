@@ -360,12 +360,12 @@ Create routing rules for the backend and frontend applications:
 
 ### Configure SSO Provider
 
-Add the redirect URL output by the following script to your SSO provider:
+Add the redirect URLs output by the following script to your SSO provider:
 
 ```bash
    echo "https://$GATEWAY_URL/login/oauth2/code/sso"
+   echo "https://$PORTAL_URL/oauth2-redirect.html"
 ```
-
 
 ### Deploy Spring Boot app with SSO
 
@@ -403,11 +403,14 @@ Configure API Portal with SSO enabled:
 
 ### Explore the API using API Portal
 
-Open API Portal in a browser, use the "Authorize" button to authenticate with the API:
+Open API Portal in a browser, this will redirect you to log in now:
 
 ```bash
     open "https://$PORTAL_URL"
 ```
+
+To access the protected APIs, click Authorize and follow the steps that match your
+SSO provider. Learn more [here](https://docs.vmware.com/en/API-portal-for-VMware-Tanzu/1.0/api-portal/GUID-api-viewer.html#api-authorization)
 
 ## Next Steps
 
@@ -423,5 +426,5 @@ Azure Spring Cloud, go to:
 - [Spring Cloud Azure](https://cloud.spring.io/spring-cloud-azure/)
 - [Spring Cloud](https://spring.io/projects/spring-cloud)
 - [Application Configuration Service]()
-- [Spring Cloud Gateway]()
-- [API Portal]()
+- [Spring Cloud Gateway](https://docs.vmware.com/en/VMware-Spring-Cloud-Gateway-for-Kubernetes/index.html)
+- [API Portal](https://docs.vmware.com/en/API-portal-for-VMware-Tanzu/index.html)
