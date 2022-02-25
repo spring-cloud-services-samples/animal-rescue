@@ -103,7 +103,7 @@ latest Enterprise tier functionality to configure VMware Tanzu Components
 ```bash
     mkdir source-code
     cd source-code
-    git clone https://github.com/spring-cloud-services-samples/animal-rescue
+    git clone -b paul/asc-enterprise https://github.com/spring-cloud-services-samples/animal-rescue
     cd animal-rescue
 ```
 
