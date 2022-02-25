@@ -103,7 +103,7 @@ latest Enterprise tier functionality to configure VMware Tanzu Components
 ```bash
     mkdir source-code
     cd source-code
-    git clone -b paul/asc-enterprise https://github.com/spring-cloud-services-samples/animal-rescue
+    git clone https://github.com/spring-cloud-services-samples/animal-rescue
     cd animal-rescue
 ```
 
@@ -224,7 +224,7 @@ information:
       --api-description "Animal Rescue API" \
       --api-title "Animal Rescue" \
       --api-version "v.01" \
-      --server-url "https://$gateway_url" \
+      --server-url "https://$GATEWAY_URL" \
       --allowed-origins "*"
 ```
 
