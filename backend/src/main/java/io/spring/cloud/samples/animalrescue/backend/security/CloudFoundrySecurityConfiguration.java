@@ -1,4 +1,4 @@
-package io.spring.cloud.samples.animalrescue.backend;
+package io.spring.cloud.samples.animalrescue.backend.security;
 
 import java.util.List;
 

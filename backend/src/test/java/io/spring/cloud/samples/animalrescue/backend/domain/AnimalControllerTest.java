@@ -1,13 +1,10 @@
-package io.spring.cloud.samples.animalrescue.backend;
+package io.spring.cloud.samples.animalrescue.backend.domain;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import io.pivotal.cfenv.core.CfEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,7 +12,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
-import io.pivotal.cfenv.core.CfEnv;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
@@ -45,18 +44,6 @@ class AnimalControllerTest {
 
 	private int getAdoptionRequestCountForAnimalId1() {
 		return adoptionRequestRepository.findByAnimal(1L).collectList().block().size();
-	}
-
-	@Test
-	@WithMockUser(username = "test-user", authorities = {"adoption.request"})
-	void getUserName() {
-		webTestClient
-			.get()
-			.uri("/whoami")
-			.exchange()
-			.expectStatus().isOk()
-			.expectBody(String.class)
-			.isEqualTo("test-user");
 	}
 
 	@Test
