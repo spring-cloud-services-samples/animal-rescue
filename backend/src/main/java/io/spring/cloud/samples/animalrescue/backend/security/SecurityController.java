@@ -15,11 +15,6 @@ import java.security.Principal;
 @RestController
 public class SecurityController {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SecurityController.class);
-
-	public SecurityController() {
-	}
-
 	@GetMapping("/whoami")
 	public String whoami(Principal principal) {
 		if (principal == null) {
