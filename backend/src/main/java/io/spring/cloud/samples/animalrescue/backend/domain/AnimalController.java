@@ -1,4 +1,4 @@
-package io.spring.cloud.samples.animalrescue.backend;
+package io.spring.cloud.samples.animalrescue.backend.domain;
 
 import java.security.Principal;
 import java.util.stream.Collectors;
@@ -33,14 +33,6 @@ public class AnimalController {
 	public AnimalController(AnimalRepository animalRepository, AdoptionRequestRepository adoptionRequestRepository) {
 		this.animalRepository = animalRepository;
 		this.adoptionRequestRepository = adoptionRequestRepository;
-	}
-
-	@GetMapping("/whoami")
-	public String whoami(Principal principal) {
-		if (principal == null) {
-			return "";
-		}
-		return principal.getName();
 	}
 
 	@GetMapping("/animals")

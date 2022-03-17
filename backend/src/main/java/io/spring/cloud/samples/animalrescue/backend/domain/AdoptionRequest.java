@@ -1,4 +1,4 @@
-package io.spring.cloud.samples.animalrescue.backend;
+package io.spring.cloud.samples.animalrescue.backend.domain;
 
 import org.springframework.data.annotation.Id;
 

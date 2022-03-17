@@ -1,7 +1,6 @@
-package io.spring.cloud.samples.animalrescue.backend;
+package io.spring.cloud.samples.animalrescue.backend.security;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
