@@ -1,319 +1,431 @@
-# Animal Rescue
-![Test All](https://github.com/spring-cloud-services-samples/animal-rescue/workflows/Test%20All/badge.svg?branch=master)
+---
+page_type: sample
+languages:
+- java
+products:
+- Azure Spring Cloud
+description: "Deploy Spring Boot apps using Azure Spring Cloud and Spring Cloud Gateway"
+urlFragment: ""
+---
 
-Sample app for VMware's Spring Cloud Gateway commercial products. Features we demonstrate with this sample app:
+# Deploy Spring Boot apps using Azure Spring Cloud and Spring Cloud Gateway
 
-- Routing traffic to configured internal routes with container-to-container network
-- Gateway routes configured through service bindings
-- Simplified route configuration
-- SSO login and token relay on behalf of the routed services
-- Required scopes on routes (tag: `require-sso-scopes`)
-- Circuit breaker filter
+Azure Spring Cloud enables you to easily run a Spring Boot applications on Azure.
 
-![architecture](./docs/images/animal-rescue-arch.png)
+This quickstart shows you how to deploy an existing Java Spring Cloud application to Azure. When
+you're finished, you can continue to manage the application via the Azure CLI or switch to using the
+Azure Portal.
 
-## Table of Contents
+* [Deploy Spring Boots using Azure Spring Cloud and Spring Cloud Gateway](#deploy-spring-boot-apps-using-azure-spring-cloud-and-spring-cloud-gateway)
+  * [What will you experience](#what-will-you-experience)
+  * [What you will need](#what-you-will-need)
+  * [Install the Azure CLI extension](#install-the-azure-cli-extension)
+  * [Clone the repo](#clone-the-repo)
+  * [Unit 1 - Deploy and Build Applications](#unit-1---deploy-and-build-applications)
+  * [Unit 2 - Configure Single Sign On](#unit-2---configure-single-sign-on)
 
-* [Deploy to Kubernetes](#deploy-to-kubernetes)
-* [Deploy to Tanzu Application Service](#deploy-to-tanzu-application-service)
-* [Deploy to Azure Spring Cloud](#deploy-to-azure-spring-cloud)
-* [Special frontend config related to gateway](#special-frontend-config-related-to-gateway)
-* [Gateway and Animal Rescue application features](#gateway-and-animal-rescue-application-features)
-* [Development](#development)
+## What will you experience
+You will:
+- Provision an Azure Spring Cloud service instance.
+- Configure Application Configuration Service repositories
+- Deploy applications to Azure existing Spring Boot applications and build using Tanzu Build Service
+- Configure routing to the applications using Spring Cloud Gateway
+- Open the application
+- Explore the application API with Api Portal
+- Configure Single Sign On (SSO) for the application
 
-## Deploy to Kubernetes
+## What you will need
 
-The Kubernetes deployment requires you to install [kustomize](https://kustomize.io/). You will also need to install [Spring Cloud Gateway for Kubernetes](https://network.pivotal.io/products/spring-cloud-gateway-for-kubernetes) successfully onto your target Kubernetes cluster.
+In order to deploy a Java app to cloud, you need
+an Azure subscription. If you do not already have an Azure
+subscription, you can activate your
+[MSDN subscriber benefits](https://azure.microsoft.com/pricing/member-offers/msdn-benefits-details/)
+or sign up for a
+[free Azure account]((https://azure.microsoft.com/free/)).
 
-### Configure Single Sign-On (SSO)
+In addition, you will need the following:
 
-For information configuring Okta as the SSO provider, see [go here](https://docs.pivotal.io/scg-k8s/1-0/sso-setup-guide.html).
+| [Azure CLI version 2.17.1 or higher](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest)
+| [Git](https://git-scm.com/)
+| [`jq` utility](https://stedolan.github.io/jq/download/)
+|
 
-For Animal Rescue sample Single Sign-On (SSO) to work, you will need to create two text files that will be used to create Kubernetes secrets:
-
-* ./backend/secrets/sso-credentials.txt
-* ./gateway/sso-secret-for-gateway/secrets/test-sso-credentials.txt
-
-Before you start, and for validation, please locate the JWKS endpoint info from your SSO identity provider. The endpoint typically exists at:
-
-```
-https://YOUR_DOMAIN/.well-known/openid-configuration
-```
-
-For example, when using Okta the configured Issuer URI and JWKS URI can be retrieved at:
-
-```
-https://<issuer-uri>/.well-known/openid-configuration
-
-$ curl https://dev-1234567.okta.com/oauth2/abcd12345/.well-known/openid-configuration
-
-{
-  "issuer": "https://dev-1234567.okta.com/oauth2/abcd12345",
-...
-  "jwk-set-uri": "https://dev-1234567.okta.com/oauth2/abcd12345/v1/keys",
-....
-
-# Please note that the format used by Okta is jwk-set-uri="<issuer-uri>/v1/keys"
-```
-
-The contents of the `./backend/secrets/sso-credentials.txt` file for example would be the following:
-
-```
-jwk-set-uri=https://dev-1234567.okta.com/oauth2/abcd12345/v1/keys
+Note -  The [`jq` utility](https://stedolan.github.io/jq/download/). On Windows, download [this Windows port of JQ](https://github.com/stedolan/jq/releases) and add the following to the `~/.bashrc` file:
+```bash
+alias jq=<JQ Download location>/jq-win64.exe
 ```
 
-The contents of the `./gateway/sso-secret-for-gateway/secrets/test-sso-credentials.txt` file includes the following values from your OpenID Connect (OIDC) compliant SSO identity provider:
+Note - The Bash shell. While Azure CLI should behave identically on all environments, shell
+semantics vary. Therefore, only bash can be used with the commands in this repo.
+To complete these repo steps on Windows, use Git Bash that accompanies the Windows distribution of
+Git. Use only Git Bash to complete this training on Windows. Do not use WSL.
 
-```
-scope=openid,profile,email
-client-id={your_client_id}
-client-secret={your_client_secret}
-issuer-uri={your_issuer_uri}
-```
-### Configure Ingress
 
-The K8s deploy leverages an Ingress object to easily expose your application outside of the cluster.
-Before starting, confirm that you have an ingress controller installed into your cluster.
-[Contour](https://projectcontour.io/) is a good choice if you don't already have a favorite.
+### OR Use Azure Cloud Shell
 
-Next, edit `gateway/gateway-demo.yaml` to set the domain to your domain.
-If you don't have a domain that you can use, leveraging [`nip.io`](https://nip.io/) is a good choice.
+Or, you can use the Azure Cloud Shell. Azure hosts Azure Cloud Shell, an interactive shell
+environment that you can use through your browser. You can use the Bash with Cloud Shell
+to work with Azure services. You can use the Cloud Shell pre-installed commands to run the
+code in this README without having to install anything on your local environment. To start Azure
+Cloud Shell: go to [https://shell.azure.com](https://shell.azure.com), or select the
+Launch Cloud Shell button to open Cloud Shell in your browser.
 
-### Deploy with Kustomize (recommended)
+To run the code in this article in Azure Cloud Shell:
 
-Assuming you are authenticated onto target Kubernetes cluster, you can run the following command from top-level directory in the repository:
+1. Start Cloud Shell.
+
+2. Select the Copy button on a code block to copy the code.
+
+3. Paste the code into the Cloud Shell session by selecting Ctrl+Shift+V on Windows and Linux or by selecting Cmd+Shift+V on macOS.
+
+4. Select Enter to run the code.
+
+
+## Install the Azure CLI extension
+
+Install the Azure Spring Cloud extension for the Azure CLI using the following command
 
 ```bash
-kustomize build . | kubectl apply -f -
+    az extension add --name spring-cloud
 ```
+Note - `spring-cloud` CLI extension `3.0.0` or later is a pre-requisite to enable the
+latest Enterprise tier functionality to configure VMware Tanzu Components 
 
-This will create a namespace named `animal-rescue`, create a new gateway instance named `gateway-demo` in that namespace, deploy the frontend and backend Animal Rescue applications and finally apply the application specific API route configurations to `gateway-demo`.
-
-### Deploy with Kubectl
-
-If you don't want to use `kustomize`, you can apply each yaml file in the [`kustomization.yaml`](kustomization.yaml) file manually into the `animal-rescue` namespace (or any namespace you prefer) as well as create the `sso-credentials` secret from `backend/secrets/sso-credentials.txt` and `animal-rescue-sso` secret from `gateway/sso-secret-for-gateway/secrets/test-sso-credentials.txt`.
-
-Make sure to create the SSO credentials secret in the SCG installation namespace (`spring-cloud-gateway` by default).
-
-The gateway instance created, named `gateway-demo`, doesn't have any API routes defined initially. Once the API route definitions defined in a `SpringCloudGatewayRouteConfig` objects are mapped to `gateway-demo` using the `SpringCloudGatewayMapping` objects, you will see the routes added to the gateway.
-
-### Accessing Animal Rescue Site
-
-After deploying Animal Rescue, there will be an Ingress created.
-You can then access Animal Rescue at the URL set by the Ingress created
-in `gateway/gateway-demo.yaml`.
-For example, `http://animal-rescue.my.domain.io/rescue`.
-
-## Deploy to Tanzu Application Service
-
-Run the following scripts to set up everything:
 ```bash
-./scripts/cf_deploy init    # installs dependencies and builds the deployment artifact
-./scripts/cf_deploy deploy  # handles everything you need to deploy the frontend, backend, and gateway. This script can be executed repeatedly to deploy new changes.
-```
-Then visit the frontend url `https://gateway-demo.${appsDomain}/rescue` to view the sample app.
-
-Once you have enough fun with the sample app, run the following script to clean up the environment:
-```bash
-./scripts/cf_deploy destroy # tears down everything
-```
-
-Some other commands that might be helpful:
-```bash
-./scripts/cf_deploy push                     # builds and pushes frontend and backend
-./scripts/cf_deploy dynamic_route_config_update  # update bound apps' configuration with calling the update endpoint on the backing app. You will need to be a space developer to do so.
-./scripts/cf_deploy rebind                   # unbinds and rebinds frontend and backend
-./scripts/cf_deploy upgrade                  # upgrade the gateway instance
-```
-
-All the gateway configuration can be found and updated here:
-
-- Gateway service instance configuration file used on create/update: `./api-gateway-config.json`
-- Frontend routes configuration used on binding used on bind: `./frontend/api-route-config.json`
-- Backend routes configuration used on binding used on bind:`./backend/api-route-config.json`
-
-## Deploy to Azure Spring Cloud
-
-Install the latest version of the spring-cloud Azure CLI extension
-
     az extension remove --name spring-cloud
     az extension add --name spring-cloud
+```
 
-Configure your subscription (only necessary when you have multiple subscriptions):
+## Clone the repo
 
-    az account set --subscription $subscription_id
+### Create a new folder and clone the sample app repository to your Azure Cloud account
 
-Configure default default resource group and Azure Spring Cloud instance
+```bash
+    mkdir source-code
+    cd source-code
+    git clone https://github.com/spring-cloud-services-samples/animal-rescue
+    cd animal-rescue
+```
 
-    az configure --defaults group=$resource_group_name spring-cloud=$asc_instance_name
+## Unit-1 - Deploy and build Applications
 
-### Configure SSO (Optional)
+### Prepare your environment for deployments
 
-> Note: SSO Configuration can be skipped in favor of deploying quickly without it. You will be limited to viewing only. 
+Create a bash script with environment variables by making a copy of the supplied template:
 
-First assign the endpoint to the gateway and get its url:
+```bash
+    cp .scripts/setup-env-variables-azure-template.sh .scripts/setup-env-variables-azure.sh
+```
 
+Open `.scripts/setup-env-variables-azure.sh` and enter the following information:
+
+```bash
+    export SUBSCRIPTION=subscription-id # customize this
+    export RESOURCE_GROUP=resource-group-name # customize this
+    export SPRING_CLOUD_SERVICE=azure-spring-cloud-name # customize this
+    export REGION=region-name # customize this
+```
+
+Then, set the environment:
+```bash
+    source .scripts/setup-env-variables-azure.sh
+```
+
+### Login to Azure
+Login to the Azure CLI and choose your active subscription. Be sure to choose the active subscription that is whitelisted for Azure Spring Cloud
+
+```bash
+    az login
+    az account list -o table
+    az account set --subscription ${SUBSCRIPTION}
+```
+
+### Create Azure Spring Cloud service instance
+Prepare a name for your Azure Spring Cloud service.  The name must be between 4 and 32 characters long and can contain only lowercase letters, numbers, and hyphens.  The first character of the service name must be a letter and the last character must be either a letter or a number.
+
+Create a resource group to contain your Azure Spring Cloud service.
+
+```bash
+    az group create --name ${RESOURCE_GROUP} \
+        --location ${REGION}
+```
+
+Create an instance of Azure Spring Cloud Enterprise.
+
+```bash
+    az spring-cloud create --name ${SPRING_CLOUD_SERVICE} \
+            --sku enterprise \
+            --sampling-rate 100 \
+            --resource-group ${RESOURCE_GROUP} \
+            --location ${REGION}
+```
+
+The service instance will take around five minutes to deploy.
+
+Set your default resource group name and cluster name using the following commands:
+
+```bash
+    az configure --defaults \
+        group=${RESOURCE_GROUP} \
+        location=${REGION} \
+        spring-cloud=${SPRING_CLOUD_SERVICE}
+```
+
+> Note: wait for the instance of Azure Spring Cloud to be ready before continuing
+
+### Configure Application Configuration Service
+
+Create a configuration repository for Application Configuration Service using the Azure CLI:
+
+```bash
+    az spring-cloud application-configuration-service git repo add --name animal-rescue-config \
+        --label main \
+        --patterns "default,backend" \
+        --uri "https://github.com/maly7/animal-rescue-config"
+```
+
+### Configure Tanzu Build Service
+
+Create a builder in Tanzu Build Service for the frontend application using the Azure CLI:
+
+```bash
+    az spring-cloud build-service builder create -n nodejs-only \
+        --builder-file frontend/asc/nodejs_builder.json \
+        --no-wait
+```
+
+### Create applications in Azure Spring Cloud
+
+Create an application for the frontend and another for the backend:
+
+```bash
+    az spring-cloud app create --name $BACKEND_APP --instance-count 1 --memory 1Gi
+    az spring-cloud app create --name $FRONTEND_APP --instance-count 1 --memory 1Gi
+```
+
+### Bind to Application Configuration Service
+
+Bind the backend application to Application Configuration Service:
+
+```bash
+    az spring-cloud application-configuration-service bind --app $BACKEND_APP
+```
+
+### Configure Spring Cloud Gateway
+
+Assign an endpoint and update the Spring Cloud Gateway configuration with API 
+information:
+
+```bash
     az spring-cloud gateway update --assign-endpoint true
-    az spring-cloud gateway show | jq -r '.properties.url'
-
-Use this url in the form of `https://$gateway_url/login/oauth2/code/sso` as the redirect url. 
-
-Create the file `secrets/sso.properties` in the project root directory with the following properties (these will be provided to the gateway in Azure):
-
-```properties
-client-id=<client_id>
-client-secret=<client_secret>
-scope=openid,profile
-issuer-uri=<issuer_uri>
+    export GATEWAY_URL=$(az spring-cloud gateway show | jq -r '.properties.url')
+    
+    az spring-cloud gateway update \
+      --api-description "Animal Rescue API" \
+      --api-title "Animal Rescue" \
+      --api-version "v.01" \
+      --server-url "https://$GATEWAY_URL" \
+      --allowed-origins "*"
 ```
 
-To use Azure AD as the SSO provider, follow these instructions:
-
-1. Log in to your Azure account and navigate to Azure Active Directory > App registrations.
-2. Select + New registration to create a New application registration.
-3. Enter a name of your choice in the Name field.
-4. Select an option for Supported account types. To make an appropriate selection, consult your security organization and the Azure documentation.
-5. Use this url in the form of `https://$gateway_url/login/oauth2/code/sso` as the redirect url.
-6. Click Register. This redirects you to the app configuration page.
-7. Copy the Application (client) ID from the app configuration page. This is the `client-id`
-8. Navigate to the app’s configuration page. If you just completed the previous step, you should already be on this page. Otherwise, search for your app name in the App registrations list.
-9. Select Certificates & secrets.
-10. elect + New client secret. Provide a description and an expiration length that follows your security organization’s guidelines. Then click Add.
-11. Copy the Value corresponding to the newly-created client secret. This is the `client-secret`.
-12. Locate the `Tenant ID`  on the Overview Page on Azure AD. The issuer-uri will take the form `https://login.microsoftonline.com/TENANT_ID/v2.0`
-
-### Deploy to Azure
-
-Deploy to Azure Spring Cloud (_without_ SSO configured)
-
-    ./scripts/asc_deploy.sh -g <resource_group> -s <asc_instance_name>
-
-Deploy to Azure Spring Cloud (with SSO configured)
-
-    ./scripts/asc_deploy.sh -g <resource_group> -s <asc_instance_name> -u <sso_jwk_set_uri>
-
-Where:
-
-* `resource_group` is the Azure resource group to use
-* `asc_instance_name` is the instance of Azure Spring Cloud to Use
-* `sso_jwk_set_uri` is the JWKS endpoint info from your SSO identity provider (For Azure AD, this will be `https://login.microsoftonline.com/TENANT_ID/discovery/v2.0/keys`)
-
-This script:
-* Configures Application Configuration Service for the backend app
-* Configures SSO properties for Spring Cloud Gateway
-* Creates/Deploys the backend and frontend applications
-* Creates the routes for the frontend and backend applications
-
-Once the script has completed, it will print a message that looks like:
-
-    Animal Rescue successfully deployed. The application can be accessed at https://$gateway_url
-
-### Cleaning up Resources
-
-To remove the resources created by the `asc_deploy.sh` script, run the following:
-
-    az configure --defaults group=$resource_group_name spring-cloud=$asc_instance_name
-    ./scripts/asc_cleanup.sh
-
-## Special frontend config related to gateway
-
-The frontend application is implemented in ReactJS, and is pushed with static buildpack. Because of it's static nature, we had to do the following:
-
-1. `homepage` in `package.json` is set to `/rescue`, which is the path we set for the frontend application in gateway config (`frontend/api-route-config.json`). This is to make sure all related assets is requested under `/rescue` path as well.
-1. `Sign in to adopt` button is linked to `/rescue/login`, which is a path that is `sso-enabled` in gateway config (`frontend/api-route-config.json`). This is necessary for frontend apps bound to a sub path on gateway because the Oauth2 login flow redirects users to the original requested location or back to `/` if no saved request exists. This setting is not necessary if the frontend app is bound to path `/`.
-1. `REACT_APP_BACKEND_BASE_URI` is set to `/backend` in build script, which is the path we set for the backend application in gateway config (`backend/api-route-config.json`). This is to make sure all our backend API calls are appended with the `backend` path.
-
-## Gateway and Animal Rescue application features
-
-Visit `https://gateway-demo.${appsDomain}/rescue`, you should see cute animal bios with the `Adopt` buttons disabled. All the information are fetched from a public `GET` backend endpoint `/animals`.
-![homepage](./docs/images/homepage.png)
-
-Click the `Sign in to adopt` button on the top right corner, you should be redirected to the SSO login page if you haven't already logged in to SSO.
-![log in page](./docs/images/login.png)
-
-Once you logged in, you should see a greeting message regarding the username you log in with on the top right corner, and the `Adopt` buttons should be enabled.
-![logged in view](./docs/images/logged-in.png)
-
-Click on the `Adopt` button, input your contact email and application notes in the model, then click `Apply`, a `POST` request should be sent to a `sso-enabled` backend endpoint `/animals/{id}/adoption-requests`, with the adopter set to your username we parsed from your token.
-![adopt model](./docs/images/adopt.png)
-
-Then the model should close, and you should see the `Adopt` button you clicked just now has turned into `Edit Adoption Request`. This is matched by your SSO log in username.
-![adopted view](./docs/images/adopted.png)
-
-Click on the `Edit Adoption Request` again, you can view, edit (`PUT`), and delete (`DELETE`) the existing request.
-![view or edit existing adoption request model](./docs/images/edit-or-delete.png)
-
-    **Note**
-    Documentation may get out of date. Please refer to the [e2e test](./e2e/cypress/integration/) and the test output video for the most accurate user flow description.
-
-To see circuit breaker filter in action, stop `animal-rescue-frontend` application and refresh page. You should see a response from `https://example.org` web-site, this is configured in `api-route-config.json` file in `/fallback` route.
-
-## Development
-
-### Run locally
-
-Use the following commands to manage the local lifecycle of animal-rescue:
+Create routing rules for the backend and frontend applications:
 
 ```bash
-./scripts/local.sh start         # start auth server, frontend app, and backend app
-./scripts/local.sh start --quiet # start everything without launching the app in browser, and redirects all output to `./scripts/out/`
-./scripts/local.sh stop          # stop auth server, frontend app, and backend app. You would only need to do this if you start the app in quiet mode.
+    az spring-cloud gateway route-config create \
+        --name $BACKEND_APP \
+        --app-name $BACKEND_APP \
+        --routes-file backend/asc/api-route-config-no-sso.json
+
+    az spring-cloud gateway route-config create \
+        --name $FRONTEND_APP \
+        --app-name $FRONTEND_APP \
+        --routes-file frontend/asc/api-route-config-no-sso.json
 ```
 
-### Local security configuration
+### Build and Deploy Applications
 
-Backend uses Form login for local development with two test accounts - `alice / test` and `bob / test`.
-Note that in a real deployment with Gateway, OAuth2 login will be managed by the gateway itself, and your app should use `TokenRelay` filter to receive OpenID ID Token in `Authorization` header. See `CloudFoundrySecurityConfiguration` class for an example of Spring Security 5 configuration to handle token relay correctly.
-
-> It is also possible to use OAuth2 login flow for the app. This requires running an authorization server locally. See `local-oauth2-flow` for an example of using Cloud Foundry User Account and Authentication (UAA) running in a Docker container locally.
-
-### Tests
-
-Execute the following script to run all tests:
+Deploy and build the backend application, specifying its configuration file pattern for
+Application Configuration Service:
 
 ```bash
-./scripts/local.sh init          # install dependencies for the frontend folder and the e2e folder
-./scripts/local.sh ci            # run backend tests and e2e tests
-./scripts/local.sh backend       # run backend test only
-./scripts/local.sh e2e --quiet   # run e2e test only without interactive mode
+    az spring-cloud app deploy --name $BACKEND_APP \
+          --config-file-pattern backend \
+          --source-path backend/
 ```
 
-You can find an e2e test output video showing the whole journey in `./e2e/cypress/videos/` after the test run. If you would like to launch the test in an actual browser and run e2e test interactively, you may run the following commands:
+Deploy and build the frontend application using the builder created earlier:
 
 ```bash
-./scripts/local.sh start
-./scripts/local.sh e2e
+    az spring-cloud app deploy --name $FRONTEND_APP \
+        --builder nodejs-only \
+        --source-path frontend/
 ```
 
-More detail about the e2e testing framework can be found at [cypress api doc](https://docs.cypress.io/api/api/table-of-contents.html)
+### Access the Application through Spring Cloud Gateway
 
-### CI
-
-#### GitHub Actions
-
-GitHub Actions run all checks for the `master` branch and all PR requests. All workflow configuration can be found in `.github/workflows`.
-
-#### Concourse
-
-If you'd like to get the most updated sample app deployed in a real TAS environment, you can set up a concourse pipeline to do so:
+Retrieve the URL for Spring Cloud Gateway and open it in a browser:
 
 ```bash
-fly -t ${yourConcourseTeamName} set-pipeline -p sample-app-to-demo-environment -c concourse/pipeline.yml -l config.yml
+    open "https://$GATEWAY_URL"
 ```
 
-You will need to update the slack notification settings and add the following environment variables to your concourse credentials manager. Here are the variables we set in our concourse credhub:
+You should see the Animal Rescue Application:
 
+![](./media/animal-rescue.png)
+
+### Explore the API using API Portal
+
+Assign an endpoint to API Portal and open it in a browser:
+
+```bash
+    az spring-cloud api-portal update --assign-endpoint true
+    export PORTAL_URL=$(az spring-cloud api-portal show | jq -r '.properties.url')
+    
+    open "https://$PORTAL_URL"
 ```
-- name: /concourse/main/sample-app-to-demo-environment/CF_API_HOST
-- name: /concourse/main/sample-app-to-demo-environment/CF_USERNAME
-- name: /concourse/main/sample-app-to-demo-environment/CF_PASSWORD
-- name: /concourse/main/sample-app-to-demo-environment/SKIP_SSL_VALIDATION
-- name: /concourse/main/sample-app-to-demo-environment/CF_ORG
-- name: /concourse/main/sample-app-to-demo-environment/CF_SPACE
+
+![](./media/api-portal.png)
+
+## Unit 2 - Configure Single Sign On
+
+In this section, you will configure SSO for Spring Cloud Gateway.
+
+### Cleanup Previous Resources
+
+Before getting started, cleanup resources from the previous section:
+
+```bash
+    az spring-cloud gateway route-config remove --name $BACKEND_APP
+    az spring-cloud gateway route-config remove --name $FRONTEND_APP
+    
+    az spring-cloud gateway clear
 ```
 
-## Check out our tags
+### Prepare your environment for deployments
 
-Tags that looks like `SCG-VT-v${VERSION}+` indicates that this commit and the commits after are compatible with the specified `VERSION` of the `SCG-VT` tile.
+Create a bash script with environment variables by making a copy of the supplied template:
 
-The other tags demonstrate different configuration with `SCG-VT`, have fun exploring what's possible!
+```bash
+    cp .scripts/setup-sso-variables-azure-template.sh .scripts/setup-sso-variables-azure.sh
+```
+
+Open `.scripts/setup-env-variables-azure.sh` and enter the following information:
+
+```bash
+    export CLIENT_ID={your_client_id}         # customize this
+    export CLIENT_SECRET={your_client_secret} # customize this
+    export ISSUER_URI={your_issuer_uri}       # customize this
+    export JWK_SET_URI={your_jwk_set_uri}     # customize this
+```
+
+> Note: `JWK_SET_URI` should look something like: `https://your-provider.com/discovery/keys`
+
+Then, set the environment:
+```bash
+    source .scripts/setup-sso-variables-azure.sh
+```
+
+### Configure Spring Cloud Gateway
+
+Configure Spring Cloud Gateway with SSO enabled:
+
+```bash
+    az spring-cloud gateway update --assign-endpoint true
+    export GATEWAY_URL=$(az spring-cloud gateway show | jq -r '.properties.url')
+
+    az spring-cloud gateway update \
+          --api-description "Animal Rescue API" \
+          --api-title "Animal Rescue" \
+          --api-version "v.01" \
+          --server-url "https://$GATEWAY_URL" \
+          --allowed-origins "*" \
+          --client-id $CLIENT_ID \
+          --client-secret $CLIENT_SECRET \
+          --scope $SCOPE \
+          --issuer-uri $ISSUER_URI
+```
+
+Create routing rules for the backend and frontend applications:
+
+```bash
+    az spring-cloud gateway route-config create \
+        --name $BACKEND_APP \
+        --app-name $BACKEND_APP \
+        --routes-file backend/asc/api-route-config.json
+
+    az spring-cloud gateway route-config create \
+        --name $FRONTEND_APP \
+        --app-name $FRONTEND_APP \
+        --routes-file frontend/asc/api-route-config.json
+```
+
+### Configure SSO Provider
+
+Add the redirect URLs output by the following script to your SSO provider:
+
+```bash
+   echo "https://$GATEWAY_URL/login/oauth2/code/sso"
+   echo "https://$PORTAL_URL/oauth2-redirect.html"
+```
+
+### Deploy Spring Boot app with SSO
+
+Deploy the backend application again, this time providing the environment variable:
+
+```bash
+    az spring-cloud app deploy --name $BACKEND_APP \
+        --config-file-pattern backend \
+        --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" \
+        --source-path backend/
+```
+
+### Access the Application through Spring Cloud Gateway
+
+Retrieve the URL for Spring Cloud Gateway and open it in a browser:
+
+```bash
+    open "https://$GATEWAY_URL"
+```
+
+You should see the Animal Rescue Application, and be able to log in using the
+configured SSO provider. 
+
+### Configure SSO for API Portal 
+
+Configure API Portal with SSO enabled:
+
+```bash
+    az spring-cloud api-portal update \
+          --client-id $CLIENT_ID \
+          --client-secret $CLIENT_SECRET \
+          --scope $SCOPE \
+          --issuer-uri $ISSUER_URI
+```
+
+### Explore the API using API Portal
+
+Open API Portal in a browser, this will redirect you to log in now:
+
+```bash
+    open "https://$PORTAL_URL"
+```
+
+To access the protected APIs, click Authorize and follow the steps that match your
+SSO provider. Learn more [here](https://docs.vmware.com/en/API-portal-for-VMware-Tanzu/1.0/api-portal/GUID-api-viewer.html#api-authorization)
+
+## Next Steps
+
+In this quickstart, you've deployed a Spring Boot application and a nodejs application using Azure CLI.
+You also configured VMware Tanzu components in the enterprise tier. To learn more about 
+Azure Spring Cloud, go to:
+
+- [Azure Spring Cloud](https://azure.microsoft.com/en-us/services/spring-cloud/)
+- [Azure Spring Cloud docs](https://docs.microsoft.com/en-us/azure/spring-cloud/quickstart-provision-service-instance-enterprise?tabs=azure-portal)
+- [Deploy Spring microservices from scratch](https://github.com/microsoft/azure-spring-cloud-training)
+- [Deploy existing Spring microservices](https://github.com/Azure-Samples/azure-spring-cloud)
+- [Azure for Java Cloud Developers](https://docs.microsoft.com/en-us/azure/java/)
+- [Spring Cloud Azure](https://cloud.spring.io/spring-cloud-azure/)
+- [Spring Cloud](https://spring.io/projects/spring-cloud)
+- [Application Configuration Service]()
+- [Spring Cloud Gateway](https://docs.vmware.com/en/VMware-Spring-Cloud-Gateway-for-Kubernetes/index.html)
+- [API Portal](https://docs.vmware.com/en/API-portal-for-VMware-Tanzu/index.html)
