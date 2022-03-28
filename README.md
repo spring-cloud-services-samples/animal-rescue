@@ -23,6 +23,7 @@ Azure Portal.
   * [Clone the repo](#clone-the-repo)
   * [Unit 1 - Deploy and Build Applications](#unit-1---deploy-and-build-applications)
   * [Unit 2 - Configure Single Sign On](#unit-2---configure-single-sign-on)
+  * [Unit 3 - Connect to Azure Database for MySQL](#unit-3---connect-to-azure-database-for-mysql)
 
 ## What will you experience
 You will:
@@ -51,7 +52,7 @@ In addition, you will need the following:
 |
 
 Note -  The [`jq` utility](https://stedolan.github.io/jq/download/). On Windows, download [this Windows port of JQ](https://github.com/stedolan/jq/releases) and add the following to the `~/.bashrc` file:
-```bash
+```shell
 alias jq=<JQ Download location>/jq-win64.exe
 ```
 
@@ -85,13 +86,13 @@ To run the code in this article in Azure Cloud Shell:
 
 Install the Azure Spring Cloud extension for the Azure CLI using the following command
 
-```bash
+```shell
     az extension add --name spring-cloud
 ```
 Note - `spring-cloud` CLI extension `3.0.0` or later is a pre-requisite to enable the
 latest Enterprise tier functionality to configure VMware Tanzu Components 
 
-```bash
+```shell
     az extension remove --name spring-cloud
     az extension add --name spring-cloud
 ```
@@ -100,7 +101,7 @@ latest Enterprise tier functionality to configure VMware Tanzu Components
 
 ### Create a new folder and clone the sample app repository to your Azure Cloud account
 
-```bash
+```shell
     mkdir source-code
     cd source-code
     git clone https://github.com/spring-cloud-services-samples/animal-rescue
@@ -113,13 +114,13 @@ latest Enterprise tier functionality to configure VMware Tanzu Components
 
 Create a bash script with environment variables by making a copy of the supplied template:
 
-```bash
+```shell
     cp .scripts/setup-env-variables-azure-template.sh .scripts/setup-env-variables-azure.sh
 ```
 
 Open `.scripts/setup-env-variables-azure.sh` and enter the following information:
 
-```bash
+```shell
     export SUBSCRIPTION=subscription-id # customize this
     export RESOURCE_GROUP=resource-group-name # customize this
     export SPRING_CLOUD_SERVICE=azure-spring-cloud-name # customize this
@@ -127,14 +128,14 @@ Open `.scripts/setup-env-variables-azure.sh` and enter the following information
 ```
 
 Then, set the environment:
-```bash
+```shell
     source .scripts/setup-env-variables-azure.sh
 ```
 
 ### Login to Azure
 Login to the Azure CLI and choose your active subscription. Be sure to choose the active subscription that is whitelisted for Azure Spring Cloud
 
-```bash
+```shell
     az login
     az account list -o table
     az account set --subscription ${SUBSCRIPTION}
@@ -145,14 +146,14 @@ Prepare a name for your Azure Spring Cloud service.  The name must be between 4 
 
 Create a resource group to contain your Azure Spring Cloud service.
 
-```bash
+```shell
     az group create --name ${RESOURCE_GROUP} \
         --location ${REGION}
 ```
 
 Create an instance of Azure Spring Cloud Enterprise.
 
-```bash
+```shell
     az spring-cloud create --name ${SPRING_CLOUD_SERVICE} \
             --sku enterprise \
             --sampling-rate 100 \
@@ -164,7 +165,7 @@ The service instance will take around five minutes to deploy.
 
 Set your default resource group name and cluster name using the following commands:
 
-```bash
+```shell
     az configure --defaults \
         group=${RESOURCE_GROUP} \
         location=${REGION} \
@@ -177,7 +178,7 @@ Set your default resource group name and cluster name using the following comman
 
 Create a configuration repository for Application Configuration Service using the Azure CLI:
 
-```bash
+```shell
     az spring-cloud application-configuration-service git repo add --name animal-rescue-config \
         --label main \
         --patterns "default,backend" \
@@ -188,7 +189,7 @@ Create a configuration repository for Application Configuration Service using th
 
 Create a builder in Tanzu Build Service for the frontend application using the Azure CLI:
 
-```bash
+```shell
     az spring-cloud build-service builder create -n nodejs-only \
         --builder-file frontend/asc/nodejs_builder.json \
         --no-wait
@@ -198,7 +199,7 @@ Create a builder in Tanzu Build Service for the frontend application using the A
 
 Create an application for the frontend and another for the backend:
 
-```bash
+```shell
     az spring-cloud app create --name $BACKEND_APP --instance-count 1 --memory 1Gi
     az spring-cloud app create --name $FRONTEND_APP --instance-count 1 --memory 1Gi
 ```
@@ -207,7 +208,7 @@ Create an application for the frontend and another for the backend:
 
 Bind the backend application to Application Configuration Service:
 
-```bash
+```shell
     az spring-cloud application-configuration-service bind --app $BACKEND_APP
 ```
 
@@ -216,7 +217,7 @@ Bind the backend application to Application Configuration Service:
 Assign an endpoint and update the Spring Cloud Gateway configuration with API 
 information:
 
-```bash
+```shell
     az spring-cloud gateway update --assign-endpoint true
     export GATEWAY_URL=$(az spring-cloud gateway show | jq -r '.properties.url')
     
@@ -230,7 +231,7 @@ information:
 
 Create routing rules for the backend and frontend applications:
 
-```bash
+```shell
     az spring-cloud gateway route-config create \
         --name $BACKEND_APP \
         --app-name $BACKEND_APP \
@@ -247,7 +248,7 @@ Create routing rules for the backend and frontend applications:
 Deploy and build the backend application, specifying its configuration file pattern for
 Application Configuration Service:
 
-```bash
+```shell
     az spring-cloud app deploy --name $BACKEND_APP \
           --config-file-pattern backend \
           --source-path backend/
@@ -255,7 +256,7 @@ Application Configuration Service:
 
 Deploy and build the frontend application using the builder created earlier:
 
-```bash
+```shell
     az spring-cloud app deploy --name $FRONTEND_APP \
         --builder nodejs-only \
         --source-path frontend/
@@ -265,7 +266,7 @@ Deploy and build the frontend application using the builder created earlier:
 
 Retrieve the URL for Spring Cloud Gateway and open it in a browser:
 
-```bash
+```shell
     open "https://$GATEWAY_URL"
 ```
 
@@ -277,7 +278,7 @@ You should see the Animal Rescue Application:
 
 Assign an endpoint to API Portal and open it in a browser:
 
-```bash
+```shell
     az spring-cloud api-portal update --assign-endpoint true
     export PORTAL_URL=$(az spring-cloud api-portal show | jq -r '.properties.url')
     
@@ -294,7 +295,7 @@ In this section, you will configure SSO for Spring Cloud Gateway.
 
 Before getting started, cleanup resources from the previous section:
 
-```bash
+```shell
     az spring-cloud gateway route-config remove --name $BACKEND_APP
     az spring-cloud gateway route-config remove --name $FRONTEND_APP
     
@@ -335,13 +336,13 @@ Using the Organization ID, the `issuer uri` takes the form:
 
 Create a bash script with environment variables by making a copy of the supplied template:
 
-```bash
+```shell
     cp .scripts/setup-sso-variables-azure-template.sh .scripts/setup-sso-variables-azure.sh
 ```
 
 Open `.scripts/setup-env-variables-azure.sh` and enter the information obtained during the previous step:
 
-```bash
+```shell
     export CLIENT_ID={your_client_id}         # customize this
     export CLIENT_SECRET={your_client_secret} # customize this
     export ISSUER_URI={your_issuer_uri}       # customize this
@@ -349,7 +350,7 @@ Open `.scripts/setup-env-variables-azure.sh` and enter the information obtained 
 ```
 
 Then, set the environment:
-```bash
+```shell
     source .scripts/setup-sso-variables-azure.sh
 ```
 
@@ -357,7 +358,7 @@ Then, set the environment:
 
 Configure Spring Cloud Gateway with SSO enabled:
 
-```bash
+```shell
     az spring-cloud gateway update --assign-endpoint true
     export GATEWAY_URL=$(az spring-cloud gateway show | jq -r '.properties.url')
 
@@ -375,7 +376,7 @@ Configure Spring Cloud Gateway with SSO enabled:
 
 Create routing rules for the backend and frontend applications:
 
-```bash
+```shell
     az spring-cloud gateway route-config create \
         --name $BACKEND_APP \
         --app-name $BACKEND_APP \
@@ -391,7 +392,7 @@ Create routing rules for the backend and frontend applications:
 
 Obtain the necessary redirect URIs using this script:
 
-```bash
+```shell
    echo "https://$GATEWAY_URL/login/oauth2/code/sso"
    echo "https://$PORTAL_URL/oauth2-redirect.html"
 ```
@@ -407,7 +408,7 @@ Detailed information about redirect URIs can be found [here](https://docs.micros
 
 Deploy the backend application again, this time providing the environment variable:
 
-```bash
+```shell
     az spring-cloud app deploy --name $BACKEND_APP \
         --config-file-pattern backend \
         --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" \
@@ -418,7 +419,7 @@ Deploy the backend application again, this time providing the environment variab
 
 Retrieve the URL for Spring Cloud Gateway and open it in a browser:
 
-```bash
+```shell
     open "https://$GATEWAY_URL"
 ```
 
@@ -429,7 +430,7 @@ configured SSO provider.
 
 Configure API Portal with SSO enabled:
 
-```bash
+```shell
     az spring-cloud api-portal update \
           --client-id $CLIENT_ID \
           --client-secret $CLIENT_SECRET \
@@ -441,12 +442,70 @@ Configure API Portal with SSO enabled:
 
 Open API Portal in a browser, this will redirect you to log in now:
 
-```bash
+```shell
     open "https://$PORTAL_URL"
 ```
 
 To access the protected APIs, click Authorize and follow the steps that match your
 SSO provider. Learn more [here](https://docs.vmware.com/en/API-portal-for-VMware-Tanzu/1.0/api-portal/GUID-api-viewer.html#api-authorization)
+
+## Unit 3 - Connect to Azure Database for MySQL 
+
+In this unit, you will create an Azure Database for MySQL for your app to use.
+
+### Prepare your environment
+
+Create a bash script with environment variables by making a copy of the supplied template:
+
+```shell
+    cp .scripts/setup-env-variables-azure-mysql-template.sh .scripts/setup-env-variables-azure-mysql.sh
+```
+
+Open `.scripts/setup-env-variables-azure-mysql.sh` and enter information to be used for the MySQL database:
+
+```shell
+    export RESOURCE_GROUP=resource-group-name   # customize this
+    export REGION=region-name                   # customize this
+    export MYSQL_ADMIN_USER=change-name         # customize this
+    export MYSQL_ADMIN_PASSWORD=change-me       # customize this
+    export MYSQL_SERVER_NAME=animal-resuce-database
+```
+
+Then, set the environment:
+
+```shell
+    source .scripts/setup-env-variables-azure.mysql.sh
+```
+
+### Create an Azure Database for MySQL
+
+Using the Azure CLI, create an Azure Database for MySQL:
+
+```shell
+    az mysql server create --resource-group $RESOURCE_GROUP \
+      --name $MYSQL_SERVER_NAME \
+      --location $REGION \
+      --admin-user $MYSQL_ADMIN_USER \
+      --admin-password $MYSQL_ADMIN_PASSWORD \
+      --sku-name GP_Gen5_2
+```
+
+### Create a Connection to MySQL
+
+Using the Azure CLI, connect the application to MySQL:
+
+```shell
+    az spring-cloud connection create mysql \
+      -g $RESOURCE_GROUP \
+      --service $SPRING_CLOUD_SERVICE \
+      --app $BACKEND_APP \
+      --deployment default \
+      --tg $RESOURCE_GROUP \
+      --server $MYSQL_SERVER_NAME \
+      --database animals \
+      --client-type springboot \
+      --secret name=$MYSQL_ADMIN_USER secret=$MYSQL_ADMIN_USER_PASSWORD 
+```
 
 ## Next Steps
 
