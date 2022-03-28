@@ -301,6 +301,36 @@ Before getting started, cleanup resources from the previous section:
     az spring-cloud gateway clear
 ```
 
+### Register Application with Azure AD
+
+Follow the instructions [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app)
+to register an Application with Azure AD.
+
+After completing the registration, the application client id can be found on the App Registration Overview page
+as "Application (client) ID". This page is shown below:
+
+![](./media/app-registration-1.png)
+
+To obtain a client secret, follow the detailed instructions [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app#add-a-client-secret)
+ensuring the secret value is copied as it will not be displayed again.
+
+Next obtain the Organization ID. This is shown on the App Registration Overview page as "Directory (tenant) ID".
+This page is shown below:
+
+![](./media/app-registration-2.png)
+
+Using the Organization ID, the `jwk uri` takes the form:
+
+```text
+   https://login.microsoftonline.com/$ORGANIZATION_ID/discovery/v2.0/keys
+```
+
+Using the Organization ID, the `issuer uri` takes the form:
+
+```text
+  https://login.microsoftonline.com/$ORGANIZATION_ID/v2.0
+```
+
 ### Prepare your environment for deployments
 
 Create a bash script with environment variables by making a copy of the supplied template:
@@ -309,7 +339,7 @@ Create a bash script with environment variables by making a copy of the supplied
     cp .scripts/setup-sso-variables-azure-template.sh .scripts/setup-sso-variables-azure.sh
 ```
 
-Open `.scripts/setup-env-variables-azure.sh` and enter the following information:
+Open `.scripts/setup-env-variables-azure.sh` and enter the information obtained during the previous step:
 
 ```bash
     export CLIENT_ID={your_client_id}         # customize this
@@ -317,8 +347,6 @@ Open `.scripts/setup-env-variables-azure.sh` and enter the following information
     export ISSUER_URI={your_issuer_uri}       # customize this
     export JWK_SET_URI={your_jwk_set_uri}     # customize this
 ```
-
-> Note: `JWK_SET_URI` should look something like: `https://your-provider.com/discovery/keys`
 
 Then, set the environment:
 ```bash
@@ -359,14 +387,21 @@ Create routing rules for the backend and frontend applications:
         --routes-file frontend/asc/api-route-config.json
 ```
 
-### Configure SSO Provider
+### Add Redirect URIs to Azure AD
 
-Add the redirect URLs output by the following script to your SSO provider:
+Obtain the necessary redirect URIs using this script:
 
 ```bash
    echo "https://$GATEWAY_URL/login/oauth2/code/sso"
    echo "https://$PORTAL_URL/oauth2-redirect.html"
 ```
+
+In the Azure Portal, navigate to the App Registration in Azure AD. From there, Navigate to Authentication in order to add
+the redirect URIs. This page is shown below:
+
+![The Azure portal page for adding redirect URIs](media/redirect-uris.png)
+
+Detailed information about redirect URIs can be found [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app#add-a-redirect-uri).
 
 ### Deploy Spring Boot app with SSO
 
