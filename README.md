@@ -4,7 +4,7 @@ languages:
 - java
 products:
 - Azure Spring Cloud
-description: "Deploy Spring Boot apps using Azure Spring Cloud and Spring Cloud Gateway"
+description: "Deploy Spring Boot apps to Azure"
 urlFragment: ""
 ---
 
