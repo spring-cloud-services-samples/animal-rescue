@@ -151,14 +151,23 @@ Create a resource group to contain your Azure Spring Cloud service.
         --location ${REGION}
 ```
 
+Accept the legal terms and privacy statements for the Enterprise tier.
+
+```shell
+    az provider register --namespace Microsoft.SaaS
+    az term accept --publisher vmware-inc --product azure-spring-cloud-vmware-tanzu-2 --plan tanzu-asc-ent-mtr
+```
+
 Create an instance of Azure Spring Cloud Enterprise.
 
 ```shell
-    az spring-cloud create --name ${SPRING_CLOUD_SERVICE} \
-            --sku enterprise \
-            --sampling-rate 100 \
-            --resource-group ${RESOURCE_GROUP} \
-            --location ${REGION}
+   az spring-cloud create --name ${SPRING_CLOUD_SERVICE} \
+            --resourcee-group ${RESOURCE_GROUP} \
+            --sku Enterprise \
+            --enable-application-configuration-service \
+            --enable-service-registry \
+            --enable-gateway \
+            --enable-api-portal
 ```
 
 The service instance will take around five minutes to deploy.
