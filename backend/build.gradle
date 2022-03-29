@@ -23,7 +23,8 @@ dependencies {
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 	implementation "org.springframework.security:spring-security-web"
@@ -34,7 +35,6 @@ dependencies {
  	implementation("io.pivotal.cfenv:java-cfenv-boot:2.1.1.RELEASE")
 
     runtimeOnly 'com.h2database:h2'
-	runtimeOnly 'io.r2dbc:r2dbc-h2'
 	runtimeOnly 'mysql:mysql-connector-java'
 
 	testImplementation('org.springframework.security:spring-security-test')

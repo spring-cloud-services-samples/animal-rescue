@@ -1,0 +1,4 @@
+spring:
+  flyway:
+    enabled: true
+debug: true

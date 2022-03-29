@@ -11,6 +11,8 @@ logging.level:
   org.springframework.data: debug
 
 spring:
+  flyway:
+    enabled: false
   security:
     oauth2:
       resourceserver:

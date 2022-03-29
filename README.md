@@ -490,7 +490,17 @@ Using the Azure CLI, create an Azure Database for MySQL:
       --sku-name GP_Gen5_2
 ```
 
-### Create a Connection to MySQL
+Create a new database for the application to use:
+
+```shell
+    az mysql db create \
+      --resource-group $RESOURCE_GROUP \
+      --name animals \
+      --server-name $MYSQL_SERVER_NAME
+
+```
+
+### Connect Application to MySQL
 
 Using the Azure CLI, connect the application to MySQL:
 
@@ -506,6 +516,25 @@ Using the Azure CLI, connect the application to MySQL:
       --client-type springboot \
       --secret name=$MYSQL_ADMIN_USER secret=$MYSQL_ADMIN_USER_PASSWORD 
 ```
+
+Deploy the application with the MySQL profile active:
+
+```shell
+    az spring-cloud app deploy \
+      --name $BACKEND_APP \
+      --config-file-pattern backend \
+      --source-path backend \
+      --env "SPRING_PROFILES_ACTIVE=mysql"
+```
+
+Retrieve the URL for Spring Cloud Gateway and open it in a browser:
+
+```shell
+    open "https://$GATEWAY_URL"
+```
+
+Now when restarting the application, changes will persist as it now uses a MySQL database
+rather than an in-memory database. 
 
 ## Next Steps
 

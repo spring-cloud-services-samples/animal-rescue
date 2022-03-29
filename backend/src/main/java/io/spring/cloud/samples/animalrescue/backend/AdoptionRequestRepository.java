@@ -1,9 +1,9 @@
 package io.spring.cloud.samples.animalrescue.backend;
 
-import reactor.core.publisher.Flux;
+import java.util.List;
 
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.data.repository.CrudRepository;
 
-public interface AdoptionRequestRepository extends ReactiveCrudRepository<AdoptionRequest, Long> {
-	Flux<AdoptionRequest> findByAnimal(Long animal);
+public interface AdoptionRequestRepository extends CrudRepository<AdoptionRequest, Long> {
+	List<AdoptionRequest> findByAnimal(Long animal);
 }
