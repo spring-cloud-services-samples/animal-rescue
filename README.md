@@ -115,10 +115,10 @@ latest Enterprise tier functionality to configure VMware Tanzu Components
 Create a bash script with environment variables by making a copy of the supplied template:
 
 ```shell
-    cp .scripts/setup-env-variables-azure-template.sh .scripts/setup-env-variables-azure.sh
+    cp ./scripts/setup-env-variables-azure-template.sh ./scripts/setup-env-variables-azure.sh
 ```
 
-Open `.scripts/setup-env-variables-azure.sh` and enter the following information:
+Open `./scripts/setup-env-variables-azure.sh` and enter the following information:
 
 ```shell
     export SUBSCRIPTION=subscription-id # customize this
@@ -129,7 +129,7 @@ Open `.scripts/setup-env-variables-azure.sh` and enter the following information
 
 Then, set the environment:
 ```shell
-    source .scripts/setup-env-variables-azure.sh
+    source ./scripts/setup-env-variables-azure.sh
 ```
 
 ### Login to Azure
@@ -337,10 +337,10 @@ Using the Organization ID, the `issuer uri` takes the form:
 Create a bash script with environment variables by making a copy of the supplied template:
 
 ```shell
-    cp .scripts/setup-sso-variables-azure-template.sh .scripts/setup-sso-variables-azure.sh
+    cp ./scripts/setup-sso-variables-azure-template.sh ./scripts/setup-sso-variables-azure.sh
 ```
 
-Open `.scripts/setup-env-variables-azure.sh` and enter the information obtained during the previous step:
+Open `./scripts/setup-env-variables-azure.sh` and enter the information obtained during the previous step:
 
 ```shell
     export CLIENT_ID={your_client_id}         # customize this
@@ -351,7 +351,7 @@ Open `.scripts/setup-env-variables-azure.sh` and enter the information obtained 
 
 Then, set the environment:
 ```shell
-    source .scripts/setup-sso-variables-azure.sh
+    source ./scripts/setup-sso-variables-azure.sh
 ```
 
 ### Configure Spring Cloud Gateway
@@ -458,10 +458,10 @@ In this unit, you will create an Azure Database for MySQL for your app to use.
 Create a bash script with environment variables by making a copy of the supplied template:
 
 ```shell
-    cp .scripts/setup-env-variables-azure-mysql-template.sh .scripts/setup-env-variables-azure-mysql.sh
+    cp ./scripts/setup-env-variables-azure-mysql-template.sh ./scripts/setup-env-variables-azure-mysql.sh
 ```
 
-Open `.scripts/setup-env-variables-azure-mysql.sh` and enter information to be used for the MySQL database:
+Open `./scripts/setup-env-variables-azure-mysql.sh` and enter information to be used for the MySQL database:
 
 ```shell
     export RESOURCE_GROUP=resource-group-name   # customize this
@@ -474,7 +474,7 @@ Open `.scripts/setup-env-variables-azure-mysql.sh` and enter information to be u
 Then, set the environment:
 
 ```shell
-    source .scripts/setup-env-variables-azure.mysql.sh
+    source ./scripts/setup-env-variables-azure.mysql.sh
 ```
 
 ### Create an Azure Database for MySQL
