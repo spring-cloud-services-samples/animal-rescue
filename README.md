@@ -458,7 +458,7 @@ Open API Portal in a browser, this will redirect you to log in now:
 ```
 
 To access the protected APIs, click Authorize and follow the steps that match your
-SSO provider. Learn more [here](https://docs.vmware.com/en/API-portal-for-VMware-Tanzu/1.0/api-portal/GUID-api-viewer.html#api-authorization)
+SSO provider. Learn more about API Authorization with API Portal [here](https://docs.vmware.com/en/API-portal-for-VMware-Tanzu/1.0/api-portal/GUID-api-viewer.html#api-authorization)
 
 ## Unit 3 - Connect to Azure Database for MySQL 
 
@@ -485,7 +485,7 @@ Open `./scripts/setup-env-variables-azure-mysql.sh` and enter information to be 
 Then, set the environment:
 
 ```shell
-    source ./scripts/setup-env-variables-azure.mysql.sh
+    source ./scripts/setup-env-variables-azure-mysql.sh
 ```
 
 ### Create an Azure Database for MySQL
