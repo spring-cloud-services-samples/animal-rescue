@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "animal-rescue.adoption-request-limit",
+      "type": "java.lang.String",
+      "description": "Limit the maximum number of pets that can be adopted at one time by a single user."
+    }
+  ] }

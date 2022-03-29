@@ -20,7 +20,7 @@ import io.pivotal.cfenv.core.CfEnv;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "animal-rescue.adoption-request-limit=1")
 @AutoConfigureWebTestClient
 class AnimalControllerTest {
 
@@ -44,7 +44,7 @@ class AnimalControllerTest {
 	}
 
 	private int getAdoptionRequestCountForAnimalId1() {
-		return adoptionRequestRepository.findByAnimal(1L).collectList().block().size();
+		return adoptionRequestRepository.findByAnimal(1L).size();
 	}
 
 	@Test
@@ -83,7 +83,7 @@ class AnimalControllerTest {
 	class SubmitAdoptionRequest {
 
 		@Test
-		@WithMockUser(username = "test-user-1", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-1", authorities = {"adoption.request"})
 		void succeeds() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
@@ -105,7 +105,7 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-1", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-1", authorities = {"adoption.request"})
 		void failsIfAnimalNotFound() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
@@ -119,13 +119,31 @@ class AnimalControllerTest {
 				.exchange()
 				.expectStatus().isBadRequest();
 		}
+
+		@Test
+		@WithMockUser(username = "test-user-2", authorities = {"adoption.request"})
+		void failsIfTooManyAdoptions() {
+			String testEmail = "a@email.com";
+			String testNotes = "Yaaas!";
+
+			adopt(testEmail, testNotes);
+
+			Map<String, String> requestBody = getRequestBody(testEmail, testNotes);
+
+			webTestClient
+				.post()
+				.uri("/animals/2/adoption-requests")
+				.body(BodyInserters.fromValue(requestBody))
+				.exchange()
+				.expectStatus().isBadRequest();
+		}
 	}
 
 	@Nested
 	class EditAdoptionRequest {
 
 		@Test
-		@WithMockUser(username = "test-user-2", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-2", authorities = {"adoption.request"})
 		void succeeds() {
 			String testEmail = "b@email.com";
 			String testNotes = "Plzzzz!";
@@ -140,7 +158,7 @@ class AnimalControllerTest {
 				.exchange()
 				.expectStatus().isOk();
 
-			AdoptionRequest modified = adoptionRequestRepository.findById(newId).block();
+			AdoptionRequest modified = adoptionRequestRepository.findById(newId).get();
 			assertThat(modified).isNotNull();
 			assertThat(modified.getEmail()).isEqualTo(testEmail);
 			assertThat(modified.getNotes()).isEqualTo(testNotes);
@@ -149,7 +167,7 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-2", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-2", authorities = {"adoption.request"})
 		void failsIfNotTheOriginalRequester() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
@@ -165,7 +183,7 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-2", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-2", authorities = {"adoption.request"})
 		void failsIfAnimalNotFound() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
@@ -181,7 +199,7 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-2", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-2", authorities = {"adoption.request"})
 		void failsIfAdoptionRequestNotFound() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
@@ -201,7 +219,7 @@ class AnimalControllerTest {
 	class DeleteAdoptionRequest {
 
 		@Test
-		@WithMockUser(username = "test-user-3", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-3", authorities = {"adoption.request"})
 		void succeeds() {
 			adopt("dummy", "dummy");
 			long newId = getNewlyCreatedRequestId(1L, "test-user-3");
@@ -212,12 +230,12 @@ class AnimalControllerTest {
 				.exchange()
 				.expectStatus().isOk();
 
-			assertThat(adoptionRequestRepository.findById(newId).block()).isNull();
+			assertThat(adoptionRequestRepository.findById(newId)).isEmpty();
 			assertThat(getAdoptionRequestCountForAnimalId1()).isEqualTo(currentAdoptionRequestCountForAnimalId1);
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-3", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-3", authorities = {"adoption.request"})
 		void failsIfNotTheOriginalRequester() {
 			webTestClient
 				.delete()
@@ -227,7 +245,7 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-3", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-3", authorities = {"adoption.request"})
 		void failsIfAnimalNotFound() {
 			webTestClient
 				.delete()
@@ -237,7 +255,7 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-3", authorities = { "adoption.request" })
+		@WithMockUser(username = "test-user-3", authorities = {"adoption.request"})
 		void failsIfAdoptionRequestNotFound() {
 			webTestClient
 				.delete()
@@ -267,10 +285,11 @@ class AnimalControllerTest {
 
 	private long getNewlyCreatedRequestId(long animalId, String adopterName) {
 		return adoptionRequestRepository
-				.findByAnimal(animalId)
-				.filter(ar -> ar.getAdopterName().equals(adopterName))
-				.blockFirst()
-				.getId();
+			.findByAnimal(animalId).stream()
+			.filter(ar -> ar.getAdopterName().equals(adopterName))
+			.findFirst()
+			.get()
+			.getId();
 	}
 
 }

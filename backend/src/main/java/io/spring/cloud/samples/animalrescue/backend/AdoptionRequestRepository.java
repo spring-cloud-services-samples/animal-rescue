@@ -6,4 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface AdoptionRequestRepository extends CrudRepository<AdoptionRequest, Long> {
 	List<AdoptionRequest> findByAnimal(Long animal);
+
+	long countAdoptionRequestByAdopterName(String adopterName);
 }

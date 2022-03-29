@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class AnimalController {
@@ -30,10 +31,12 @@ public class AnimalController {
 
 	private final AnimalRepository animalRepository;
 	private final AdoptionRequestRepository adoptionRequestRepository;
+	private final AnimalRescueApplicationSettings animalRescueApplicationSettings;
 
-	public AnimalController(AnimalRepository animalRepository, AdoptionRequestRepository adoptionRequestRepository) {
+	public AnimalController(AnimalRepository animalRepository, AdoptionRequestRepository adoptionRequestRepository, AnimalRescueApplicationSettings animalRescueApplicationSettings) {
 		this.animalRepository = animalRepository;
 		this.adoptionRequestRepository = adoptionRequestRepository;
+		this.animalRescueApplicationSettings = animalRescueApplicationSettings;
 	}
 
 	@GetMapping("/whoami")
@@ -64,6 +67,11 @@ public class AnimalController {
 		@RequestBody AdoptionRequest adoptionRequest
 	) {
 		LOGGER.info("Received submit adoption request from {}", principal.getName());
+
+		if (adoptionRequestRepository.countAdoptionRequestByAdopterName(principal.getName()) >= animalRescueApplicationSettings.getAdoptionRequestLimit()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Too many existing adoption requests");
+		}
+
 		adoptionRequest.setAnimal(animalId);
 		adoptionRequest.setAdopterName(principal.getName());
 		return Mono.justOrEmpty(animalRepository.findById(animalId))
