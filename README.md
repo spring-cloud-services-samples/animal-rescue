@@ -153,6 +153,8 @@ Create a resource group to contain your Azure Spring Cloud service.
 
 Accept the legal terms and privacy statements for the Enterprise tier.
 
+> Note: This step is necessary only if your subscription has never been used to create an Enterprise tier instance of Azure Spring Cloud.
+
 ```shell
     az provider register --namespace Microsoft.SaaS
     az term accept --publisher vmware-inc --product azure-spring-cloud-vmware-tanzu-2 --plan tanzu-asc-ent-mtr
@@ -162,7 +164,7 @@ Create an instance of Azure Spring Cloud Enterprise.
 
 ```shell
    az spring-cloud create --name ${SPRING_CLOUD_SERVICE} \
-            --resourcee-group ${RESOURCE_GROUP} \
+            --resource-group ${RESOURCE_GROUP} \
             --sku Enterprise \
             --enable-application-configuration-service \
             --enable-service-registry \
