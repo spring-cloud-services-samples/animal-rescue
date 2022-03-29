@@ -525,7 +525,7 @@ Using the Azure CLI, connect the application to MySQL:
       --server $MYSQL_SERVER_NAME \
       --database animals \
       --client-type springboot \
-      --secret name=$MYSQL_ADMIN_USER secret=$MYSQL_ADMIN_USER_PASSWORD 
+      --secret name=$MYSQL_ADMIN_USER secret=$MYSQL_ADMIN_PASSWORD 
 ```
 
 Deploy the application with the MySQL profile active:
