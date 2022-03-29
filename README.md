@@ -351,7 +351,7 @@ Create a bash script with environment variables by making a copy of the supplied
     cp ./scripts/setup-sso-variables-azure-template.sh ./scripts/setup-sso-variables-azure.sh
 ```
 
-Open `./scripts/setup-env-variables-azure.sh` and enter the information obtained during the previous step:
+Open `./scripts/setup-sso-variables-azure.sh` and enter the information obtained during the previous step:
 
 ```shell
     export CLIENT_ID={your_client_id}         # customize this
