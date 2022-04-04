@@ -1,0 +1,6 @@
+spring:
+  flyway:
+    enabled: false
+
+animal-rescue:
+  adoption-request-limit: 1
