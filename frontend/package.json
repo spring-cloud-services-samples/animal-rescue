@@ -36,9 +36,7 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {
-    "eslint": "^7.32.0"
-  },
+  "devDependencies": {},
   "engines": {
     "node": "14.*"
   }
