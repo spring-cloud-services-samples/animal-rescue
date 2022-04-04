@@ -165,6 +165,7 @@ Create an instance of Azure Spring Cloud Enterprise.
 ```shell
    az spring-cloud create --name ${SPRING_CLOUD_SERVICE} \
             --resource-group ${RESOURCE_GROUP} \
+            --location ${REGION} \
             --sku Enterprise \
             --enable-application-configuration-service \
             --enable-service-registry \
@@ -385,6 +386,19 @@ Configure Spring Cloud Gateway with SSO enabled:
           --issuer-uri $ISSUER_URI
 ```
 
+Configure API Portal with SSO enabled:
+
+```shell
+    az spring-cloud api-portal update --assign-endpoint true
+    export PORTAL_URL=$(az spring-cloud api-portal show | jq -r '.properties.url')
+    
+    az spring-cloud api-portal update \
+      --client-id $CLIENT_ID \
+      --client-secret $CLIENT_SECRET\
+      --scope "openid,profile,email" \
+      --issuer-uri $ISSUER_URI
+```
+
 Create routing rules for the backend and frontend applications:
 
 ```shell
@@ -406,6 +420,7 @@ Obtain the necessary redirect URIs using this script:
 ```shell
    echo "https://$GATEWAY_URL/login/oauth2/code/sso"
    echo "https://$PORTAL_URL/oauth2-redirect.html"
+   echo "https://$PORTAL_URL/login/oauth2/code/sso"
 ```
 
 In the Azure Portal, navigate to the App Registration in Azure AD. From there, Navigate to Authentication in order to add
@@ -535,7 +550,7 @@ Deploy the application with the MySQL profile active:
       --name $BACKEND_APP \
       --config-file-pattern backend \
       --source-path backend \
-      --env "SPRING_PROFILES_ACTIVE=mysql"
+      --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" "SPRING_PROFILES_ACTIVE=mysql"
 ```
 
 Retrieve the URL for Spring Cloud Gateway and open it in a browser:

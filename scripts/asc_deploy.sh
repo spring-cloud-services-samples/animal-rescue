@@ -122,8 +122,8 @@ function configure_portal() {
     echo "Configuring API Portal with SSO properties"
     az spring-cloud api-portal update \
       --client-id "$(read_secret_prop 'client-id')" \
-      --client-secret "openid,profile,email" \
-      --scope "$(read_secret_prop 'scope')" \
+      --client-secret "$(read_secret_prop 'client-secret')" \
+      --scope "openid,profile,email" \
       --issuer-uri "$(read_secret_prop 'issuer-uri')"
   fi
 }
