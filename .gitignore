@@ -20,4 +20,6 @@ scripts/out/
 
 scripts/setup-env-variables-azure.sh
 scripts/setup-env-variables-azure-mysql.sh
-scripts/setup-sso-variables-azure.sh
+
+ad.json
+sso.json
