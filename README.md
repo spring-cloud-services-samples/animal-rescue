@@ -501,13 +501,12 @@ Detailed information about redirect URIs can be found [here](https://docs.micros
 
 ### Deploy Spring Boot app with SSO
 
-Deploy the backend application again, this time providing the environment variable:
+Update the backend application to provide the necessary environment variable:
 
 ```shell
-    az spring-cloud app deploy --name $BACKEND_APP \
-        --config-file-pattern backend \
-        --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" \
-        --source-path backend/
+    az spring-cloud app update \
+        --name $BACKEND_APP \
+        --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" 
 ```
 
 ### Access the Application through Spring Cloud Gateway
@@ -612,14 +611,12 @@ Using the Azure CLI, connect the application to MySQL:
       --secret name=$MYSQL_ADMIN_USER secret=$MYSQL_ADMIN_PASSWORD 
 ```
 
-Deploy the application with the MySQL profile active:
+Update the backend application with flyway enabled:
 
 ```shell
-    az spring-cloud app deploy \
+    az spring-cloud app update \
       --name $BACKEND_APP \
-      --config-file-pattern backend \
-      --source-path backend \
-      --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" "SPRING_PROFILES_ACTIVE=mysql"
+      --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" "SPRING_FLYWAY_ENABLED=true"
 ```
 
 Retrieve the URL for Spring Cloud Gateway and open it in a browser:
