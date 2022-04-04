@@ -121,7 +121,7 @@ class AnimalControllerTest {
 		}
 
 		@Test
-		@WithMockUser(username = "test-user-2", authorities = {"adoption.request"})
+		@WithMockUser(username = "test-user-3", authorities = {"adoption.request"})
 		void failsIfTooManyAdoptions() {
 			String testEmail = "a@email.com";
 			String testNotes = "Yaaas!";
