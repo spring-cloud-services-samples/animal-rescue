@@ -7,6 +7,7 @@ QUIET_MODE="--quiet"
 
 init() {
   ./gradlew assemble
+  cd frontend && npm install
 }
 
 stopFrontend() {
