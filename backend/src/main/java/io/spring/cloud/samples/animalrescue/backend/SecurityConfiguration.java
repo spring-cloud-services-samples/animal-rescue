@@ -16,7 +16,7 @@ import org.springframework.security.web.server.authentication.RedirectServerAuth
 import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
 
 @Configuration
-@Profile("!cloud & !k8s & !acs") // cloud profile is automatically activated on CloudFoundry
+@Profile("!cloud & !k8s & !azure") // cloud profile is automatically activated on CloudFoundry
 public class SecurityConfiguration {
 
 	@Bean

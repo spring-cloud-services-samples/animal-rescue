@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.server.resource.authentication.Reacti
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 @Configuration
-@Profile({"k8s", "acs"})
+@Profile({"k8s", "azure"})
 public class KubernetesSecurityConfiguration {
 
 	private static final Logger LOG = LoggerFactory.getLogger(KubernetesSecurityConfiguration.class);

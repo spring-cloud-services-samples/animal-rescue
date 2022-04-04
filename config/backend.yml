@@ -8,9 +8,11 @@ management:
         include: "*"
 
 logging.level:
-  org.springframework.data: debug
+  org.springframework.data: warn
 
 spring:
+  profiles:
+    active: azure
   flyway:
     enabled: false
   security:
