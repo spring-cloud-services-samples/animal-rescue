@@ -124,6 +124,7 @@ Open `./scripts/setup-env-variables-azure.sh` and enter the following informatio
     export SUBSCRIPTION=subscription-id # customize this
     export RESOURCE_GROUP=resource-group-name # customize this
     export SPRING_CLOUD_SERVICE=azure-spring-cloud-name # customize this
+    export LOG_ANALYTICS_WORKSPACE=log-analytics-name # customize this
     export REGION=region-name # customize this
 ```
 
@@ -185,6 +186,74 @@ Set your default resource group name and cluster name using the following comman
 ```
 
 > Note: wait for the instance of Azure Spring Cloud to be ready before continuing
+
+### Configure Log Analytics for Azure Spring Cloud
+
+Create a Log Analytics Workspace to be used for your Azure Spring Cloud service.
+
+```shell
+    az monitor log-analytics workspace create \
+      --workspace-name ${LOG_ANALYTICS_WORKSPACE} \
+      --location ${REGION} \
+      --resource-group ${RESOURCE_GROUP} \
+      
+```
+
+Retrieve the resource ID for the recently create Azure Spring Cloud Service and Log Analytics Workspace:
+
+```shell
+    export LOG_ANALYTICS_RESOURCE_ID=$(az monitor log-analytics workspace show \
+        --resource-group ${RESOURCE_GROUP} \
+        --workspace-name ${LOG_ANALYTICS_WORKSPACE} | jq -r '.id')
+
+    export SPRING_CLOUD_RESOURCE_ID=$(az spring-cloud show \
+        --name ${SPRING_CLOUD_SERVICE} \
+        --resource-group ${RESOURCE_GROUP} | jq -r '.id'
+```
+
+Configure diagnostic settings for the Azure Spring Cloud Service:
+
+```shell
+    az monitor diagnostic-settings create --name "send-logs-and-metrics-to-log-analytics" \
+        --resource ${SPRING_CLOUD_RESOURCE_ID} \
+        --workspace ${LOG_ANALYTICS_RESOURCE_ID} \
+        --logs '[
+             {
+               "category": "ApplicationConsole",
+               "enabled": true,
+               "retentionPolicy": {
+                 "enabled": false,
+                 "days": 0
+               }
+             },
+             {
+                "category": "SystemLogs",
+                "enabled": true,
+                "retentionPolicy": {
+                  "enabled": false,
+                  "days": 0
+                }
+              },
+             {
+                "category": "IngressLogs",
+                "enabled": true,
+                "retentionPolicy": {
+                  "enabled": false,
+                  "days": 0
+                 }
+               }
+           ]' \
+           --metrics '[
+             {
+               "category": "AllMetrics",
+               "enabled": true,
+               "retentionPolicy": {
+                 "enabled": false,
+                 "days": 0
+               }
+             }
+           ]'
+```
 
 ### Configure Application Configuration Service
 
