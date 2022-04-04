@@ -21,8 +21,8 @@ function create_nodejs_builder() {
 }
 
 function configure_acs() {
-  echo "Configuring Application Configuration Service to use repo: https://github.com/maly7/animal-rescue-config"
-  az spring-cloud application-configuration-service git repo add --name animal-rescue-config --label main --patterns "default,backend" --uri "https://github.com/maly7/animal-rescue-config"
+  echo "Configuring Application Configuration Service to use repo: https://github.com/spring-cloud-services-samples/animal-rescue"
+  az spring-cloud application-configuration-service git repo add --name animal-rescue-config --label Azure --patterns "default,backend" --uri "https://github.com/spring-cloud-services-samples/animal-rescue" --search-paths config
 }
 
 function create_backend_app() {

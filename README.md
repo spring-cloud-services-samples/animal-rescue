@@ -261,9 +261,10 @@ Create a configuration repository for Application Configuration Service using th
 
 ```shell
     az spring-cloud application-configuration-service git repo add --name animal-rescue-config \
-        --label main \
+        --label Azure \
         --patterns "default,backend" \
-        --uri "https://github.com/maly7/animal-rescue-config"
+        --uri "https://github.com/spring-cloud-services-samples/animal-rescue" \
+        --search-paths config
 ```
 
 ### Configure Tanzu Build Service
