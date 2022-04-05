@@ -379,7 +379,7 @@ Create an Application registration with Azure AD and save the output.
     az ad app create --display-name animal-rescue > ad.json
 ```
 
-Retrieve the Application (Client) ID and collect the client secret:
+Retrieve the Application ID and collect the client secret:
 
 ```shell
     export APPLICATION_ID=$(cat ad.json | jq -r '.appId')
