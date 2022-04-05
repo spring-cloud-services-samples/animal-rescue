@@ -363,17 +363,6 @@ Assign an endpoint to API Portal and open it in a browser:
 
 ## Unit 2 - Configure Single Sign On
 
-In this section, you will configure SSO for Spring Cloud Gateway.
-
-### Cleanup Previous Resources
-
-Before getting started, cleanup resources from the previous section:
-
-```shell
-    az spring-cloud gateway route-config remove --name $BACKEND_APP
-    az spring-cloud gateway route-config remove --name $FRONTEND_APP
-```
-
 ### Register Application with Azure AD
 
 Create an Application registration with Azure AD and save the output.
@@ -388,6 +377,12 @@ Retrieve the Application (Client) ID and collect the client secret:
     export APPLICATION_ID=$(cat ad.json | jq -r '.appId')
     
     az ad app credential reset --id $APPLICATION_ID --append > sso.json
+```
+
+Assign a Service Principal to the Application Registration
+
+```shell
+    az ad sp create --id $APPLICATION_ID
 ```
 
 More detailed instructions can be found [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app).
@@ -410,6 +405,16 @@ and verify the environment variables are set:
 The `ISSUER_URI` shhould take the form `https://login.microsoftonline.com/$TENANT_ID/v2.0`
 The `JWK_SET_URI` should take the form `https://login.microsoftonline.com/$TENANT_ID/discovery/v2.0/keys`
 
+Add the necessary redirect URIs to the Azure AD Application Registration:
+
+```shell
+  az ad app update --id $APPLICATION_ID \
+      --reply-urls "https://$GATEWAY_URL/login/oauth2/code/sso" "https://$PORTAL_URL/oauth2-redirect.html" "https://$PORTAL_URL/login/oauth2/code/sso"
+```
+
+Detailed information about redirect URIs can be found [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app#add-a-redirect-uri).
+
+
 ### Configure Spring Cloud Gateway
 
 Configure Spring Cloud Gateway with SSO enabled:
@@ -429,45 +434,21 @@ Configure Spring Cloud Gateway with SSO enabled:
           --issuer-uri $ISSUER_URI
 ```
 
-Configure API Portal with SSO enabled:
+Update routing rules for the backend and frontend applications:
 
 ```shell
-    az spring-cloud api-portal update --assign-endpoint true
-    export PORTAL_URL=$(az spring-cloud api-portal show | jq -r '.properties.url')
-    
-    az spring-cloud api-portal update \
-      --client-id $CLIENT_ID \
-      --client-secret $CLIENT_SECRET\
-      --scope "openid,profile,email" \
-      --issuer-uri $ISSUER_URI
-```
-
-Create routing rules for the backend and frontend applications:
-
-```shell
-    az spring-cloud gateway route-config create \
+    az spring-cloud gateway route-config update \
         --name $BACKEND_APP \
         --app-name $BACKEND_APP \
         --routes-file backend/asc/api-route-config.json
 
-    az spring-cloud gateway route-config create \
+    az spring-cloud gateway route-config update \
         --name $FRONTEND_APP \
         --app-name $FRONTEND_APP \
         --routes-file frontend/asc/api-route-config.json
 ```
 
-### Add Redirect URIs to Azure AD
-
-Add the necessary redirect URIs to the Azure AD Application Registration:
-
-```shell
-  az ad app update --id $APPLICATION_ID \
-      --reply-urls "https://$GATEWAY_URL/login/oauth2/code/sso" "https://$PORTAL_URL/oauth2-redirect.html" "https://$PORTAL_URL/login/oauth2/code/sso"
-```
-
-Detailed information about redirect URIs can be found [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app#add-a-redirect-uri).
-
-### Deploy Spring Boot app with SSO
+### Update Spring Boot app with SSO
 
 Update the backend application to provide the necessary environment variable:
 
@@ -493,11 +474,13 @@ configured SSO provider.
 Configure API Portal with SSO enabled:
 
 ```shell
+    export PORTAL_URL=$(az spring-cloud api-portal show | jq -r '.properties.url')
+    
     az spring-cloud api-portal update \
-          --client-id $CLIENT_ID \
-          --client-secret $CLIENT_SECRET \
-          --scope $SCOPE \
-          --issuer-uri $ISSUER_URI
+      --client-id $CLIENT_ID \
+      --client-secret $CLIENT_SECRET\
+      --scope "openid,profile,email" \
+      --issuer-uri $ISSUER_URI
 ```
 
 ### Explore the API using API Portal
@@ -559,7 +542,6 @@ Create a new database for the application to use:
       --resource-group $RESOURCE_GROUP \
       --name animals \
       --server-name $MYSQL_SERVER_NAME
-
 ```
 
 ### Connect Application to MySQL
@@ -579,7 +561,7 @@ Using the Azure CLI, connect the application to MySQL:
       --secret name=$MYSQL_ADMIN_USER secret=$MYSQL_ADMIN_PASSWORD 
 ```
 
-Update the backend application with flyway enabled:
+Update the backend application with flyway enabled to manage the schema in the new database:
 
 ```shell
     az spring-cloud app update \
