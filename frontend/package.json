@@ -15,15 +15,11 @@
     "start": "npm run build && (cd server && npm start)",
     "start-local": "wait-on tcp:8080 && REACT_APP_LOGIN_URI=http://localhost:8080/login REACT_APP_LOGOUT_URI=http://localhost:8080/logout react-scripts start",
     "build": "REACT_APP_BACKEND_BASE_URI=/api react-scripts build",
-    "lint": "eslint src",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "proxy": "http://localhost:8080",
   "homepage": "/rescue",
-  "eslintConfig": {
-    "extends": "react-app"
-  },
   "browserslist": {
     "production": [
       ">0.2%",
