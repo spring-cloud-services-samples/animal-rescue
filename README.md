@@ -473,8 +473,8 @@ Retrieve the URL for Spring Cloud Gateway and open it in a browser:
     open "https://$GATEWAY_URL"
 ```
 
-You should see the Animal Rescue Application, and be able to log in using the
-configured SSO provider. 
+You should see the Animal Rescue Application, and be able to log in using your
+Azure AD Credentials. 
 
 ### Configure SSO for API Portal 
 
@@ -553,7 +553,7 @@ Create a new database for the application to use:
 
 ### Connect Application to MySQL
 
-Using the Azure CLI, connect the application to MySQL:
+Using the Azure CLI, connect the application to MySQL with a Service Connector:
 
 ```shell
     az spring-cloud connection create mysql \

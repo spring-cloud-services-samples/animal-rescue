@@ -22,4 +22,4 @@ spring:
           jwk-set-uri: http://any.uaa.uri/token_keys
 
 animal-rescue:
-  adoption-request-limit: 1
+  adoption-request-limit: 10
