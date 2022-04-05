@@ -219,6 +219,14 @@ Configure diagnostic settings for the Azure Spring Cloud Service:
         --workspace ${LOG_ANALYTICS_RESOURCE_ID} \
         --logs '[
              {
+               "category": "ApplicationConsole",
+               "enabled": true,
+               "retentionPolicy": {
+                 "enabled": false,
+                 "days": 0
+               }
+             },
+             {
                 "category": "SystemLogs",
                 "enabled": true,
                 "retentionPolicy": {
