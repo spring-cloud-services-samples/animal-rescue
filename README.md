@@ -174,7 +174,7 @@ Create an instance of Azure Spring Cloud Enterprise.
             --enable-api-portal
 ```
 
-The service instance will take around five minutes to deploy.
+The service instance will take around 10-15 minutes to deploy.
 
 Set your default resource group name and cluster name using the following commands:
 
@@ -208,7 +208,7 @@ Retrieve the resource ID for the recently create Azure Spring Cloud Service and 
 
     export SPRING_CLOUD_RESOURCE_ID=$(az spring-cloud show \
         --name ${SPRING_CLOUD_SERVICE} \
-        --resource-group ${RESOURCE_GROUP} | jq -r '.id'
+        --resource-group ${RESOURCE_GROUP} | jq -r '.id')
 ```
 
 Configure diagnostic settings for the Azure Spring Cloud Service:
@@ -218,14 +218,6 @@ Configure diagnostic settings for the Azure Spring Cloud Service:
         --resource ${SPRING_CLOUD_RESOURCE_ID} \
         --workspace ${LOG_ANALYTICS_RESOURCE_ID} \
         --logs '[
-             {
-               "category": "ApplicationConsole",
-               "enabled": true,
-               "retentionPolicy": {
-                 "enabled": false,
-                 "days": 0
-               }
-             },
              {
                 "category": "SystemLogs",
                 "enabled": true,
@@ -380,68 +372,49 @@ Before getting started, cleanup resources from the previous section:
 ```shell
     az spring-cloud gateway route-config remove --name $BACKEND_APP
     az spring-cloud gateway route-config remove --name $FRONTEND_APP
-    
-    az spring-cloud gateway clear
 ```
 
 ### Register Application with Azure AD
 
-Follow the instructions [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app)
-to register an Application with Azure AD.
+Create an Application registration with Azure AD and save the output.
 
-After completing the registration, the application client id can be found on the App Registration Overview page
-as "Application (client) ID". This page is shown below:
-
-![](./media/app-registration-1.png)
-
-To obtain a client secret, follow the detailed instructions [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app#add-a-client-secret)
-ensuring the secret value is copied as it will not be displayed again.
-
-Next obtain the Organization ID. This is shown on the App Registration Overview page as "Directory (tenant) ID".
-This page is shown below:
-
-![](./media/app-registration-2.png)
-
-Using the Organization ID, the `jwk uri` takes the form:
-
-```text
-   https://login.microsoftonline.com/$ORGANIZATION_ID/discovery/v2.0/keys
+```shell
+    az ad app create --display-name animal-rescue > ad.json
 ```
 
-Using the Organization ID, the `issuer uri` takes the form:
+Retrieve the Application (Client) ID and collect the client secret:
 
-```text
-  https://login.microsoftonline.com/$ORGANIZATION_ID/v2.0
+```shell
+    export APPLICATION_ID=$(cat ad.json | jq -r '.appId')
+    
+    az ad app credential reset --id $APPLICATION_ID --append > sso.json
 ```
+
+More detailed instructions can be found [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app).
 
 ### Prepare your environment for deployments
 
-Create a bash script with environment variables by making a copy of the supplied template:
+Set the environment using the provided script that reads from `sso.json` created in the previous step
+and verify the environment variables are set:
 
 ```shell
-    cp ./scripts/setup-sso-variables-azure-template.sh ./scripts/setup-sso-variables-azure.sh
+    source ./scripts/setup-sso-variables-azure-ad.sh
+    
+    echo $CLIENT_ID
+    echo $CLIENT_SECRET
+    echo $TENANT_ID
+    echo $ISSUER_URI
+    echo $JWK_SET_URI
 ```
 
-Open `./scripts/setup-sso-variables-azure.sh` and enter the information obtained during the previous step:
-
-```shell
-    export CLIENT_ID={your_client_id}         # customize this
-    export CLIENT_SECRET={your_client_secret} # customize this
-    export ISSUER_URI={your_issuer_uri}       # customize this
-    export JWK_SET_URI={your_jwk_set_uri}     # customize this
-```
-
-Then, set the environment:
-```shell
-    source ./scripts/setup-sso-variables-azure.sh
-```
+The `ISSUER_URI` shhould take the form `https://login.microsoftonline.com/$TENANT_ID/v2.0`
+The `JWK_SET_URI` should take the form `https://login.microsoftonline.com/$TENANT_ID/discovery/v2.0/keys`
 
 ### Configure Spring Cloud Gateway
 
 Configure Spring Cloud Gateway with SSO enabled:
 
 ```shell
-    az spring-cloud gateway update --assign-endpoint true
     export GATEWAY_URL=$(az spring-cloud gateway show | jq -r '.properties.url')
 
     az spring-cloud gateway update \
@@ -485,18 +458,12 @@ Create routing rules for the backend and frontend applications:
 
 ### Add Redirect URIs to Azure AD
 
-Obtain the necessary redirect URIs using this script:
+Add the necessary redirect URIs to the Azure AD Application Registration:
 
 ```shell
-   echo "https://$GATEWAY_URL/login/oauth2/code/sso"
-   echo "https://$PORTAL_URL/oauth2-redirect.html"
-   echo "https://$PORTAL_URL/login/oauth2/code/sso"
+  az ad app update --id $APPLICATION_ID \
+      --reply-urls "https://$GATEWAY_URL/login/oauth2/code/sso" "https://$PORTAL_URL/oauth2-redirect.html" "https://$PORTAL_URL/login/oauth2/code/sso"
 ```
-
-In the Azure Portal, navigate to the App Registration in Azure AD. From there, Navigate to Authentication in order to add
-the redirect URIs. This page is shown below:
-
-![The Azure portal page for adding redirect URIs](media/redirect-uris.png)
 
 Detailed information about redirect URIs can be found [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app#add-a-redirect-uri).
 
