@@ -385,12 +385,11 @@ Assign a Service Principal to the Application Registration
     az ad sp create --id $APPLICATION_ID
 ```
 
-More detailed instructions can be found [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app).
+More detailed instructions on Application Registrations can be found [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app).
 
 ### Prepare your environment for deployments
 
-Set the environment using the provided script that reads from `sso.json` created in the previous step
-and verify the environment variables are set:
+Set the environment using the provided script and verify the environment variables are set:
 
 ```shell
     source ./scripts/setup-sso-variables-azure-ad.sh
