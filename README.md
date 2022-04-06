@@ -92,6 +92,7 @@ Install the Azure Spring Cloud extension for the Azure CLI using the following c
 Note - `spring-cloud` CLI extension `3.0.0` or later is a pre-requisite to enable the
 latest Enterprise tier functionality to configure VMware Tanzu Components 
 
+WHAT IS THIS ABOUT? upgrading older versions to the new onese? 
 ```shell
     az extension remove --name spring-cloud
     az extension add --name spring-cloud
@@ -121,11 +122,11 @@ Create a bash script with environment variables by making a copy of the supplied
 Open `./scripts/setup-env-variables-azure.sh` and enter the following information:
 
 ```shell
-    export SUBSCRIPTION=subscription-id # customize this
-    export RESOURCE_GROUP=resource-group-name # customize this
-    export SPRING_CLOUD_SERVICE=azure-spring-cloud-name # customize this
-    export LOG_ANALYTICS_WORKSPACE=log-analytics-name # customize this
-    export REGION=region-name # customize this
+    export SUBSCRIPTION=subscription-id # replace it with your subscription-id
+    export RESOURCE_GROUP=resource-group-name # existing resource group or one that will be created in next steps. 
+    export SPRING_CLOUD_SERVICE=azure-spring-cloud-name # name of the serivce that will be created in the next steps.
+    export LOG_ANALYTICS_WORKSPACE=log-analytics-name # existing workspace of one that will be created in next steps
+    export REGION=region-name # choose a region with ASC-E support
 ```
 
 Then, set the environment:
@@ -145,7 +146,7 @@ Login to the Azure CLI and choose your active subscription. Be sure to choose th
 ### Create Azure Spring Cloud service instance
 Prepare a name for your Azure Spring Cloud service.  The name must be between 4 and 32 characters long and can contain only lowercase letters, numbers, and hyphens.  The first character of the service name must be a letter and the last character must be either a letter or a number.
 
-Create a resource group to contain your Azure Spring Cloud service.
+Create a resource group to contain your Azure Spring Cloud service. (Skip this if you are using existing resource group)
 
 ```shell
     az group create --name ${RESOURCE_GROUP} \
@@ -189,7 +190,7 @@ Set your default resource group name and cluster name using the following comman
 
 ### Configure Log Analytics for Azure Spring Cloud
 
-Create a Log Analytics Workspace to be used for your Azure Spring Cloud service.
+Create a Log Analytics Workspace to be used for your Azure Spring Cloud service. (Skip this if you are using existing worksapce)
 
 ```shell
     az monitor log-analytics workspace create \
@@ -516,8 +517,8 @@ Create a bash script with environment variables by making a copy of the supplied
 Open `./scripts/setup-env-variables-azure-mysql.sh` and enter information to be used for the MySQL database:
 
 ```shell
-    export RESOURCE_GROUP=resource-group-name   # customize this
-    export REGION=region-name                   # customize this
+    export RESOURCE_GROUP=resource-group-name   # existing resource group name
+    export REGION=region-name                   # your region with ASC-E support
     export MYSQL_ADMIN_USER=change-name         # customize this
     export MYSQL_ADMIN_PASSWORD=change-me       # customize this
     export MYSQL_SERVER_NAME=animal-resuce-database
