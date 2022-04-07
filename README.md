@@ -104,7 +104,7 @@ latest Enterprise tier functionality to configure VMware Tanzu Components
 ```shell
     mkdir source-code
     cd source-code
-    git clone --branch Azure https://github.com/spring-cloud-services-samples/animal-rescue
+    git clone --branch Azure https://github.com/Azure-Samples/animal-rescue
     cd animal-rescue
 ```
 
