@@ -87,14 +87,15 @@ To run the code in this article in Azure Cloud Shell:
 Install the Azure Spring Cloud extension for the Azure CLI using the following command
 
 ```shell
-    az extension add --name spring-cloud
+az extension add --name spring-cloud
 ```
 Note - `spring-cloud` CLI extension `3.0.0` or later is a pre-requisite to enable the
-latest Enterprise tier functionality to configure VMware Tanzu Components 
+latest Enterprise tier functionality to configure VMware Tanzu Components. Use the following 
+command to remove previous versions and install the latest Enterprise tier extension:
 
 ```shell
-    az extension remove --name spring-cloud
-    az extension add --name spring-cloud
+az extension remove --name spring-cloud
+az extension add --name spring-cloud
 ```
 
 ## Clone the repo
@@ -102,10 +103,10 @@ latest Enterprise tier functionality to configure VMware Tanzu Components
 ### Create a new folder and clone the sample app repository to your Azure Cloud account
 
 ```shell
-    mkdir source-code
-    cd source-code
-    git clone --branch Azure https://github.com/Azure-Samples/animal-rescue
-    cd animal-rescue
+mkdir source-code
+cd source-code
+git clone --branch Azure https://github.com/Azure-Samples/animal-rescue
+cd animal-rescue
 ```
 
 ## Unit-1 - Deploy and build Applications
@@ -115,31 +116,31 @@ latest Enterprise tier functionality to configure VMware Tanzu Components
 Create a bash script with environment variables by making a copy of the supplied template:
 
 ```shell
-    cp ./scripts/setup-env-variables-azure-template.sh ./scripts/setup-env-variables-azure.sh
+cp ./scripts/setup-env-variables-azure-template.sh ./scripts/setup-env-variables-azure.sh
 ```
 
 Open `./scripts/setup-env-variables-azure.sh` and enter the following information:
 
 ```shell
-    export SUBSCRIPTION=subscription-id # customize this
-    export RESOURCE_GROUP=resource-group-name # customize this
-    export SPRING_CLOUD_SERVICE=azure-spring-cloud-name # customize this
-    export LOG_ANALYTICS_WORKSPACE=log-analytics-name # customize this
-    export REGION=region-name # customize this
+export SUBSCRIPTION=subscription-id                 # replace it with your subscription-id
+export RESOURCE_GROUP=resource-group-name           # existing resource group or one that will be created in next steps
+export SPRING_CLOUD_SERVICE=azure-spring-cloud-name # name of the service that will be created in the next steps
+export LOG_ANALYTICS_WORKSPACE=log-analytics-name   # existing workspace of one that will be created in next steps
+export REGION=region-name                           # choose a region with Enterprise tier support
 ```
 
 Then, set the environment:
 ```shell
-    source ./scripts/setup-env-variables-azure.sh
+source ./scripts/setup-env-variables-azure.sh
 ```
 
 ### Login to Azure
 Login to the Azure CLI and choose your active subscription. Be sure to choose the active subscription that is whitelisted for Azure Spring Cloud
 
 ```shell
-    az login
-    az account list -o table
-    az account set --subscription ${SUBSCRIPTION}
+az login
+az account list -o table
+az account set --subscription ${SUBSCRIPTION}
 ```
 
 ### Create Azure Spring Cloud service instance
@@ -147,9 +148,11 @@ Prepare a name for your Azure Spring Cloud service.  The name must be between 4 
 
 Create a resource group to contain your Azure Spring Cloud service.
 
+> Note: This step can be skipped if using an existing resource group
+
 ```shell
-    az group create --name ${RESOURCE_GROUP} \
-        --location ${REGION}
+az group create --name ${RESOURCE_GROUP} \
+    --location ${REGION}
 ```
 
 Accept the legal terms and privacy statements for the Enterprise tier.
@@ -157,21 +160,21 @@ Accept the legal terms and privacy statements for the Enterprise tier.
 > Note: This step is necessary only if your subscription has never been used to create an Enterprise tier instance of Azure Spring Cloud.
 
 ```shell
-    az provider register --namespace Microsoft.SaaS
-    az term accept --publisher vmware-inc --product azure-spring-cloud-vmware-tanzu-2 --plan tanzu-asc-ent-mtr
+az provider register --namespace Microsoft.SaaS
+az term accept --publisher vmware-inc --product azure-spring-cloud-vmware-tanzu-2 --plan tanzu-asc-ent-mtr
 ```
 
 Create an instance of Azure Spring Cloud Enterprise.
 
 ```shell
-   az spring-cloud create --name ${SPRING_CLOUD_SERVICE} \
-            --resource-group ${RESOURCE_GROUP} \
-            --location ${REGION} \
-            --sku Enterprise \
-            --enable-application-configuration-service \
-            --enable-service-registry \
-            --enable-gateway \
-            --enable-api-portal
+az spring-cloud create --name ${SPRING_CLOUD_SERVICE} \
+    --resource-group ${RESOURCE_GROUP} \
+    --location ${REGION} \
+    --sku Enterprise \
+    --enable-application-configuration-service \
+    --enable-service-registry \
+    --enable-gateway \
+    --enable-api-portal
 ```
 
 The service instance will take around 10-15 minutes to deploy.
@@ -179,10 +182,10 @@ The service instance will take around 10-15 minutes to deploy.
 Set your default resource group name and cluster name using the following commands:
 
 ```shell
-    az configure --defaults \
-        group=${RESOURCE_GROUP} \
-        location=${REGION} \
-        spring-cloud=${SPRING_CLOUD_SERVICE}
+az configure --defaults \
+    group=${RESOURCE_GROUP} \
+    location=${REGION} \
+    spring-cloud=${SPRING_CLOUD_SERVICE}
 ```
 
 > Note: wait for the instance of Azure Spring Cloud to be ready before continuing
@@ -191,68 +194,69 @@ Set your default resource group name and cluster name using the following comman
 
 Create a Log Analytics Workspace to be used for your Azure Spring Cloud service.
 
+> Note: This step can be skipped if using an existing workspace
+
 ```shell
-    az monitor log-analytics workspace create \
-      --workspace-name ${LOG_ANALYTICS_WORKSPACE} \
-      --location ${REGION} \
-      --resource-group ${RESOURCE_GROUP} \
-      
+az monitor log-analytics workspace create \
+  --workspace-name ${LOG_ANALYTICS_WORKSPACE} \
+  --location ${REGION} \
+  --resource-group ${RESOURCE_GROUP} \      
 ```
 
 Retrieve the resource ID for the recently create Azure Spring Cloud Service and Log Analytics Workspace:
 
 ```shell
-    export LOG_ANALYTICS_RESOURCE_ID=$(az monitor log-analytics workspace show \
-        --resource-group ${RESOURCE_GROUP} \
-        --workspace-name ${LOG_ANALYTICS_WORKSPACE} | jq -r '.id')
+export LOG_ANALYTICS_RESOURCE_ID=$(az monitor log-analytics workspace show \
+    --resource-group ${RESOURCE_GROUP} \
+    --workspace-name ${LOG_ANALYTICS_WORKSPACE} | jq -r '.id')
 
-    export SPRING_CLOUD_RESOURCE_ID=$(az spring-cloud show \
-        --name ${SPRING_CLOUD_SERVICE} \
-        --resource-group ${RESOURCE_GROUP} | jq -r '.id')
+export SPRING_CLOUD_RESOURCE_ID=$(az spring-cloud show \
+    --name ${SPRING_CLOUD_SERVICE} \
+    --resource-group ${RESOURCE_GROUP} | jq -r '.id')
 ```
 
 Configure diagnostic settings for the Azure Spring Cloud Service:
 
 ```shell
-    az monitor diagnostic-settings create --name "send-logs-and-metrics-to-log-analytics" \
-        --resource ${SPRING_CLOUD_RESOURCE_ID} \
-        --workspace ${LOG_ANALYTICS_RESOURCE_ID} \
-        --logs '[
-             {
-               "category": "ApplicationConsole",
-               "enabled": true,
-               "retentionPolicy": {
-                 "enabled": false,
-                 "days": 0
-               }
-             },
-             {
-                "category": "SystemLogs",
-                "enabled": true,
-                "retentionPolicy": {
-                  "enabled": false,
-                  "days": 0
-                }
-              },
-             {
-                "category": "IngressLogs",
-                "enabled": true,
-                "retentionPolicy": {
-                  "enabled": false,
-                  "days": 0
-                 }
-               }
-           ]' \
-           --metrics '[
-             {
-               "category": "AllMetrics",
-               "enabled": true,
-               "retentionPolicy": {
-                 "enabled": false,
-                 "days": 0
-               }
+az monitor diagnostic-settings create --name "send-logs-and-metrics-to-log-analytics" \
+    --resource ${SPRING_CLOUD_RESOURCE_ID} \
+    --workspace ${LOG_ANALYTICS_RESOURCE_ID} \
+    --logs '[
+         {
+           "category": "ApplicationConsole",
+           "enabled": true,
+           "retentionPolicy": {
+             "enabled": false,
+             "days": 0
+           }
+         },
+         {
+            "category": "SystemLogs",
+            "enabled": true,
+            "retentionPolicy": {
+              "enabled": false,
+              "days": 0
+            }
+          },
+         {
+            "category": "IngressLogs",
+            "enabled": true,
+            "retentionPolicy": {
+              "enabled": false,
+              "days": 0
              }
-           ]'
+           }
+       ]' \
+       --metrics '[
+         {
+           "category": "AllMetrics",
+           "enabled": true,
+           "retentionPolicy": {
+             "enabled": false,
+             "days": 0
+           }
+         }
+       ]'
 ```
 
 ### Configure Application Configuration Service
@@ -272,9 +276,9 @@ Create a configuration repository for Application Configuration Service using th
 Create a builder in Tanzu Build Service for the frontend application using the Azure CLI:
 
 ```shell
-    az spring-cloud build-service builder create -n nodejs-only \
-        --builder-file frontend/asc/nodejs_builder.json \
-        --no-wait
+az spring-cloud build-service builder create -n nodejs-only \
+    --builder-file frontend/asc/nodejs_builder.json \
+    --no-wait
 ```
 
 ### Create applications in Azure Spring Cloud
@@ -282,8 +286,8 @@ Create a builder in Tanzu Build Service for the frontend application using the A
 Create an application for the frontend and another for the backend:
 
 ```shell
-    az spring-cloud app create --name $BACKEND_APP --instance-count 1 --memory 1Gi
-    az spring-cloud app create --name $FRONTEND_APP --instance-count 1 --memory 1Gi
+az spring-cloud app create --name $BACKEND_APP --instance-count 1 --memory 1Gi
+az spring-cloud app create --name $FRONTEND_APP --instance-count 1 --memory 1Gi
 ```
 
 ### Bind to Application Configuration Service
@@ -291,7 +295,7 @@ Create an application for the frontend and another for the backend:
 Bind the backend application to Application Configuration Service:
 
 ```shell
-    az spring-cloud application-configuration-service bind --app $BACKEND_APP
+az spring-cloud application-configuration-service bind --app $BACKEND_APP
 ```
 
 ### Configure Spring Cloud Gateway
@@ -300,29 +304,29 @@ Assign an endpoint and update the Spring Cloud Gateway configuration with API
 information:
 
 ```shell
-    az spring-cloud gateway update --assign-endpoint true
-    export GATEWAY_URL=$(az spring-cloud gateway show | jq -r '.properties.url')
+az spring-cloud gateway update --assign-endpoint true
+export GATEWAY_URL=$(az spring-cloud gateway show | jq -r '.properties.url')
     
-    az spring-cloud gateway update \
-      --api-description "Animal Rescue API" \
-      --api-title "Animal Rescue" \
-      --api-version "v.01" \
-      --server-url "https://$GATEWAY_URL" \
-      --allowed-origins "*"
+az spring-cloud gateway update \
+    --api-description "Animal Rescue API" \
+    --api-title "Animal Rescue" \
+    --api-version "v.01" \
+    --server-url "https://$GATEWAY_URL" \
+    --allowed-origins "*"
 ```
 
 Create routing rules for the backend and frontend applications:
 
 ```shell
-    az spring-cloud gateway route-config create \
-        --name $BACKEND_APP \
-        --app-name $BACKEND_APP \
-        --routes-file backend/asc/api-route-config-no-sso.json
+az spring-cloud gateway route-config create \
+    --name $BACKEND_APP \
+    --app-name $BACKEND_APP \
+    --routes-file backend/asc/api-route-config-no-sso.json
 
-    az spring-cloud gateway route-config create \
-        --name $FRONTEND_APP \
-        --app-name $FRONTEND_APP \
-        --routes-file frontend/asc/api-route-config-no-sso.json
+az spring-cloud gateway route-config create \
+    --name $FRONTEND_APP \
+    --app-name $FRONTEND_APP \
+    --routes-file frontend/asc/api-route-config-no-sso.json
 ```
 
 ### Build and Deploy Applications
@@ -331,17 +335,17 @@ Deploy and build the backend application, specifying its configuration file patt
 Application Configuration Service:
 
 ```shell
-    az spring-cloud app deploy --name $BACKEND_APP \
-          --config-file-pattern backend \
-          --source-path backend/
+az spring-cloud app deploy --name $BACKEND_APP \
+    --config-file-pattern backend \
+    --source-path backend/
 ```
 
 Deploy and build the frontend application using the builder created earlier:
 
 ```shell
-    az spring-cloud app deploy --name $FRONTEND_APP \
-        --builder nodejs-only \
-        --source-path frontend/
+az spring-cloud app deploy --name $FRONTEND_APP \
+    --builder nodejs-only \
+    --source-path frontend/
 ```
 
 ### Access the Application through Spring Cloud Gateway
@@ -349,7 +353,7 @@ Deploy and build the frontend application using the builder created earlier:
 Retrieve the URL for Spring Cloud Gateway and open it in a browser:
 
 ```shell
-    open "https://$GATEWAY_URL"
+open "https://$GATEWAY_URL"
 ```
 
 You should see the Animal Rescue Application:
@@ -361,10 +365,10 @@ You should see the Animal Rescue Application:
 Assign an endpoint to API Portal and open it in a browser:
 
 ```shell
-    az spring-cloud api-portal update --assign-endpoint true
-    export PORTAL_URL=$(az spring-cloud api-portal show | jq -r '.properties.url')
-    
-    open "https://$PORTAL_URL"
+az spring-cloud api-portal update --assign-endpoint true
+export PORTAL_URL=$(az spring-cloud api-portal show | jq -r '.properties.url')
+
+open "https://$PORTAL_URL"
 ```
 
 ![](./media/api-portal.png)
@@ -376,21 +380,21 @@ Assign an endpoint to API Portal and open it in a browser:
 Create an Application registration with Azure AD and save the output.
 
 ```shell
-    az ad app create --display-name animal-rescue > ad.json
+az ad app create --display-name animal-rescue > ad.json
 ```
 
 Retrieve the Application ID and collect the client secret:
 
 ```shell
-    export APPLICATION_ID=$(cat ad.json | jq -r '.appId')
-    
-    az ad app credential reset --id $APPLICATION_ID --append > sso.json
+export APPLICATION_ID=$(cat ad.json | jq -r '.appId')
+
+az ad app credential reset --id $APPLICATION_ID --append > sso.json
 ```
 
 Assign a Service Principal to the Application Registration
 
 ```shell
-    az ad sp create --id $APPLICATION_ID
+az ad sp create --id $APPLICATION_ID
 ```
 
 More detailed instructions on Application Registrations can be found [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app).
@@ -400,13 +404,13 @@ More detailed instructions on Application Registrations can be found [here](http
 Set the environment using the provided script and verify the environment variables are set:
 
 ```shell
-    source ./scripts/setup-sso-variables-azure-ad.sh
-    
-    echo $CLIENT_ID
-    echo $CLIENT_SECRET
-    echo $TENANT_ID
-    echo $ISSUER_URI
-    echo $JWK_SET_URI
+source ./scripts/setup-sso-variables-azure-ad.sh
+
+echo $CLIENT_ID
+echo $CLIENT_SECRET
+echo $TENANT_ID
+echo $ISSUER_URI
+echo $JWK_SET_URI
 ```
 
 The `ISSUER_URI` shhould take the form `https://login.microsoftonline.com/$TENANT_ID/v2.0`
@@ -415,8 +419,8 @@ The `JWK_SET_URI` should take the form `https://login.microsoftonline.com/$TENAN
 Add the necessary redirect URIs to the Azure AD Application Registration:
 
 ```shell
-  az ad app update --id $APPLICATION_ID \
-      --reply-urls "https://$GATEWAY_URL/login/oauth2/code/sso" "https://$PORTAL_URL/oauth2-redirect.html" "https://$PORTAL_URL/login/oauth2/code/sso"
+az ad app update --id $APPLICATION_ID \
+    --reply-urls "https://$GATEWAY_URL/login/oauth2/code/sso" "https://$PORTAL_URL/oauth2-redirect.html" "https://$PORTAL_URL/login/oauth2/code/sso"
 ```
 
 Detailed information about redirect URIs can be found [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app#add-a-redirect-uri).
@@ -427,32 +431,32 @@ Detailed information about redirect URIs can be found [here](https://docs.micros
 Configure Spring Cloud Gateway with SSO enabled:
 
 ```shell
-    export GATEWAY_URL=$(az spring-cloud gateway show | jq -r '.properties.url')
+export GATEWAY_URL=$(az spring-cloud gateway show | jq -r '.properties.url')
 
-    az spring-cloud gateway update \
-          --api-description "Animal Rescue API" \
-          --api-title "Animal Rescue" \
-          --api-version "v.01" \
-          --server-url "https://$GATEWAY_URL" \
-          --allowed-origins "*" \
-          --client-id $CLIENT_ID \
-          --client-secret $CLIENT_SECRET \
-          --scope $SCOPE \
-          --issuer-uri $ISSUER_URI
+az spring-cloud gateway update \
+    --api-description "Animal Rescue API" \
+    --api-title "Animal Rescue" \
+    --api-version "v.01" \
+    --server-url "https://$GATEWAY_URL" \
+    --allowed-origins "*" \
+    --client-id $CLIENT_ID \
+    --client-secret $CLIENT_SECRET \
+    --scope $SCOPE \
+    --issuer-uri $ISSUER_URI
 ```
 
 Update routing rules for the backend and frontend applications:
 
 ```shell
-    az spring-cloud gateway route-config update \
-        --name $BACKEND_APP \
-        --app-name $BACKEND_APP \
-        --routes-file backend/asc/api-route-config.json
+az spring-cloud gateway route-config update \
+    --name $BACKEND_APP \
+    --app-name $BACKEND_APP \
+    --routes-file backend/asc/api-route-config.json
 
-    az spring-cloud gateway route-config update \
-        --name $FRONTEND_APP \
-        --app-name $FRONTEND_APP \
-        --routes-file frontend/asc/api-route-config.json
+az spring-cloud gateway route-config update \
+    --name $FRONTEND_APP \
+    --app-name $FRONTEND_APP \
+    --routes-file frontend/asc/api-route-config.json
 ```
 
 ### Update Spring Boot app with SSO
@@ -460,9 +464,9 @@ Update routing rules for the backend and frontend applications:
 Update the backend application to provide the necessary environment variable:
 
 ```shell
-    az spring-cloud app update \
-        --name $BACKEND_APP \
-        --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" 
+az spring-cloud app update \
+    --name $BACKEND_APP \
+    --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" 
 ```
 
 ### Access the Application through Spring Cloud Gateway
@@ -470,7 +474,7 @@ Update the backend application to provide the necessary environment variable:
 Retrieve the URL for Spring Cloud Gateway and open it in a browser:
 
 ```shell
-    open "https://$GATEWAY_URL"
+open "https://$GATEWAY_URL"
 ```
 
 You should see the Animal Rescue Application, and be able to log in using your
@@ -481,13 +485,13 @@ Azure AD Credentials.
 Configure API Portal with SSO enabled:
 
 ```shell
-    export PORTAL_URL=$(az spring-cloud api-portal show | jq -r '.properties.url')
-    
-    az spring-cloud api-portal update \
-      --client-id $CLIENT_ID \
-      --client-secret $CLIENT_SECRET\
-      --scope "openid,profile,email" \
-      --issuer-uri $ISSUER_URI
+export PORTAL_URL=$(az spring-cloud api-portal show | jq -r '.properties.url')
+
+az spring-cloud api-portal update \
+    --client-id $CLIENT_ID \
+    --client-secret $CLIENT_SECRET\
+    --scope "openid,profile,email" \
+    --issuer-uri $ISSUER_URI
 ```
 
 ### Explore the API using API Portal
@@ -495,7 +499,7 @@ Configure API Portal with SSO enabled:
 Open API Portal in a browser, this will redirect you to log in now:
 
 ```shell
-    open "https://$PORTAL_URL"
+open "https://$PORTAL_URL"
 ```
 
 To access the protected APIs, click Authorize and follow the steps that match your
@@ -503,30 +507,28 @@ SSO provider. Learn more about API Authorization with API Portal [here](https://
 
 ## Unit 3 - Connect to Azure Database for MySQL 
 
-In this unit, you will create an Azure Database for MySQL for your app to use.
+In this unit, you will create an Azure Database for MySQL for use in your app.
 
 ### Prepare your environment
 
 Create a bash script with environment variables by making a copy of the supplied template:
 
 ```shell
-    cp ./scripts/setup-env-variables-azure-mysql-template.sh ./scripts/setup-env-variables-azure-mysql.sh
+cp ./scripts/setup-env-variables-azure-mysql-template.sh ./scripts/setup-env-variables-azure-mysql.sh
 ```
 
 Open `./scripts/setup-env-variables-azure-mysql.sh` and enter information to be used for the MySQL database:
 
 ```shell
-    export RESOURCE_GROUP=resource-group-name   # customize this
-    export REGION=region-name                   # customize this
-    export MYSQL_ADMIN_USER=change-name         # customize this
-    export MYSQL_ADMIN_PASSWORD=change-me       # customize this
-    export MYSQL_SERVER_NAME=animal-resuce-database
+export MYSQL_ADMIN_USER=change-name         # customize this
+export MYSQL_ADMIN_PASSWORD=change-me       # customize this
+export MYSQL_SERVER_NAME=animal-resuce-database
 ```
 
 Then, set the environment:
 
 ```shell
-    source ./scripts/setup-env-variables-azure-mysql.sh
+source ./scripts/setup-env-variables-azure-mysql.sh
 ```
 
 ### Create an Azure Database for MySQL
@@ -534,21 +536,21 @@ Then, set the environment:
 Using the Azure CLI, create an Azure Database for MySQL:
 
 ```shell
-    az mysql server create --resource-group $RESOURCE_GROUP \
-      --name $MYSQL_SERVER_NAME \
-      --location $REGION \
-      --admin-user $MYSQL_ADMIN_USER \
-      --admin-password $MYSQL_ADMIN_PASSWORD \
-      --sku-name GP_Gen5_2
+az mysql server create --resource-group $RESOURCE_GROUP \
+    --name $MYSQL_SERVER_NAME \
+    --location $REGION \
+    --admin-user $MYSQL_ADMIN_USER \
+    --admin-password $MYSQL_ADMIN_PASSWORD \
+    --sku-name GP_Gen5_2
 ```
 
 Create a new database for the application to use:
 
 ```shell
-    az mysql db create \
-      --resource-group $RESOURCE_GROUP \
-      --name animals \
-      --server-name $MYSQL_SERVER_NAME
+az mysql db create \
+    --resource-group $RESOURCE_GROUP \
+    --name animals \
+    --server-name $MYSQL_SERVER_NAME
 ```
 
 ### Connect Application to MySQL
@@ -556,30 +558,30 @@ Create a new database for the application to use:
 Using the Azure CLI, connect the application to MySQL with a Service Connector:
 
 ```shell
-    az spring-cloud connection create mysql \
-      -g $RESOURCE_GROUP \
-      --service $SPRING_CLOUD_SERVICE \
-      --app $BACKEND_APP \
-      --deployment default \
-      --tg $RESOURCE_GROUP \
-      --server $MYSQL_SERVER_NAME \
-      --database animals \
-      --client-type springboot \
-      --secret name=$MYSQL_ADMIN_USER secret=$MYSQL_ADMIN_PASSWORD 
+az spring-cloud connection create mysql \
+    -g $RESOURCE_GROUP \
+    --service $SPRING_CLOUD_SERVICE \
+    --app $BACKEND_APP \
+    --deployment default \
+    --tg $RESOURCE_GROUP \
+    --server $MYSQL_SERVER_NAME \
+    --database animals \
+    --client-type springboot \
+    --secret name=$MYSQL_ADMIN_USER secret=$MYSQL_ADMIN_PASSWORD 
 ```
 
 Update the backend application with flyway enabled to manage the schema in the new database:
 
 ```shell
-    az spring-cloud app update \
-      --name $BACKEND_APP \
-      --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" "SPRING_FLYWAY_ENABLED=true"
+az spring-cloud app update \
+    --name $BACKEND_APP \
+    --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" "SPRING_FLYWAY_ENABLED=true"
 ```
 
 Retrieve the URL for Spring Cloud Gateway and open it in a browser:
 
 ```shell
-    open "https://$GATEWAY_URL"
+open "https://$GATEWAY_URL"
 ```
 
 Now when restarting the application, changes will persist as it now uses a MySQL database

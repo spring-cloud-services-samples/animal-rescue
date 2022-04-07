@@ -1,7 +1,7 @@
-export SUBSCRIPTION=subscription-id # customize this
-export RESOURCE_GROUP=resource-group-name # customize this
-export SPRING_CLOUD_SERVICE=azure-spring-cloud-name # customize this
-export LOG_ANALYTICS_WORKSPACE=log-analytics-name # customize this
-export REGION=region-name # customize this
+export SUBSCRIPTION=subscription-id                 # replace it with your subscription-id
+export RESOURCE_GROUP=resource-group-name           # existing resource group or one that will be created in next steps
+export SPRING_CLOUD_SERVICE=azure-spring-cloud-name # name of the service that will be created in the next steps
+export LOG_ANALYTICS_WORKSPACE=log-analytics-name   # existing workspace of one that will be created in next steps
+export REGION=region-name                           # choose a region with Enterprise tier support
 export BACKEND_APP=animal-rescue-backend
 export FRONTEND_APP=animal-rescue-frontend
