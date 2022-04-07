@@ -264,11 +264,10 @@ az monitor diagnostic-settings create --name "send-logs-and-metrics-to-log-analy
 Create a configuration repository for Application Configuration Service using the Azure CLI:
 
 ```shell
-    az spring-cloud application-configuration-service git repo add --name animal-rescue-config \
-        --label Azure \
-        --patterns "default,backend" \
-        --uri "https://github.com/spring-cloud-services-samples/animal-rescue" \
-        --search-paths config
+az spring-cloud application-configuration-service git repo add --name animal-rescue-config \
+    --label main \
+    --patterns "default,backend" \
+    --uri "https://github.com/Azure-Samples/animal-rescue-config" 
 ```
 
 ### Configure Tanzu Build Service
