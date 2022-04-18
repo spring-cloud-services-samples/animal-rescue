@@ -34,6 +34,8 @@ You will:
 - Open the application
 - Explore the application API with Api Portal
 - Configure Single Sign On (SSO) for the application
+- Bind Applications to Azure Database for MySQL
+- Manage application secrets using Azure KeyVault
 
 ## What you will need
 
@@ -200,7 +202,7 @@ Create a Log Analytics Workspace to be used for your Azure Spring Cloud service.
 az monitor log-analytics workspace create \
   --workspace-name ${LOG_ANALYTICS_WORKSPACE} \
   --location ${REGION} \
-  --resource-group ${RESOURCE_GROUP} \      
+  --resource-group ${RESOURCE_GROUP}   
 ```
 
 Retrieve the resource ID for the recently create Azure Spring Cloud Service and Log Analytics Workspace:
@@ -266,7 +268,7 @@ Create a configuration repository for Application Configuration Service using th
 ```shell
 az spring-cloud application-configuration-service git repo add --name animal-rescue-config \
     --label main \
-    --patterns "default,backend" \
+    --patterns "backend/default,backend/mysql,backend/key-vault" \
     --uri "https://github.com/Azure-Samples/animal-rescue-config" 
 ```
 
@@ -335,8 +337,9 @@ Application Configuration Service:
 
 ```shell
 az spring-cloud app deploy --name $BACKEND_APP \
-    --config-file-pattern backend \
-    --source-path backend/
+    --config-file-patterns backend/default \
+    --source-path backend \
+    --env "SPRING_PROFILES_ACTIVE=azure"
 ```
 
 Deploy and build the frontend application using the builder created earlier:
@@ -465,7 +468,8 @@ Update the backend application to provide the necessary environment variable:
 ```shell
 az spring-cloud app update \
     --name $BACKEND_APP \
-    --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" 
+    --config-file-patterns backend/default \
+    --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" "SPRING_PROFILES_ACTIVE=azure"
 ```
 
 ### Access the Application through Spring Cloud Gateway
@@ -521,7 +525,9 @@ Open `./scripts/setup-env-variables-azure-mysql.sh` and enter information to be 
 ```shell
 export MYSQL_ADMIN_USER=change-name         # customize this
 export MYSQL_ADMIN_PASSWORD=change-me       # customize this
-export MYSQL_SERVER_NAME=animal-resuce-database
+export KEY_VAULT=change-me                  # customize this
+export MYSQL_SERVER_NAME=animal-rescue-database
+export MYSQL_DATABASE_NAME=animals
 ```
 
 Then, set the environment:
@@ -532,49 +538,34 @@ source ./scripts/setup-env-variables-azure-mysql.sh
 
 ### Create an Azure Database for MySQL
 
-Using the Azure CLI, create an Azure Database for MySQL:
+Using the Azure CLI, create an Azure Database for MySQL Flexible Server and Database:
 
 ```shell
-az mysql server create --resource-group $RESOURCE_GROUP \
+az mysql flexible-server create --resource-group $RESOURCE_GROUP \
     --name $MYSQL_SERVER_NAME \
     --location $REGION \
     --admin-user $MYSQL_ADMIN_USER \
     --admin-password $MYSQL_ADMIN_PASSWORD \
-    --sku-name GP_Gen5_2
-```
+    --database-name $MYSQL_DATABASE_NAME \
+    --yes
 
-Create a new database for the application to use:
-
-```shell
-az mysql db create \
-    --resource-group $RESOURCE_GROUP \
-    --name animals \
-    --server-name $MYSQL_SERVER_NAME
+# Allow connections from other Azure Services
+az mysql flexible-server firewall-rule create --rule-name allAzureIPs \
+     --name ${MYSQL_SERVER_NAME} \
+     --resource-group ${RESOURCE_GROUP} \
+     --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0
 ```
 
 ### Connect Application to MySQL
 
-Using the Azure CLI, connect the application to MySQL with a Service Connector:
-
-```shell
-az spring-cloud connection create mysql \
-    -g $RESOURCE_GROUP \
-    --service $SPRING_CLOUD_SERVICE \
-    --app $BACKEND_APP \
-    --deployment default \
-    --tg $RESOURCE_GROUP \
-    --server $MYSQL_SERVER_NAME \
-    --database animals \
-    --client-type springboot \
-    --secret name=$MYSQL_ADMIN_USER secret=$MYSQL_ADMIN_PASSWORD 
-```
-
-Update the backend application with flyway enabled to manage the schema in the new database:
+Update the backend application with the mysql profile activated and provide necessary environment variables
+for the profile:
 
 ```shell
 az spring-cloud app update \
     --name $BACKEND_APP \
-    --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" "SPRING_FLYWAY_ENABLED=true"
+    --config-file-patterns backend/default,backend/mysql \
+    --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" "SPRING_PROFILES_ACTIVE=azure,mysql" "MYSQL_SERVER=$MYSQL_SERVER_NAME" "MYSQL_USERNAME=$MYSQL_ADMIN_USER" "MYSQL_PASSWORD=$MYSQL_ADMIN_PASSWORD" "MYSQL_DATABASE=${MYSQL_DATABASE_NAME}"
 ```
 
 Retrieve the URL for Spring Cloud Gateway and open it in a browser:
@@ -585,6 +576,63 @@ open "https://$GATEWAY_URL"
 
 Now when restarting the application, changes will persist as it now uses a MySQL database
 rather than an in-memory database. 
+
+### Secure MySQL Credentials Using KeyVault
+
+Use Azure Key Vault to store and load secrets to connect to MySQL database
+
+### Create Azure Key Vault and store secrets
+
+Create an Azure Key Vault and store database connection secrets.
+
+```bash
+az keyvault create --name ${KEY_VAULT} -g ${RESOURCE_GROUP}
+export KEYVAULT_URI=$(az keyvault show --name ${KEY_VAULT} | jq -r '.properties.vaultUri')
+```
+
+Store database connection secrets in Key Vault.
+
+```bash
+az keyvault secret set --vault-name ${KEY_VAULT} \
+    --name "MYSQL-SERVER-FULL-NAME" --value ${MYSQL_SERVER_NAME}
+    
+az keyvault secret set --vault-name ${KEY_VAULT} \
+    --name "MYSQL-DATABASE-NAME" --value ${MYSQL_DATABASE_NAME}
+    
+az keyvault secret set --vault-name ${KEY_VAULT} \
+    --name "MYSQL-SERVER-ADMIN-LOGIN-NAME" --value ${MYSQL_ADMIN_USER}
+    
+az keyvault secret set --vault-name ${KEY_VAULT} \
+    --name "MYSQL-SERVER-ADMIN-PASSWORD" --value ${MYSQL_ADMIN_PASSWORD}
+```                      
+
+### Enable Managed Identities for applications in Azure Spring Cloud
+
+Enable System Assigned Identities for applications and export identities to environment.
+
+```bash
+az spring-cloud app identity assign --name ${BACKEND_APP}
+export BACKEND_APP_IDENTITY=$(az spring-cloud app show --name ${BACKEND_APP} | jq -r '.identity.principalId')
+```
+
+### Grant Managed Identities with access to Azure Key Vault
+
+Add an access policy to Azure Key Vault to allow Managed Identities to read secrets.
+
+```bash
+az keyvault set-policy --name ${KEY_VAULT} \
+    --object-id ${BACKEND_APP_IDENTITY} --secret-permissions get list
+```
+
+### Activate applications to load secrets from Azure Key Vault
+
+Activate applications to load secrets from Azure Key Vault.
+
+```bash
+az spring-cloud app update --name ${BACKEND_APP} \
+    --config-file-patterns backend/default,backend/mysql,backend/key-vault \
+    --env "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=$JWK_SET_URI" "SPRING_PROFILES_ACTIVE=azure,mysql,key-vault" "KEYVAULT_URI=${KEYVAULT_URI}" 
+```
 
 ## Next Steps
 

@@ -22,6 +22,11 @@ repositories {
 	mavenCentral()
 }
 
+ext {
+	set('springCloudAzureVersion', "4.0.0")
+}
+
+
 dependencies {
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
@@ -35,7 +40,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation "org.springframework.security:spring-security-oauth2-resource-server"
 	implementation "org.springframework.security:spring-security-oauth2-jose"
- 	implementation("io.pivotal.cfenv:java-cfenv-boot:2.4.0")
+	implementation "io.pivotal.cfenv:java-cfenv-boot:2.4.0"
+
+	implementation 'com.azure.spring:spring-cloud-azure-starter-keyvault-secrets'
 
     runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'mysql:mysql-connector-java'
@@ -47,6 +54,13 @@ dependencies {
 	testImplementation 'io.projectreactor:reactor-test'
  	testImplementation('io.pivotal.cfenv:java-cfenv-test-support:2.4.0')
 }
+
+dependencyManagement {
+	imports {
+		mavenBom "com.azure.spring:spring-cloud-azure-dependencies:${springCloudAzureVersion}"
+	}
+}
+
 
 test {
 	useJUnitPlatform()
