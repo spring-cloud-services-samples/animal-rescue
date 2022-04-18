@@ -24,12 +24,13 @@ Azure Portal.
   * [Unit 1 - Deploy and Build Applications](#unit-1---deploy-and-build-applications)
   * [Unit 2 - Configure Single Sign On](#unit-2---configure-single-sign-on)
   * [Unit 3 - Connect to Azure Database for MySQL](#unit-3---connect-to-azure-database-for-mysql)
+  * [Unit 4 - Manage Application secrets using Azure KeyVault](#unit-4---manage-application-secrets-using-azure-keyvault)
 
 ## What will you experience
 You will:
 - Provision an Azure Spring Cloud service instance.
 - Configure Application Configuration Service repositories
-- Deploy applications to Azure existing Spring Boot applications and build using Tanzu Build Service
+- Deploy Spring Boot applications to Azure and build using Tanzu Build Service
 - Configure routing to the applications using Spring Cloud Gateway
 - Open the application
 - Explore the application API with Api Portal
@@ -360,7 +361,7 @@ open "https://$GATEWAY_URL"
 
 You should see the Animal Rescue Application:
 
-![](./media/animal-rescue.png)
+![An image of the Animal Rescue application homepage](./media/animal-rescue.png)
 
 ### Explore the API using API Portal
 
@@ -373,7 +374,7 @@ export PORTAL_URL=$(az spring-cloud api-portal show | jq -r '.properties.url')
 open "https://$PORTAL_URL"
 ```
 
-![](./media/api-portal.png)
+![An image showing API Portal exploring the Animal Rescue API](./media/api-portal.png)
 
 ## Unit 2 - Configure Single Sign On
 
@@ -577,7 +578,7 @@ open "https://$GATEWAY_URL"
 Now when restarting the application, changes will persist as it now uses a MySQL database
 rather than an in-memory database. 
 
-### Secure MySQL Credentials Using KeyVault
+## Unit 4 - Manage Application secrets using Azure KeyVault
 
 Use Azure Key Vault to store and load secrets to connect to MySQL database
 
