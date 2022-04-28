@@ -5,7 +5,7 @@ languages:
 products:
 - Azure Spring Cloud
 description: "Deploy Spring Boot apps to Azure"
-urlFragment: ""
+urlFragment: "animal-rescue"
 ---
 
 # Deploy Spring Boot apps using Azure Spring Cloud and Spring Cloud Gateway
