@@ -416,7 +416,7 @@ echo $ISSUER_URI
 echo $JWK_SET_URI
 ```
 
-The `ISSUER_URI` shhould take the form `https://login.microsoftonline.com/$TENANT_ID/v2.0`
+The `ISSUER_URI` should take the form `https://login.microsoftonline.com/$TENANT_ID/v2.0`
 The `JWK_SET_URI` should take the form `https://login.microsoftonline.com/$TENANT_ID/discovery/v2.0/keys`
 
 Add the necessary redirect URIs to the Azure AD Application Registration:
