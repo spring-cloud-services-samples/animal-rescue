@@ -383,10 +383,16 @@ open "https://$PORTAL_URL"
 
 ### Register Application with Azure AD
 
+Choose a unique display name for your Application Registration.
+
+```shell
+export AD_DISPLAY_NAME=change-me    # unique application display name
+```
+
 Create an Application registration with Azure AD and save the output.
 
 ```shell
-az ad app create --display-name animal-rescue > ad.json
+az ad app create --display-name ${AD_DISPLAY_NAME} > ad.json
 ```
 
 Retrieve the Application ID and collect the client secret:
