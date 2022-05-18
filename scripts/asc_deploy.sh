@@ -79,6 +79,7 @@ function deploy_backend() {
 function deploy_frontend() {
   echo "Deploying frontend application"
   pushd $PROJECT_ROOT/frontend
+  rm -rf node_modules/
   az spring-cloud app deploy --name $FRONTEND_APP --builder nodejs-only --source-path .
 
   pushd $PROJECT_ROOT

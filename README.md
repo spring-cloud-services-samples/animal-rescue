@@ -351,6 +351,9 @@ az spring-cloud app deploy --name $FRONTEND_APP \
     --source-path frontend/
 ```
 
+> Note:
+> if you've run `npm install` before deploying, remove the directory with `rm -rf frontend/node_modules` before deploying. 
+
 ### Access the Application through Spring Cloud Gateway
 
 Retrieve the URL for Spring Cloud Gateway and open it in a browser:
