@@ -138,7 +138,7 @@ source ./scripts/setup-env-variables-azure.sh
 ```
 
 ### Login to Azure
-Login to the Azure CLI and choose your active subscription. Be sure to choose the active subscription that is whitelisted for Azure Spring Cloud
+Login to the Azure CLI and choose your active subscription. Be sure to choose the active subscription that is allow-listed for Azure Spring Cloud
 
 ```shell
 az login
