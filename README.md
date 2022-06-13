@@ -314,20 +314,6 @@ az spring gateway update \
     --allowed-origins "*"
 ```
 
-Create routing rules for the backend and frontend applications:
-
-```shell
-az spring gateway route-config create \
-    --name $BACKEND_APP \
-    --app-name $BACKEND_APP \
-    --routes-file backend/asc/api-route-config-no-sso.json
-
-az spring gateway route-config create \
-    --name $FRONTEND_APP \
-    --app-name $FRONTEND_APP \
-    --routes-file frontend/asc/api-route-config-no-sso.json
-```
-
 ### Build and Deploy Applications
 
 Deploy and build the backend application, specifying its configuration file pattern for
@@ -352,6 +338,20 @@ az spring app deploy --name $FRONTEND_APP \
 > if you've run `npm install` before deploying, remove the directory with `rm -rf frontend/node_modules` before deploying. 
 
 ### Access the Application through Spring Cloud Gateway
+
+Before the applications can be accessed through Spring Cloud Gateway, create routing rules for the backend and frontend applications:
+
+```shell
+az spring gateway route-config create \
+    --name $BACKEND_APP \
+    --app-name $BACKEND_APP \
+    --routes-file backend/asc/api-route-config-no-sso.json
+
+az spring gateway route-config create \
+    --name $FRONTEND_APP \
+    --app-name $FRONTEND_APP \
+    --routes-file frontend/asc/api-route-config-no-sso.json
+```
 
 Retrieve the URL for Spring Cloud Gateway and open it in a browser:
 
