@@ -259,6 +259,12 @@ az monitor diagnostic-settings create --name "send-logs-and-metrics-to-log-analy
        ]'
 ```
 
+> Note: For Git Bash users, this command may fail when resource IDs are misinterpreted as file paths because they begin with `/`.
+>
+> If the above command fails, try setting MSYS_NO_PATHCONV using:
+>
+> `export MSYS_NO_PATHCONV=1`
+
 ### Configure Application Configuration Service
 
 Create a configuration repository for Application Configuration Service using the Azure CLI:
