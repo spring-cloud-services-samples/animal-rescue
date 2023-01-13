@@ -161,7 +161,7 @@ Accept the legal terms and privacy statements for the Enterprise tier.
 
 ```shell
 az provider register --namespace Microsoft.SaaS
-az term accept --publisher vmware-inc --product azure-spring-cloud-vmware-tanzu-2 --plan tanzu-asc-ent-mtr
+az term accept --publisher vmware-inc --product azure-spring-cloud-vmware-tanzu-2 --plan tanzu-azure-ent-mtr
 ```
 
 Create an instance of Azure Spring Apps Enterprise.
@@ -282,7 +282,7 @@ Create a builder in Tanzu Build Service for the frontend application using the A
 
 ```shell
 az spring build-service builder create -n nodejs-only \
-    --builder-file frontend/asc/nodejs_builder.json \
+    --builder-file frontend/azure/nodejs_builder.json \
     --no-wait
 ```
 
@@ -351,12 +351,12 @@ Before the applications can be accessed through Spring Cloud Gateway, create rou
 az spring gateway route-config create \
     --name $BACKEND_APP \
     --app-name $BACKEND_APP \
-    --routes-file backend/asc/api-route-config-no-sso.json
+    --routes-file backend/azure/api-route-config-no-sso.json
 
 az spring gateway route-config create \
     --name $FRONTEND_APP \
     --app-name $FRONTEND_APP \
-    --routes-file frontend/asc/api-route-config-no-sso.json
+    --routes-file frontend/azure/api-route-config-no-sso.json
 ```
 
 Retrieve the URL for Spring Cloud Gateway and open it in a browser:
@@ -466,12 +466,12 @@ Update routing rules for the backend and frontend applications:
 az spring gateway route-config update \
     --name $BACKEND_APP \
     --app-name $BACKEND_APP \
-    --routes-file backend/asc/api-route-config.json
+    --routes-file backend/azure/api-route-config.json
 
 az spring gateway route-config update \
     --name $FRONTEND_APP \
     --app-name $FRONTEND_APP \
-    --routes-file frontend/asc/api-route-config.json
+    --routes-file frontend/azure/api-route-config.json
 ```
 
 ### Update Spring Boot app with SSO
