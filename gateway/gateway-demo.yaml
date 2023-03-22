@@ -4,7 +4,7 @@ metadata:
   name: gateway-demo
 spec:
   api:
-    serverUrl: http://animal-rescue.my.domain.io:8081
+    serverUrl: http://gateway.spring.animalrescue.online
     title: "Animal Rescue"
     description: "Sample application for Spring Cloud Gateway commercial product demos."
     documentation: "https://github.com/spring-cloud-services-samples/animal-rescue/"
@@ -12,24 +12,7 @@ spec:
     cors:
       allowedOrigins:
         - "*"
-      allowedMethods:
-        - "*"
-      allowedHeaders:
-        - "*"
-  env:
-    - name: server.servlet.session.cookie.name
-      value: "FRED-COOKIE"
-  count: 2
   sso:
-    secret: animal-rescue-sso
-    roles-attribute-name: "groups"
-  observability:
-    metrics:
-      prometheus:
-        enabled: true
-        annotations:
-          enabled: true
-    wavefront:
-      secret: metrics-secret
-      application: animal-rescue
-      service: animal-rescue-gateway
+    secret: client-registration
+  service:
+    type: LoadBalancer

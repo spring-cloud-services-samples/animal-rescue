@@ -1,0 +1,73 @@
+---
+apiVersion: secretgen.k14s.io/v1alpha1
+kind: RSAKey
+metadata:
+  name: my-token-signing-key
+  namespace: animal-rescue
+spec: { }
+---
+apiVersion: secretgen.k14s.io/v1alpha1
+kind: RSAKey
+metadata:
+  name: my-token-verification-key
+  namespace: animal-rescue
+spec: { }
+---
+apiVersion: sso.apps.tanzu.vmware.com/v1alpha1
+kind: AuthServer
+metadata:
+  name: animal-rescue
+  namespace: animal-rescue
+  labels:
+    name: animal-rescue
+  annotations:
+    sso.apps.tanzu.vmware.com/allow-unsafe-issuer-uri: "true"
+    sso.apps.tanzu.vmware.com/allow-unsafe-identity-provider: "true"
+    sso.apps.tanzu.vmware.com/allow-client-namespaces: "*"
+spec:
+  replicas: 1
+  identityProviders:
+    - name: internal
+      internalUnsafe:
+        users:
+          - username: "alice"
+            password: "test"
+            roles: ["openid", "profile", "email", "roles"]
+          - username: "bob"
+            password: "test"
+            roles: ["openid", "profile", "email", "roles"]
+  tokenSignature:
+    signAndVerifyKeyRef:
+      name: my-token-signing-key
+    extraVerifyKeyRefs:
+      - name: my-token-verification-key
+  tls:
+    deactivated: true
+---
+apiVersion: sso.apps.tanzu.vmware.com/v1alpha1
+kind: ClientRegistration
+metadata:
+  name: client-registration
+  namespace: animal-rescue
+spec:
+  authServerSelector:
+    matchLabels:
+      name: animal-rescue
+  clientAuthenticationMethod: basic
+  requireUserConsent: false
+  authorizationGrantTypes:
+    - authorization_code
+  redirectURIs:
+    - http://127.0.0.1:8080
+    - http://127.0.0.1:8080/
+    - http://127.0.0.1
+    - http://127.0.0.1:80
+    - http://127.0.0.1:80/
+    - http://127.0.0.1:80/login/oauth2/code/sso
+    - http://gateway.spring.animalrescue.online
+    - http://gateway.spring.animalrescue.online/login/oauth2/code/sso
+  scopes:
+    - name: openid
+    - name: profile
+    - name: roles
+    - name: email

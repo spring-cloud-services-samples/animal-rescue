@@ -1,0 +1,1 @@
+domain_template:  "{{.Name}}-auth-server.{{.Namespace}}"

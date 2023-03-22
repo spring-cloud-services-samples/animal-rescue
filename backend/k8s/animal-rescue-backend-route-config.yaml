@@ -63,8 +63,6 @@ spec:
       predicates:
         - Path=/api/animals/{animalId}/adoption-requests/{adoptionRequestId}
         - Method=PUT
-      filters:
-        - SetStatus=403
       tags:
         - "pet adoption"
       title: "Pet adoption API"
