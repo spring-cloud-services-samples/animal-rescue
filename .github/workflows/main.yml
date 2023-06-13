@@ -1,6 +1,12 @@
 name: Test All
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+    pull_request:
+      branches:
+        - main
 
 jobs:
   backend-test:
@@ -11,8 +17,8 @@ jobs:
     - name: Setup Java JDK
       uses: actions/setup-java@v3
       with:
-        java-version: 11
-        distribution: 'adopt'
+        java-version: 17
+        distribution: temurin
 
     - name: Run tests
       run: ./scripts/local.sh backend
@@ -29,8 +35,8 @@ jobs:
       - name: Setup Java JDK
         uses: actions/setup-java@v3
         with:
-          java-version: 11
-          distribution: 'adopt'
+          java-version: 17
+          distribution: temurin
 
       - name: Install dependencies
         run: ./scripts/local.sh init
@@ -49,7 +55,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 12.x
+          node-version: 14.x
 
       - name: Install dependencies
         run: ./scripts/local.sh init
