@@ -1,10 +1,9 @@
 package io.spring.cloud.samples.animalrescue.backend.security;
 
-import java.util.List;
-
+import io.pivotal.cfenv.core.CfEnv;
+import io.pivotal.cfenv.core.CfService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.boot.autoconfigure.condition.ConditionalOnCloudPlatform;
 import org.springframework.boot.cloud.CloudPlatform;
 import org.springframework.context.annotation.Bean;
@@ -13,8 +12,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
-import io.pivotal.cfenv.core.CfEnv;
-import io.pivotal.cfenv.core.CfService;
+import java.util.List;
 
 @Configuration
 @ConditionalOnCloudPlatform(CloudPlatform.CLOUD_FOUNDRY)
@@ -35,10 +33,12 @@ public class CloudFoundrySecurityConfiguration {
 		String authDomain = cfEnv.findCredentialsByLabel("p.gateway").getString("auth_domain");
 		if (authDomain != null) {
 			LOG.info("Found SSO auth_domain {}, configuring Resource Server support", authDomain);
-			httpSecurity.oauth2ResourceServer()
-			            .jwt()
-			            .jwkSetUri(authDomain + "/token_keys")
+			httpSecurity.oauth2ResourceServer(oAuth2ResourceServerSpec -> {
+				oAuth2ResourceServerSpec.jwt(jwtSpec -> {
+					jwtSpec.jwkSetUri(authDomain + "/token_keys")
 						.jwtAuthenticationConverter(new ReactiveJwtAuthenticationConverterAdapter(new UserNameJwtAuthenticationConverter()));
+				});
+			});
 		}
 
 		return httpSecurity.build();
