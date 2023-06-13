@@ -2,6 +2,7 @@ package io.spring.cloud.samples.animalrescue.backend.domain;
 
 import org.springframework.data.annotation.Id;
 
+
 public class AdoptionRequest {
 	@Id
 	private Long id;

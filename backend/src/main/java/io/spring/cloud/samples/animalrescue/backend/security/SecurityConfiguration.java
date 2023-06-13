@@ -1,7 +1,5 @@
 package io.spring.cloud.samples.animalrescue.backend.security;
 
-import java.net.URI;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -14,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
+
+import java.net.URI;
 
 @Configuration
 @Profile("!cloud & !k8s") // cloud profile is automatically activated on CloudFoundry
@@ -38,16 +38,23 @@ public class SecurityConfiguration {
 		RedirectServerLogoutSuccessHandler logoutHandler = new RedirectServerLogoutSuccessHandler();
 		logoutHandler.setLogoutSuccessUrl(URI.create("http://localhost:3000/rescue"));
 		return httpSecurity
-			.httpBasic().disable()
-			.formLogin().authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("http://localhost:3000/rescue")).and()
-			.logout()
-				.logoutSuccessHandler(logoutHandler)
-				.and()
-			.csrf().disable()
-			.authorizeExchange()
-				.pathMatchers("/whoami").authenticated()
-				.anyExchange().permitAll()
-			.and()
+			.httpBasic(httpBasicSpec -> {
+				httpBasicSpec.disable();
+			})
+			.formLogin(formLoginSpec -> {
+				formLoginSpec.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("http://localhost:3000/rescue"));
+			})
+			.logout(logoutSpec -> {
+				logoutSpec.logoutSuccessHandler(logoutHandler);
+			})
+			.csrf(csrfSpec -> {
+				csrfSpec.disable();
+			})
+			.authorizeExchange(authorizeExchangeSpec -> {
+				authorizeExchangeSpec
+					.pathMatchers("/whoami").authenticated()
+					.anyExchange().permitAll();
+			})
 			.build();
 		// @formatter:on
 	}

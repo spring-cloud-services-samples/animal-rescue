@@ -22,3 +22,6 @@ insert into adoption_request (id, animal, adopter_name, email, notes) values
 (9, 2, 'Erick', 'erick@email.com', 'Blah blah'),
 (10, 3, 'Ben', 'ben@email.com', 'Blah blah'),
 (11, 3, 'Mike', 'mike@email.com', 'Blah blah');
+
+ALTER TABLE animal ALTER COLUMN ID RESTART WITH (SELECT MAX(ID) FROM animal) + 1;
+ALTER TABLE adoption_request ALTER COLUMN ID RESTART WITH (SELECT MAX(ID) FROM adoption_request) + 1;
