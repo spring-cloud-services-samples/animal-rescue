@@ -47,6 +47,12 @@ jobs:
           ./scripts/local.sh e2e --quiet
           ./scripts/local.sh stop
 
+      - name: Upload reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: e2e-cypress-reports
+          path: e2e/cypress/*
   lint:
     runs-on: ubuntu-latest
     steps:
