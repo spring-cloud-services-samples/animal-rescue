@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - main
-    pull_request:
-      branches:
-        - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   backend-test:
@@ -47,6 +47,12 @@ jobs:
           ./scripts/local.sh e2e --quiet
           ./scripts/local.sh stop
 
+      - name: Upload reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: e2e-cypress-reports
+          path: e2e/cypress/*
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -56,6 +62,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 14.x
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
 
       - name: Install dependencies
         run: ./scripts/local.sh init
@@ -83,7 +95,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 12.x
+          node-version: 14.x
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
