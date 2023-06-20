@@ -5,7 +5,7 @@ plugins {
 
 node {
     download = true
-    version = "14.8.0"
+    version = "16.20.0"
 }
 
 npm_ci {
