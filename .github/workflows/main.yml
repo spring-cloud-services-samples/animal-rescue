@@ -30,7 +30,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 16.20.x
+          node-version: 18.16.x
 
       - name: Setup Java JDK
         uses: actions/setup-java@v3
@@ -61,7 +61,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 16.20.x
+          node-version: 18.16.x
 
       - name: Setup Java JDK
         uses: actions/setup-java@v3
@@ -95,7 +95,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 16.20.x
+          node-version: 18.16.x
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
