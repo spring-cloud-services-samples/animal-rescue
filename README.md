@@ -26,7 +26,7 @@ The Kubernetes deployment requires you to install [kustomize](https://kustomize.
 
 ### Configure Single Sign-On (SSO)
 
-For information configuring Okta as the SSO provider, see [go here](https://docs.pivotal.io/scg-k8s/1-0/sso-setup-guide.html).
+For information configuring Okta as the SSO provider, see [go here](https://docs.vmware.com/en/VMware-Spring-Cloud-Gateway-for-Kubernetes/2.0/scg-k8s/GUID-guides-sso-okta-tutorial.html).
 
 For Animal Rescue sample Single Sign-On (SSO) to work, you will need to create two text files that will be used to create Kubernetes secrets:
 
@@ -69,6 +69,7 @@ client-id={your_client_id}
 client-secret={your_client_secret}
 issuer-uri={your_issuer_uri}
 ```
+
 ### Configure Ingress
 
 The K8s deploy leverages an Ingress object to easily expose your application outside of the cluster.
@@ -77,6 +78,10 @@ Before starting, confirm that you have an ingress controller installed into your
 
 Next, edit `gateway/gateway-demo.yaml` to set the domain to your domain.
 If you don't have a domain that you can use, leveraging [`nip.io`](https://nip.io/) is a good choice.
+
+  **Important**
+  Once you have your domain, remember to configure it as an accepted `redirect_uri` in your SSO provider. Otherwise, application login will fail.
+
 
 ### Deploy with Kustomize (recommended)
 
@@ -144,10 +149,10 @@ The frontend application is implemented in ReactJS, and is pushed with static bu
 Visit `https://gateway-demo.${appsDomain}/rescue`, you should see cute animal bios with the `Adopt` buttons disabled. All the information are fetched from a public `GET` backend endpoint `/animals`.
 ![homepage](./docs/images/homepage.png)
 
-Click the `Sign in to adopt` button on the top right corner, you should be redirected to the SSO login page if you haven't already logged in to SSO.
+Click the `Sign in to adopt` button in the top right corner, you should be redirected to the SSO login page if you haven't already logged in to SSO.
 ![log in page](./docs/images/login.png)
 
-Once you logged in, you should see a greeting message regarding the username you log in with on the top right corner, and the `Adopt` buttons should be enabled.
+Once you logged in, you should see a greeting message regarding the username you log in with in the top right corner, and the `Adopt` buttons should be enabled.
 ![logged in view](./docs/images/logged-in.png)
 
 Click on the `Adopt` button, input your contact email and application notes in the model, then click `Apply`, a `POST` request should be sent to a `sso-enabled` backend endpoint `/animals/{id}/adoption-requests`, with the adopter set to your username we parsed from your token.
@@ -207,7 +212,7 @@ More detail about the e2e testing framework can be found at [cypress api doc](ht
 
 #### GitHub Actions
 
-GitHub Actions run all checks for the `master` branch and all PR requests. All workflow configuration can be found in `.github/workflows`.
+GitHub Actions run all checks for the `main` branch and all PR requests. All workflow configuration can be found in `.github/workflows`.
 
 #### Concourse
 
@@ -217,7 +222,7 @@ If you'd like to get the most updated sample app deployed in a real TAS environm
 fly -t ${yourConcourseTeamName} set-pipeline -p sample-app-to-demo-environment -c concourse/pipeline.yml -l config.yml
 ```
 
-You will need to update the slack notification settings and add the following environment variables to your concourse credentials manager. Here are the variables we set in our concourse credhub:
+You will need to update the Slack notification settings and add the following environment variables to your concourse credentials manager. Here are the variables we set in our concourse credhub:
 
 ```
 - name: /concourse/main/sample-app-to-demo-environment/CF_API_HOST
