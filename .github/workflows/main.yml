@@ -12,16 +12,16 @@ jobs:
   backend-test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Setup Java JDK
-      uses: actions/setup-java@v3
-      with:
-        java-version: 17
-        distribution: temurin
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
 
-    - name: Run tests
-      run: ./scripts/local.sh backend
+      - name: Run tests
+        run: ./scripts/local.sh backend
 
   e2e-test:
     runs-on: ubuntu-latest
@@ -97,6 +97,12 @@ jobs:
         with:
           node-version: 16.20.x
 
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to DockerHub
@@ -107,7 +113,6 @@ jobs:
 
       - name: Build frontend image
         run: |
-          ./scripts/local.sh init
           ./gradlew :frontend:assemble
           docker build frontend -t springcloudservices/animal-rescue-frontend:latest
       - name: Push frontend image
