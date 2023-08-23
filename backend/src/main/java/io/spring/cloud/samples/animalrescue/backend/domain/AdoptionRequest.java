@@ -1,5 +1,6 @@
 package io.spring.cloud.samples.animalrescue.backend.domain;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.Id;
 
 
@@ -7,8 +8,10 @@ public class AdoptionRequest {
 	@Id
 	private Long id;
 
+	@NotNull
 	private String adopterName;
 
+	@NotNull
 	private String email;
 
 	private String notes;

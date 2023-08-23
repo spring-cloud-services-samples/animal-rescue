@@ -6,6 +6,9 @@ spec:
   service:
     name: animal-rescue-frontend
     ssoEnabled: false
+  openapi:
+    generation:
+      enabled: false
   routes:
     - ssoEnabled: true
       predicates:

@@ -1,0 +1,1417 @@
+{
+  "apiVersion": "tanzu.vmware.com/v1",
+  "kind": "SpringCloudGatewayRouteConfig",
+  "metadata": {
+    "name": "animal-rescue-backend-route-config"
+  },
+  "spec": {
+    "openapi": {
+      "components": {
+        "schemas": {
+          "AdoptionRequest": {
+            "required": [
+              "adopterName",
+              "email"
+            ],
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "exampleSetFlag": false,
+                "types": [
+                  "integer"
+                ]
+              },
+              "adopterName": {
+                "type": "string",
+                "exampleSetFlag": false,
+                "types": [
+                  "string"
+                ]
+              },
+              "email": {
+                "type": "string",
+                "exampleSetFlag": false,
+                "types": [
+                  "string"
+                ]
+              },
+              "notes": {
+                "type": "string",
+                "exampleSetFlag": false,
+                "types": [
+                  "string"
+                ]
+              },
+              "animal": {
+                "type": "integer",
+                "format": "int64",
+                "exampleSetFlag": false,
+                "types": [
+                  "integer"
+                ]
+              }
+            },
+            "exampleSetFlag": false,
+            "types": [
+              "object"
+            ]
+          },
+          "Animal": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "exampleSetFlag": false,
+                "types": [
+                  "integer"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "exampleSetFlag": false,
+                "types": [
+                  "string"
+                ]
+              },
+              "rescueDate": {
+                "type": "string",
+                "format": "date",
+                "exampleSetFlag": false,
+                "types": [
+                  "string"
+                ]
+              },
+              "avatarUrl": {
+                "type": "string",
+                "exampleSetFlag": false,
+                "types": [
+                  "string"
+                ]
+              },
+              "description": {
+                "type": "string",
+                "exampleSetFlag": false,
+                "types": [
+                  "string"
+                ]
+              },
+              "adoptionRequests": {
+                "uniqueItems": true,
+                "type": "array",
+                "exampleSetFlag": false,
+                "items": {
+                  "$ref": "#/components/schemas/AdoptionRequest",
+                  "exampleSetFlag": false
+                },
+                "types": [
+                  "array"
+                ]
+              }
+            },
+            "exampleSetFlag": false,
+            "types": [
+              "object"
+            ]
+          },
+          "Link": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string",
+                "exampleSetFlag": false,
+                "types": [
+                  "string"
+                ]
+              },
+              "templated": {
+                "type": "boolean",
+                "exampleSetFlag": false,
+                "types": [
+                  "boolean"
+                ]
+              }
+            },
+            "exampleSetFlag": false,
+            "types": [
+              "object"
+            ]
+          }
+        },
+        "extensions": {}
+      },
+      "ref": "http://animal-rescue-backend.animal-rescue.svc.cluster.local:80/api-docs"
+    },
+    "routes": [
+      {
+        "description": "Update pet adoption requests.",
+        "filters": [],
+        "model": {
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdoptionRequest",
+                  "exampleSetFlag": false
+                },
+                "exampleSetFlag": false
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/animals/{animalId}/adoption-requests/{adoptionRequestId}",
+          "Method=PUT"
+        ],
+        "title": "Pet adoption API",
+        "tokenRelay": true
+      },
+      {
+        "description": "Delete pet adoption requests.",
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/animals/{animalId}/adoption-requests/{adoptionRequestId}",
+          "Method=DELETE"
+        ],
+        "title": "Pet adoption API",
+        "tokenRelay": true
+      },
+      {
+        "description": "Create pet adoption requests.",
+        "filters": [],
+        "model": {
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdoptionRequest",
+                  "exampleSetFlag": false
+                },
+                "exampleSetFlag": false
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "default": {
+              "description": "default response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AdoptionRequest",
+                    "exampleSetFlag": false
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            },
+            "201": {
+              "description": "Adoption request created successfully."
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/animals/{id}/adoption-requests",
+          "Method=POST"
+        ],
+        "title": "Pet adoption API",
+        "tokenRelay": true
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/loggers/{name}",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'loggers-name'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "exampleSetFlag": false,
+                  "types": [
+                    "string"
+                  ],
+                  "enum": [
+                    "TRACE",
+                    "DEBUG",
+                    "INFO",
+                    "WARN",
+                    "ERROR",
+                    "FATAL",
+                    "OFF"
+                  ]
+                },
+                "exampleSetFlag": false
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/loggers/{name}",
+          "Method=POST"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'loggers-name'"
+      },
+      {
+        "description": "Retrieve the current authenticated user's information.",
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "type": "string",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "string"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/whoami",
+          "Method=GET"
+        ],
+        "title": "Retrieve user information",
+        "tokenRelay": true
+      },
+      {
+        "description": "Retrieve all of the animals who are up for pet adoption.",
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "type": "array",
+                    "exampleSetFlag": false,
+                    "items": {
+                      "$ref": "#/components/schemas/Animal",
+                      "exampleSetFlag": false
+                    },
+                    "types": [
+                      "array"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/animals",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Retrieve pets for adoption."
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "text/plain;charset=UTF-8": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/threaddump",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'threaddump'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/scheduledtasks",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'scheduledtasks'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/metrics/{requiredMetricName}",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'metrics-requiredMetricName'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/metrics",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'metrics'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/mappings",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'mappings'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/loggers",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'loggers'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/info",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'info'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/octet-stream": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/heapdump",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'heapdump'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/health/{*path}",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'health-path'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/health",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'health'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/env/{toMatch}",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'env-toMatch'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/env",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'env'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/configprops/{prefix}",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'configprops-prefix'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/configprops",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'configprops'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/conditions",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'conditions'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/caches/{cache}",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'caches-cache'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/caches/{cache}",
+          "Method=DELETE"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'caches-cache'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/caches",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'caches'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/caches",
+          "Method=DELETE"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'caches'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator/beans",
+          "Method=GET"
+        ],
+        "ssoEnabled": false,
+        "title": "Actuator web endpoint 'beans'"
+      },
+      {
+        "filters": [],
+        "model": {
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/vnd.spring-boot.actuator.v3+json": {
+                  "schema": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "$ref": "#/components/schemas/Link",
+                        "exampleSetFlag": false
+                      },
+                      "exampleSetFlag": false,
+                      "types": [
+                        "object"
+                      ]
+                    },
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/vnd.spring-boot.actuator.v2+json": {
+                  "schema": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "$ref": "#/components/schemas/Link",
+                        "exampleSetFlag": false
+                      },
+                      "exampleSetFlag": false,
+                      "types": [
+                        "object"
+                      ]
+                    },
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                },
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "$ref": "#/components/schemas/Link",
+                        "exampleSetFlag": false
+                      },
+                      "exampleSetFlag": false,
+                      "types": [
+                        "object"
+                      ]
+                    },
+                    "exampleSetFlag": false,
+                    "types": [
+                      "object"
+                    ]
+                  },
+                  "exampleSetFlag": false
+                }
+              }
+            }
+          }
+        },
+        "predicates": [
+          "Path=/api/actuator",
+          "Method=GET"
+        ],
+        "title": "Actuator root web endpoint",
+        "tokenRelay": true
+      }
+    ],
+    "service": {
+      "filters": [
+        "RateLimit=10,2s"
+      ],
+      "name": "animal-rescue-backend",
+      "namespace": "animal-rescue",
+      "ssoEnabled": true
+    }
+  }
+}
