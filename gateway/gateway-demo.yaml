@@ -2,12 +2,13 @@ apiVersion: "tanzu.vmware.com/v1"
 kind: SpringCloudGateway
 metadata:
   name: gateway-demo
+  annotations:
+    apis.tanzu.vmare.com/api-title: "Animal Rescue"
+    apis.tanzu.vmare.com/api-description: "Sample application for Spring Cloud Gateway commercial product demos."
+    apis.tanzu.vmare.com/api-documentation: "https://github.com/spring-cloud-services-samples/animal-rescue/"
 spec:
   api:
     serverUrl: http://animal-rescue.my.domain.io
-    title: "Animal Rescue"
-    description: "Sample application for Spring Cloud Gateway commercial product demos."
-    documentation: "https://github.com/spring-cloud-services-samples/animal-rescue/"
     version: "1.0.0-K8s"
     cors:
       allowedOrigins:

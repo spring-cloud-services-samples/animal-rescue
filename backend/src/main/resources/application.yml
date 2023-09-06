@@ -16,3 +16,10 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://any.uaa.uri/token_keys
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  show-actuator: true
+

@@ -18,6 +18,6 @@ resources:
   - frontend/k8s/animal-rescue-frontend-route-config.yaml
   - backend/k8s/animal-rescue-backend.yaml
   - backend/k8s/animal-rescue-backend-mapping.yaml
-  - backend/k8s/animal-rescue-backend-route-config.yaml
+  - backend/k8s/animal-rescue-backend-route-config.json
   - gateway/gateway-demo.yaml
   - gateway/sso-secret-for-gateway

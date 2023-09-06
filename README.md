@@ -9,6 +9,8 @@ Sample app for VMware's Spring Cloud Gateway commercial products. Features we de
 - SSO login and token relay on behalf of the routed services
 - Required scopes on routes (tag: `require-sso-scopes`)
 - Circuit breaker filter
+- OpenAPI route conversion
+- OpenAPI auto generation
 
 ![architecture](./docs/images/animal-rescue-arch.png)
 
@@ -18,6 +20,7 @@ Sample app for VMware's Spring Cloud Gateway commercial products. Features we de
 * [Deploy to Tanzu Application Service](#deploy-to-tanzu-application-service)
 * [Special frontend config related to gateway](#special-frontend-config-related-to-gateway)
 * [Gateway and Animal Rescue application features](#gateway-and-animal-rescue-application-features)
+* [OpenAPI Generation and Route Conversion](#openapi-generation-and-route-conversion-features)
 * [Development](#development)
 
 ## Deploy to Kubernetes
@@ -168,6 +171,101 @@ Click on the `Edit Adoption Request` again, you can view, edit (`PUT`), and dele
     Documentation may get out of date. Please refer to the [e2e test](./e2e/cypress/integration/) and the test output video for the most accurate user flow description.
 
 To see circuit breaker filter in action, stop `animal-rescue-frontend` application and refresh page. You should see a response from `https://example.org` web-site, this is configured in `api-route-config.json` file in `/fallback` route.
+
+## OpenAPI Generation and Route conversion features
+
+### Route Conversion
+The Spring Cloud Gateway Operator offers an OpenAPI Route Conversion Service that can be used to automate the creation of a `SpringCloudGatewayRouteConfig` based off an OpenAPI document (v2 or v3),
+The full details of this service can be [found here](https://docs.vmware.com/en/VMware-Spring-Cloud-Gateway-for-Kubernetes/2.1/scg-k8s/GUID-guides-openapi-route-conversion.html), but you fill find an example
+below of how it was used in animal rescue.
+
+The animal rescue backend exposes an OpenAPI v3 document at `/api-docs`, which is auto generated using the [springdoc](https://springdoc.org/) library.
+
+The `SpringCloudGatewayRouteConfig` for the animal rescue backend, which can be found in `/backend/k8s/animal-rescue-backend-route-config.json`
+was generated using the OpenAPI Route Conversion Service by pointing it to that OpenAPI document.
+
+The full command that was used to generate it can be found below.
+
+**Note:** In the example the Spring Cloud Gateway Operator pod has been port forwarded to port 5566. 
+
+```commandline
+curl --request POST 'http://localhost:5566/api/convert/openapi' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "service": {
+        "namespace": "animal-rescue",
+        "name": "animal-rescue-backend",
+        "ssoEnabled": true,
+        "filters": ["RateLimit=10,2s"]
+    },
+    "openapi": {
+        "location": "/api-docs"
+    },
+    "routes": [
+        {
+          "predicates": ["Method=GET","Path=/animals"],
+          "filters": [],
+          "ssoEnabled": false
+        },
+        {
+           "predicates": ["Method=GET,PUT,POST,DELETE","Path=/**"],
+            "filters": [],
+            "tokenRelay": true
+        },
+        {
+            "predicates": ["Method=GET,PUT,PATCH,POST,DELETE","Path=/actuator/**"],
+             "filters": [],
+             "ssoEnabled": false
+        }
+    ]
+}' | sed 's/Path=/Path=\/api/g' \
+   | sed 's/"animal-rescue-backend"/"animal-rescue-backend-route-config"/' 
+```
+
+The full details of how the service works can be [found here](https://docs.vmware.com/en/VMware-Spring-Cloud-Gateway-for-Kubernetes/2.1/scg-k8s/GUID-guides-openapi-route-conversion.html), but below you will
+find a brief summary of what the above command does.
+
+- Specifies the namespace/name of the service that fronts the animal rescue backend provide the path to the OpenAPI document.
+- Specifies some filters at the service level that should be applied to all routes
+- Specifies some exceptions to the service level filters at the individual route level
+  - i.e we turn off SSO for the endpoint that gets all animals as well as the actuator endpoints
+- We use sed to append the path '/api' to all the paths since that is how we want to expose the urls to the outside world.
+  - Note that by default the operator will add a `StripPrefix=1` to every route which is why we don't explicitly have to add that filter here
+- We use sed to change the default name for the generated `SpringCloudGatewayRouteConfig`. By default, it will give it the name of the service, but for consistency
+  with the other examples in this project we append "-route-config" to the name. 
+
+
+### OpenAPI Generation
+Spring Cloud Gateway for Kubernetes also offers a service to generate OpenAPI v3-compliant documentation for the gateways that it manages. 
+When combined with the Route Conversion Service mentioned above this can be a powerful way to expose the details of your APIs their consumers.
+
+By default, the service will return an array of all the OpenAPI documents of the gateways it manages. There are options, however, to restrict the documents that are retrieved. 
+The full details of this feature can be [found here](https://docs.vmware.com/en/VMware-Spring-Cloud-Gateway-for-Kubernetes/2.1/scg-k8s/GUID-guides-openapi-generation.html), 
+but below you find some details on how it can be used with animal rescue.
+
+One option is to limit the results to a single OpenAPI document for a specific gateway. You can do this by using the **namespace** and **name** of that gateway as part of the path. 
+For example, if you are port forwarding the `scg-openapi-service` to port 5566 you could get the OpenAPI document specific to the `gateway-demo`
+with the following curl call:
+
+```commandline
+curl http://localhost:5566/openapi/animal-rescue/gateway-demo
+```
+
+One thing you might notice with the call above is that the returned OpenAPI document only has routes for to the animal rescue backend, even though the `gateway-demo` also has `SpringCloudGatewayRouteDefinition` for the front end.
+(`frontend/k8s/animal-rescue-frontend-route-config.yaml`). The reason for this is that the OpenAPI Generation provides the ability to control which of your routes will show up in the generated document. In the case of 
+the animal rescue, the OpenAPI generation is turned off for everything in the route config by setting `spec.openapi.generation.enabled=false` (see example below). You also have the ability to control it
+at the route level with `spec.routes.openapi.generation.enabled`. The full details can be [found here](https://docs.vmware.com/en/VMware-Spring-Cloud-Gateway-for-Kubernetes/2.1/scg-k8s/GUID-guides-openapi-generation.html)
+routes 
+
+```commandline
+spec:
+  service:
+    name: animal-rescue-frontend
+    ssoEnabled: false
+  openapi:
+    generation:
+      enabled: false
+```
 
 ## Development
 
