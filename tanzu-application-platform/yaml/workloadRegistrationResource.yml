@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+kind: ClassClaim
+metadata:
+  name: appsso-animal-rescue
+  namespace: #@ data.values.workloadNamespace
+spec:
+  classRef:
+    name: workloadreg-animal-rescue
+  parameters: 
+    redirectPaths: ['/login/oauth2/code/sso']
+    workloadRef:
+      name: animal-rescue

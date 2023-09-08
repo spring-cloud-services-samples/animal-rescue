@@ -1,0 +1,79 @@
+#@ load("@ytt:data", "data")
+
+---
+apiVersion: carto.run/v1alpha1
+kind: Workload
+metadata:
+  name: animal-rescue-frontend
+  namespace: #@ data.values.workloadNamespace
+  labels:
+    apps.tanzu.vmware.com/workload-type: web
+    app.kubernetes.io/part-of: animal-rescue-frontend
+    apps.tanzu.vmware.com/has-tests: "true"
+    networking.knative.dev/visibility: cluster-local
+    apps.tanzu.vmware.com/auto-configure-actuators: "true"    
+spec:
+  build:
+    env:
+    - name: BP_EXCLUDE_FILES
+      value: build.gradle
+    - name: BP_NODE_RUN_SCRIPTS
+      value: build
+    - name: BP_WEB_SERVER_ROOT
+      value: dist      
+  params:
+  - name: annotations
+    value:
+      autoscaling.knative.dev/minScale: "1"
+      autoscaling.knative.dev/target: "200"
+      autoscaling.knative.dev/maxScale: "4"  
+  - name: ports
+    value:
+    - port: 80
+      containerPort: 8080
+      name: http
+  resources:
+    requests:
+      memory: 500M
+    limits:
+      memory: 750M    
+  source:
+    subPath: frontend
+    git:
+      url: https://github.com/spring-cloud-services-samples/animal-rescue
+      ref:
+        branch: main
+---
+apiVersion: carto.run/v1alpha1
+kind: Workload
+metadata:
+  name: animal-rescue-backend
+  namespace: #@ data.values.workloadNamespace
+  labels:
+    apps.tanzu.vmware.com/workload-type: web
+    app.kubernetes.io/part-of: animal-rescue-backend
+    apps.tanzu.vmware.com/has-tests: "true"
+    networking.knative.dev/visibility: cluster-local
+    apps.tanzu.vmware.com/auto-configure-actuators: "true"    
+spec:
+  build:
+    env:
+    - name: BP_JVM_VERSION
+      value: "17"
+  params:
+  - name: annotations
+    value:
+      autoscaling.knative.dev/minScale: "1"
+      autoscaling.knative.dev/target: "200"
+      autoscaling.knative.dev/maxScale: "4"  
+  resources:
+    requests:
+      memory: 500M
+    limits:
+      memory: 750M    
+  source:
+    subPath: backend
+    git:
+      url: https://github.com/spring-cloud-services-samples/animal-rescue
+      ref:
+        branch: main

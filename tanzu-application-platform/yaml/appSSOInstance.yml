@@ -1,0 +1,65 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:regexp", "regexp")
+    
+#@ def buildIdentityProviders():
+    - name: dev-users
+      internalUnsafe:
+        users:
+          - username: #@ data.values.devDefaultAccountUsername
+            password: #@ data.values.devDefaultAccountPassword
+            roles:
+              - "rescuer"         
+#@ end
+
+---
+apiVersion: sso.apps.tanzu.vmware.com/v1alpha1
+kind: AuthServer
+metadata:
+  name: appsso-animal-rescue
+  namespace: #@ data.values.serviceNamespace
+  labels:
+    name: appsso-animal-rescue
+    app: animal-rescue   
+  annotations:
+    sso.apps.tanzu.vmware.com/allow-client-namespaces: "*"
+    sso.apps.tanzu.vmware.com/allow-unsafe-identity-provider: ""
+    sso.apps.tanzu.vmware.com/allow-unsafe-issuer-uri: ""
+spec:
+  tls:
+    issuerRef:
+      name: letsencrypt-rescue-prod
+      kind: ClusterIssuer
+  tokenSignature:
+    signAndVerifyKeyRef:
+      name: 'appsso-animal-rescue-signing-key'
+  identityProviders: #@ buildIdentityProviders()
+---
+apiVersion: secretgen.k14s.io/v1alpha1
+kind: RSAKey
+metadata:
+  name: appsso-animal-rescue-signing-key
+  namespace: #@ data.values.serviceNamespace
+spec:
+  secretTemplate:
+    type: Opaque
+    stringData:
+      key.pem: $(privateKey)      
+      pub.pem: $(publicKey)
+      
+---
+apiVersion: sso.apps.tanzu.vmware.com/v1alpha1
+kind: ClusterWorkloadRegistrationClass
+metadata:
+  name: workloadreg-animal-rescue
+spec:
+  description:
+    short: "Animal Resuce AppSSO Workload Registrations" 
+  base: 
+    metadata:  
+      annotations:
+        sso.apps.tanzu.vmware.com/template-unsafe-redirect-uris: ""
+    spec:
+      authServerSelector:
+        matchLabels:
+          name: appsso-animal-rescue
