@@ -8,6 +8,8 @@ metadata:
 spec:
   virtualhost:
     fqdn: #@ 'animal-rescue.' + data.values.appDomainName
+    tls:
+      secretName: animal-rescue-cert 
   routes:
     - conditions:
         - prefix: /

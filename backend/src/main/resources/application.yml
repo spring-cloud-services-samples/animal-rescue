@@ -1,3 +1,4 @@
+---
 management:
   endpoint:
     health:
@@ -23,3 +24,7 @@ springdoc:
     path: /api-docs
   show-actuator: true
 
+---
+spring:
+  config.activate.on-profile: tap
+  security.oauth2.resourceserver.jwt.jwk-set-uri: '${spring.security.oauth2.client.provider.appsso.issuer-uri}/oauth2/jwks'

@@ -9,7 +9,7 @@ metadata:
   namespace: #@ data.values.workloadNamespace  
 spec:
   service:
-    name: #@ 'animal-rescue-backend.' + data.values.workloadNamespace
+    name: animal-rescue-backend
     ssoEnabled: true
     filters:
       - RateLimit=10,2s
