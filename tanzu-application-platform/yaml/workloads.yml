@@ -21,6 +21,9 @@ spec:
     - name: BP_WEB_SERVER_ROOT
       value: dist      
   params:
+  - name: testing_pipeline_matching_labels
+    value:
+        apps.tanzu.vmware.com/pipeline: rescue-generic-test    
   - name: ports
     value:
     - port: 80
@@ -56,8 +59,6 @@ spec:
   env:
     - name: MANAGEMENT_ENDPOINT_HEALTH_GROUP_LIVE_ADDITIONAL_PATH
       value: server:/startupz
-    - name: BP_SPRING_CLOUD_BINDINGS_VERSION
-      value: 1.13.0
     - name: spring_profiles_active
       value: k8s,tap
   serviceClaims:
@@ -67,6 +68,9 @@ spec:
         kind: ClassClaim
         name: appsso-animal-rescue
   params:
+  - name: testing_pipeline_matching_labels
+    value:
+        apps.tanzu.vmware.com/pipeline: rescue-generic-test 
   - name: ports
     value:
     - port: 80

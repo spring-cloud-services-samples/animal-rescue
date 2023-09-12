@@ -176,12 +176,3 @@ For example:
 ```
 ytt -f ingress.yml -v workloadNamespace=workloads -v appDomainName=perfect300rock.com | kubectl apply -f-
 ```
-
-## Application Catalog
-
-To view the runtime resources and application live view, you will need to install the catalog-info.yaml file that contains catalog info for each component.  
-To install the catalog, navigate to the TAP GUI home page and click the `Register Entity` button.  In the URL, enter in the URL of the catalog file.  For example:
-
-```
-https://github.com/spring-cloud-services-samples/acme-fitness-store/blob/main/tanzu-application-platform/yaml/catalog-info.yaml
-```

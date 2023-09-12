@@ -26,6 +26,9 @@ spec:
         kind: ClassClaim
         name: appsso-animal-rescue
   params:
+  - name: testing_pipeline_matching_labels
+    value:
+        apps.tanzu.vmware.com/pipeline: rescue-generic-test 
   - name: ports
     value:
     - port: 80
