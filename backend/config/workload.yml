@@ -15,8 +15,6 @@ spec:
   env:
     - name: MANAGEMENT_ENDPOINT_HEALTH_GROUP_LIVE_ADDITIONAL_PATH
       value: server:/startupz
-    - name: BP_SPRING_CLOUD_BINDINGS_VERSION
-      value: 1.13.0
     - name: spring_profiles_active
       value: k8s,tap
   serviceClaims:
