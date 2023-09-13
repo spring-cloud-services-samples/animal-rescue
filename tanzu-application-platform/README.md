@@ -142,7 +142,7 @@ ytt -f workloads.yml -v workloadNamespace=workloads | kubectl apply -f-
 repository updating the`<workloadNamespace>` placeholder with the namespace where the application will be deployed.
 
 ```
-tanzu apps workload apply -f frontend/config/workload.yml --local-path . --sub-path frontend
+tanzu apps workload apply -f frontend/config/workload.yml --local-path . --sub-path frontend --namespace <workloadNamespace>
 ```
 
 ### Spring Cloud Gateway Deployment
