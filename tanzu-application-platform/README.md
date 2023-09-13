@@ -147,7 +147,7 @@ tanzu apps workload apply -f frontend/config/workload.yml --local-path . --sub-p
 
 ### Spring Cloud Gateway Deployment
 
-Spring Cloud Gateway is used a "front door" for all requests in the Animal Rescue application.  To deploy the gateway along with applicable routes, run the following commands 
+Spring Cloud Gateway is used as a "front door" for all requests in the Animal Rescue application.  To deploy the gateway along with applicable routes, run the following commands 
 replacing the <workloadNamespace> placeholder with the namespace where the application will be deployed and the <ssoSecret> placeholder with the name of the secret
 obtained in the AppSSO installation section
 
