@@ -118,7 +118,7 @@ necessary if you are NOT using wildcard records in your DNS registrar.  DNS is a
 Finally, obtain the appSSO credential secret name by running the following command replacing` <workloadNamespace>` placeholder with the namespace where the application will be deployed.  Save the `status.claimed-resource.name` field value as this will be the secret name that will need to provided when configuring the Spring Cloud Gateway.
 
 ```
-tanzu service class-claim get appsso-animal-rescue -n <workloadNamespace>|
+tanzu service class-claim get appsso-animal-rescue -n <workloadNamespace>
 ```
 
 ### Workload Build And Deployment
