@@ -12,7 +12,7 @@ spec:
     type: ClusterIP
   api:
     title: Animal Rescue API Gateway
-    description: The entrypoint for all things Animal Resuce
+    description: The entrypoint for all things Animal Rescue
     version: 1.0.0
   env:
     - name: spring.cloud.gateway.httpclient.connect-timeout

@@ -10,7 +10,7 @@ be split across multiple cluster profiles (`build, view, and run`).
 These instructions assume that you have a TAP 1.5.x or greater `full` profile cluster up and running with the following packages installed and [kubectl](https://kubernetes.io
 docs/tasks/tools/) and the Tanzu CLI installed and configured to access your TAP cluster:
 
-* YTT
+* [ytt](https://carvel.dev/ytt/)
 * Tanzu TAP GUI
 * Tanzu Build Services
 * Tanzu Cloud Native Runtimes
@@ -96,7 +96,7 @@ This will also created the secret that will contain the AppSSO credential inform
 - **<workloadNamespace>** – Namespace where the application will be deployed
 
 ```
-ytt -f workloadRegistrationResource.yml -v workloadNamespace=<workloadNamespace>| kubectl apply –f-
+ytt -f workloadRegistrationResource.yml -v workloadNamespace=<workloadNamespace>| kubectl apply -f-
 ```
 
 For example:
@@ -138,6 +138,12 @@ For example:
 ytt -f workloads.yml -v workloadNamespace=workloads | kubectl apply -f-
 ```
 
+**NOTE** If the front end service fails to build (due to a known issue at the time of writing), you can run the following command from the root directory of the cloned
+repository updating the`<workloadNamespace>` placeholder with the namespace where the application will be deployed.
+
+```
+tanzu apps workload apply -f frontend/config/workload.yml --local-path . --sub-path frontend
+```
 
 ### Spring Cloud Gateway Deployment
 
