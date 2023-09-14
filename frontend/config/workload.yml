@@ -1,0 +1,40 @@
+apiVersion: carto.run/v1alpha1
+kind: Workload
+metadata:
+  name: animal-rescue-frontend
+  namespace: workloads
+  labels:
+    apps.tanzu.vmware.com/workload-type: server
+    app.kubernetes.io/part-of: animal-rescue-frontend
+    apps.tanzu.vmware.com/has-tests: "true"
+    networking.knative.dev/visibility: cluster-local
+    apps.tanzu.vmware.com/auto-configure-actuators: "true"    
+spec:
+  build:
+    env:
+    - name: BP_EXCLUDE_FILES
+      value: 'build.gradle'
+    - name: BP_NODE_RUN_SCRIPTS
+      value: build
+    - name: BP_WEB_SERVER_ROOT
+      value: dist      
+  params:
+  - name: testing_pipeline_matching_labels
+    value:
+        apps.tanzu.vmware.com/pipeline: rescue-generic-test 
+  - name: ports
+    value:
+    - port: 80
+      containerPort: 8080
+      name: http
+  resources:
+    requests:
+      memory: 500M
+    limits:
+      memory: 750M    
+  source:
+    subPath: frontend
+    git:
+      url: https://github.com/spring-cloud-services-samples/animal-rescue
+      ref:
+        branch: main

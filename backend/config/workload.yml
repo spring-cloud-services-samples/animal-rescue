@@ -1,0 +1,45 @@
+apiVersion: carto.run/v1alpha1
+kind: Workload
+metadata:
+  name: animal-rescue-backend
+  labels:
+    apps.tanzu.vmware.com/workload-type: server
+    app.kubernetes.io/part-of: animal-rescue-backend
+    apps.tanzu.vmware.com/has-tests: "true"
+    apps.tanzu.vmware.com/auto-configure-actuators: "true"    
+spec:
+  build:
+    env:
+    - name: BP_JVM_VERSION
+      value: "17"
+  env:
+    - name: MANAGEMENT_ENDPOINT_HEALTH_GROUP_LIVE_ADDITIONAL_PATH
+      value: server:/startupz
+    - name: spring_profiles_active
+      value: k8s,tap
+  serviceClaims:
+    - name: sso
+      ref:
+        apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+        kind: ClassClaim
+        name: appsso-animal-rescue
+  params:
+  - name: testing_pipeline_matching_labels
+    value:
+        apps.tanzu.vmware.com/pipeline: rescue-generic-test 
+  - name: ports
+    value:
+    - port: 80
+      containerPort: 8080
+      name: http
+  resources:
+    requests:
+      memory: 500M
+    limits:
+      memory: 750M    
+  source:
+    subPath: backend
+    git:
+      url: https://github.com/spring-cloud-services-samples/animal-rescue
+      ref:
+        branch: main

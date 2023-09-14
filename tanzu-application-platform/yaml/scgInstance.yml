@@ -1,0 +1,21 @@
+#@ load("@ytt:data", "data")
+
+
+---
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGateway
+metadata:
+  name: animal-rescue-gateway
+  namespace: #@ data.values.workloadNamespace
+spec:
+  service:
+    type: ClusterIP
+  api:
+    title: Animal Rescue API Gateway
+    description: The entrypoint for all things Animal Rescue
+    version: 1.0.0
+  env:
+    - name: spring.cloud.gateway.httpclient.connect-timeout
+      value: "90"
+  sso:
+    secret: #@ data.values.ssoSecret

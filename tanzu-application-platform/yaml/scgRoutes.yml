@@ -1,0 +1,157 @@
+#@ load("@ytt:data", "data")
+
+
+---
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayRouteConfig
+metadata:
+  name: animal-rescue-backend-route-config
+  namespace: #@ data.values.workloadNamespace  
+spec:
+  service:
+    name: animal-rescue-backend
+    ssoEnabled: true
+    filters:
+      - RateLimit=10,2s
+  routes:
+    - predicates:
+        - Path=/api/animals
+        - Method=GET
+      tags:
+        - "pet adoption"
+      ssoEnabled: false
+      title: "Retrieve pets for adoption."
+      description: "Retrieve all of the animals who are up for pet adoption."
+    - predicates:
+        - Path=/api/animals/{animalId}/adoption-requests
+        - Method=POST
+      tokenRelay: true
+      tags:
+        - "pet adoption"
+      title: "Pet adoption API"
+      description: "Create pet adoption requests."
+      model:
+        responses:
+          '201':
+            description: "Adoption request created successfully."
+        requestBody:
+          description: Manage adoption requests
+          content:
+            'application/json':
+              schema:
+                type: object
+                description: Adoption request schema
+                properties:
+                  adopterName:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  notes:
+                    type: string
+                required: [ "adopterName", "email" ]
+    - predicates:
+        - Path=/api/animals/{animalId}/adoption-requests/{adoptionId}
+        - Method=PUT,DELETE
+      tokenRelay: true
+      tags:
+        - "pet adoption"
+      title: "Pet adoption API"
+      description: "Update/delete pet adoption requests."
+      model:
+        requestBody:
+          description: Manage adoption requests
+          content:
+            'application/json':
+              schema:
+                type: object
+                description: Adoption request schema
+                properties:
+                  adopterName:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  notes:
+                    type: string
+                required: [ "adopterName", "email" ]
+    - predicates:
+        - Path=/api/actuator/**
+      tags:
+        - actuator
+      ssoEnabled: false
+      title: "API Actuator endpoints"
+      description: "Access API actuator endpoints to provide current status of backend service."
+    - predicates:
+        - Path=/api/whoami
+        - Method=GET
+      tokenRelay: true
+      tags:
+        - sso
+      title: "Retrieve user information"
+      description: "Retrieve the current authenticated user's information."
+---
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayMapping
+metadata:
+  name: animal-rescue-backend-route-mapping
+  namespace: #@ data.values.workloadNamespace
+spec:
+  gatewayRef:
+    name: animal-rescue-gateway
+  routeConfigRef:
+    name: animal-rescue-backend-route-config
+---
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayRouteConfig
+metadata:
+  name: animal-rescue-frontend-route-config
+  namespace: #@ data.values.workloadNamespace  
+spec:
+  service:
+    name: animal-rescue-frontend
+    ssoEnabled: false
+  openapi:
+    generation:
+      enabled: false
+  routes:
+    - ssoEnabled: true
+      predicates:
+        - Path=/rescue/login
+        - Method=GET
+      filters:
+        - RedirectTo=302, /rescue
+      order: 0
+      tags:
+        - sso
+      title: "Animal Rescue login link"
+      description: "SSO enabled path used by the login button"
+    - predicates:
+        - Path=/
+        - Method=GET
+      filters:
+        - RedirectTo=302, /rescue
+      tags:
+        - ui
+      title: "Animal Rescue home page"
+      description: "Animal Rescue home page that doesn't require SSO login"
+    - predicates:
+        - Path=/rescue/**
+        - Method=GET
+      order: 1000
+      tags:
+        - ui
+      title: "Animal Rescue UI Pages"
+      description: "Animal Rescue UI pages that don't require SSO login"
+---
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayMapping
+metadata:
+  name: animal-rescue-frontend-route-mapping
+  namespace: #@ data.values.workloadNamespace
+spec:
+  gatewayRef:
+    name: animal-rescue-gateway
+  routeConfigRef:
+    name: animal-rescue-frontend-route-config
+    

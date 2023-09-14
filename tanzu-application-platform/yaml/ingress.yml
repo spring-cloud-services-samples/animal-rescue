@@ -1,0 +1,32 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: animal-rescue-ingress
+  namespace: #@ data.values.workloadNamespace
+spec:
+  virtualhost:
+    fqdn: #@ 'animal-rescue.' + data.values.appDomainName
+    tls:
+      secretName: animal-rescue-cert 
+  routes:
+    - conditions:
+        - prefix: /
+      services:
+        - name: animal-rescue-gateway
+          port: 80
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: animal-rescue-cert
+  namespace: #@ data.values.workloadNamespace
+spec:
+  commonName: #@ 'animal-rescue.' + data.values.appDomainName
+  dnsNames:
+    -  #@ 'animal-rescue.' + data.values.appDomainName
+  issuerRef:
+    name: letsencrypt-rescue-prod
+    kind: ClusterIssuer
+  secretName: animal-rescue-cert
