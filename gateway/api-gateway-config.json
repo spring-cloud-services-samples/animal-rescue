@@ -2,7 +2,7 @@
   "sso": {
     "plan": "uaa"
   },
-  "count": 2,
+  "count": 1,
   "memory": "2G",
   "disk": "512M",
   "host": "gateway-demo",
