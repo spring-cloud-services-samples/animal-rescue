@@ -1,8 +1,11 @@
 package io.spring.cloud.samples.animalrescue.backend.security;
 
+import java.net.URI;
+
+import org.springframework.boot.autoconfigure.condition.ConditionalOnCloudPlatform;
+import org.springframework.boot.cloud.CloudPlatform;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -13,10 +16,8 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
 
-import java.net.URI;
-
 @Configuration
-@Profile("!cloud & !k8s") // cloud profile is automatically activated on CloudFoundry
+@ConditionalOnCloudPlatform(CloudPlatform.NONE)
 public class SecurityConfiguration {
 
 	@Bean
