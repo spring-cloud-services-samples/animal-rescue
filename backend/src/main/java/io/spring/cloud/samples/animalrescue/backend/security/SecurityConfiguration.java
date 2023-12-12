@@ -2,10 +2,13 @@ package io.spring.cloud.samples.animalrescue.backend.security;
 
 import java.net.URI;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnCloudPlatform;
 import org.springframework.boot.cloud.CloudPlatform;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -17,7 +20,7 @@ import org.springframework.security.web.server.authentication.RedirectServerAuth
 import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
 
 @Configuration
-@ConditionalOnCloudPlatform(CloudPlatform.NONE)
+@Conditional(SecurityConfiguration.NotOnCloudCondition.class)
 public class SecurityConfiguration {
 
 	@Bean
@@ -59,4 +62,14 @@ public class SecurityConfiguration {
 			.build();
 		// @formatter:on
 	}
+
+	static class NotOnCloudCondition implements Condition {
+
+		@Override
+		public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+			var cloudPlatform = CloudPlatform.getActive(context.getEnvironment());
+			return cloudPlatform == null || cloudPlatform == CloudPlatform.NONE;
+		}
+	}
+
 }
