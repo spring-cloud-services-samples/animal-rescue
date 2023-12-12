@@ -135,6 +135,7 @@ cd "$ROOT_DIR" || exit 1
 case $1 in
 init)
   init
+  build
   ;;
 push)
   build
