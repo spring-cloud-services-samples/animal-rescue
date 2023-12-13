@@ -60,7 +60,7 @@ spec:
     - name: MANAGEMENT_ENDPOINT_HEALTH_GROUP_LIVE_ADDITIONAL_PATH
       value: server:/startupz
     - name: spring_profiles_active
-      value: k8s,tap
+      value: tap
   serviceClaims:
     - name: sso
       ref:
