@@ -2,6 +2,29 @@ version: 2
 updates:
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
+    labels:
+      - dependencies
     directory: "/"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "gradle"
+    labels:
+      - dependencies
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "npm"
+    labels:
+      - dependencies
+    directory: "/e2e"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "npm"
+    labels:
+      - dependencies
+    directory: "/frontend"
     schedule:
       interval: "weekly"
