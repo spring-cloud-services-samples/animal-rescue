@@ -2,14 +2,14 @@
   "name": "frontend",
   "version": "1.0.0",
   "dependencies": {
-    "axios": ">=0.21.2",
-    "prop-types": "^15.7.2",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
-    "react-responsive-carousel": "^3.1.51",
-    "react-scripts": "^5.0.0",
+    "axios": "^1.6.2",
+    "prop-types": "^15.8.1",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "react-responsive-carousel": "^3.2.23",
+    "react-scripts": "^5.0.1",
     "semantic-ui-react": "^0.88.2",
-    "wait-on": "^5.3.0"
+    "wait-on": "^7.2.0"
   },
   "scripts": {
     "start": "wait-on tcp:8080 && REACT_APP_LOGIN_URI=http://localhost:8080/login REACT_APP_LOGOUT_URI=http://localhost:8080/logout react-scripts start",
@@ -36,6 +36,7 @@
     ]
   },
   "devDependencies": {
-    "eslint": "^8.43.0"
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "eslint": "^8.56.0"
   }
 }

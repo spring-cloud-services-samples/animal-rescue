@@ -23,3 +23,10 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('login', (username, password) => {
+    cy.visit('/');
+    cy.contains('Sign in to adopt').click({force: true});
+    cy.get('input[name=username]').type(username);
+    cy.get('input[name=password]').type(`${password}{enter}`); // {enter} causes the form to submit
+});
