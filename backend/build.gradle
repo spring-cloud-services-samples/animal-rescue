@@ -41,7 +41,7 @@ dependencies {
 	implementation "org.springframework.security:spring-security-oauth2-resource-server"
 	implementation "org.springframework.security:spring-security-oauth2-jose"
  	implementation('io.pivotal.cfenv:java-cfenv-boot:3.1.5')
-	implementation 'org.springdoc:springdoc-openapi-starter-webflux-api:2.3.0'
+	implementation 'org.springdoc:springdoc-openapi-starter-webflux-api:2.4.0'
 
     runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'io.r2dbc:r2dbc-h2'
