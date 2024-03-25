@@ -33,7 +33,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
-	implementation "org.springframework.cloud:spring-cloud-bindings:2.0.2"
+	implementation "org.springframework.cloud:spring-cloud-bindings:2.0.3"
 
 	implementation "org.springframework.security:spring-security-web"
 
