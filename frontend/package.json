@@ -9,7 +9,7 @@
     "react-responsive-carousel": "^3.2.23",
     "react-scripts": "^5.0.1",
     "semantic-ui-react": "^2.1.5",
-    "wait-on": "^8.0.1"
+    "wait-on": "^8.0.3"
   },
   "scripts": {
     "start": "wait-on tcp:8080 && REACT_APP_LOGIN_URI=http://localhost:8080/login REACT_APP_LOGOUT_URI=http://localhost:8080/logout react-scripts start",
