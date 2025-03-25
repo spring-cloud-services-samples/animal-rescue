@@ -49,7 +49,7 @@ dependencies {
 	testImplementation('org.springframework.security:spring-security-test')
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
- 	testImplementation('io.pivotal.cfenv:java-cfenv-test-support:3.3.0')
+ 	testImplementation('io.pivotal.cfenv:java-cfenv-test-support:3.4.0')
 }
 
 test {
