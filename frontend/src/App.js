@@ -5,10 +5,13 @@ import './App.css';
 import logo from './logo.svg';
 import AnimalCards from "./components/animal-cards";
 import Carousel from "./components/carousel";
+import ChatSidebar from "./components/chat-sidebar";
 import {getAnimals, getUsername} from "./httpClient";
 import {AppContext} from "./AppContext";
 
 const PENDING = 'pending', AUTHENTICATED = 'authenticated', ANONYMOUS = 'anonymous';
+
+let nextMessageId = 1;
 
 export default class App extends React.Component {
 
@@ -21,6 +24,8 @@ export default class App extends React.Component {
             username: '',
             animals: [],
             userStatus: PENDING,
+            chatMessages: [],
+            isSidebarOpen: false,
         };
     }
 
@@ -35,6 +40,28 @@ export default class App extends React.Component {
         }));
     };
 
+    toggleSidebar = () => {
+        this.setState(prev => ({isSidebarOpen: !prev.isSidebarOpen}));
+    };
+
+    addChatMessage = (text) => {
+        const userMsg = {
+            id: nextMessageId++,
+            text,
+            sender: 'user',
+            timestamp: new Date(),
+        };
+        const botMsg = {
+            id: nextMessageId++,
+            text: 'Thanks for your question! A volunteer will get back to you soon.',
+            sender: 'assistant',
+            timestamp: new Date(),
+        };
+        this.setState(prev => ({
+            chatMessages: [...prev.chatMessages, userMsg, botMsg],
+        }));
+    };
+
     componentDidMount() {
         this.fetchAnimals();
         this.getUsername();
@@ -42,7 +69,7 @@ export default class App extends React.Component {
 
     render() {
         return (
-            <div className="App">
+            <div className={`App ${this.state.isSidebarOpen ? 'sidebar-open' : ''}`}>
                 <header className="App-header">
                     <img src={logo} title="Logo" width="250" alt="Logo"/>
                     <div className="header-buttons">
@@ -57,6 +84,13 @@ export default class App extends React.Component {
                                      animals={this.state.animals}/>
                     </AppContext.Provider>
                 </div>
+                <ChatSidebar
+                    isOpen={this.state.isSidebarOpen}
+                    messages={this.state.chatMessages}
+                    onSendMessage={this.addChatMessage}
+                    onClose={this.toggleSidebar}
+                    onOpen={this.toggleSidebar}
+                />
             </div>
         );
     }

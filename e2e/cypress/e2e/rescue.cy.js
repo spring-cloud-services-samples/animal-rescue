@@ -15,6 +15,45 @@ context('Animal Rescue', () => {
       });
   });
 
+  describe('chat sidebar', () => {
+
+    it('shows FAB on page load', () => {
+      cy.get('.chat-fab').should('be.visible');
+    });
+
+    it('opens sidebar when FAB is clicked', () => {
+      cy.get('.chat-fab').click();
+      cy.get('.chat-sidebar').should('have.class', 'open');
+    });
+
+    it('sends a message and displays it', () => {
+      cy.get('.chat-sidebar-input input').type('Hello{enter}');
+      cy.get('.chat-sidebar-messages').should('contain', 'Hello');
+    });
+
+    it('shows a bot reply after sending a message', () => {
+      cy.get('.chat-sidebar-messages').should('contain', 'Thanks for your question');
+    });
+
+    it('closes sidebar and preserves messages', () => {
+      cy.get('.chat-sidebar-header .close.icon').click();
+      cy.get('.chat-sidebar').should('not.have.class', 'open');
+      cy.get('.chat-fab').click();
+      cy.get('.chat-sidebar-messages').should('contain', 'Hello');
+    });
+
+    it('does not block animal cards on mobile', () => {
+      cy.viewport(375, 667);
+      cy.get('.chat-sidebar-header .close.icon').click();
+      cy.get('.ui.card').first().should('be.visible');
+    });
+
+    after(() => {
+      // Reset viewport and close sidebar for subsequent tests
+      cy.viewport(1000, 660);
+    });
+  });
+
   describe('logged in user', () => {
 
     before(() => {

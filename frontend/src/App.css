@@ -125,6 +125,11 @@
     justify-content: center;
     max-width: 968px;
     margin: 0 auto;
+    transition: margin-right 0.3s ease;
+  }
+
+  .sidebar-open .App-body {
+    margin-right: 360px;
   }
 
   .header-buttons {

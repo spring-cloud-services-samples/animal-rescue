@@ -1,0 +1,12 @@
+# User Story: Natural Language Adoption Inquiry
+
+As an interested adopter,
+I want to ask the chat assistant about available animals,
+So that I can find a pet that fits my needs without manually filtering the animal list.
+
+# Acceptance Criteria:
+
+* Chat Connection: The chat window must establish a persistent connection to the Chat/MCP Server.
+* MCP Integration: The Chat Server must use an MCP client to call the GET /animals endpoint of the Animal Rescue backend.
+* Context Awareness: The LLM should be able to filter results based on user queries (e.g., "Show me small dogs" or "Are there any animals with 'high energy' levels?").
+* Response Rendering: The chat window must support Markdown or structured responses to display animal details (Name, Species, Breed).
