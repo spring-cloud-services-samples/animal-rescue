@@ -1,5 +1,5 @@
 plugins {
-	id 'org.springframework.boot' version '3.3.5'
+	id 'org.springframework.boot' version '3.5.10'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'java'
 	id 'jacoco'
@@ -26,6 +26,12 @@ repositories {
 	mavenCentral()
 }
 
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.ai:spring-ai-bom:1.1.2"
+	}
+}
+
 dependencies {
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
@@ -42,6 +48,8 @@ dependencies {
 	implementation "org.springframework.security:spring-security-oauth2-jose"
  	implementation('io.pivotal.cfenv:java-cfenv-boot:3.4.0')
 	implementation 'org.springdoc:springdoc-openapi-starter-webflux-api:2.8.6'
+
+    implementation 'org.springframework.ai:spring-ai-starter-mcp-server'
 
     runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'io.r2dbc:r2dbc-h2'
@@ -60,12 +68,4 @@ test {
 	}
 }
 
-jacocoTestReport {
-	dependsOn test
-    reports {
-        xml.enabled true
-		xml.destination new File("${buildDir}/reports/jacoco/report.xml")
-		html.enabled false
-		csv.enabled false
-    }
-}
+

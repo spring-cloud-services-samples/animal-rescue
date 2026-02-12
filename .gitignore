@@ -2,6 +2,7 @@
 .gradle
 *.yaml
 **/bin/
+build/
 
 ### IntelliJ IDEA ###
 .idea
