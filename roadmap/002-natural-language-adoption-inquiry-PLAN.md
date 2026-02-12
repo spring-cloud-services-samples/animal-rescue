@@ -19,11 +19,12 @@ This story depends on **001 - Contextual Sidebar Integration** being complete. T
 - `GET /animals` returns all 10 animals with their adoption requests (public, no auth required)
 - Animal fields: `id`, `name`, `rescueDate`, `avatarUrl`, `description`, `adoptionRequests[]`
 - No species/breed/size fields exist in the schema -- the LLM will need to infer attributes from the `description` text and `avatarUrl` (which contains breed hints in the URL path)
-- The backend is a Spring Boot 3.3.5 WebFlux app running on port 8080
+- The backend is a Spring Boot 3.5.10 WebFlux app running on port 8080
+- The backend already includes `spring-ai-starter-mcp-server` (Spring AI 1.1.2 BOM) -- it is configured as an **MCP server**, meaning the chat server can connect to it as an MCP client and invoke tools directly via the MCP protocol rather than wrapping raw REST calls
 
 **Infrastructure**:
-- No chat server or MCP server exists yet
-- No LLM dependency exists in the project
+- No chat server exists yet, but the backend is already an MCP server
+- Spring AI 1.1.2 BOM is already declared in the backend's `build.gradle`
 
 ## Architecture Overview
 
@@ -39,19 +40,19 @@ This story depends on **001 - Contextual Sidebar Integration** being complete. T
                                                                           +--------------------+
 ```
 
-The **Chat Server** is a new Spring Boot application that:
+The **Chat Server** is a new Spring Boot 3.5.10 application that:
 1. Receives user messages from the frontend
-2. Sends them to an LLM (e.g. OpenAI, Anthropic, or a local model) with MCP tool definitions
-3. The LLM decides when to call the `GET /animals` tool
-4. The MCP client executes the tool call against the Animal Rescue backend
+2. Sends them to an LLM (e.g. OpenAI, Anthropic, or a local model) with tool definitions
+3. The LLM decides when to call the `getAvailableAnimals` tool
+4. The chat server, acting as an **MCP client**, invokes the tool on the Animal Rescue backend (which is already an MCP server via `spring-ai-starter-mcp-server`)
 5. The LLM uses the returned animal data to compose a natural-language response
 6. The response is streamed back to the frontend
 
 ### Why a Separate Chat Server?
 
-- **Separation of concerns**: The Animal Rescue backend is a domain API; the chat server is an orchestration layer
+- **Separation of concerns**: The Animal Rescue backend is a domain API and MCP server; the chat server is the LLM orchestration layer and MCP client
 - **LLM API keys stay server-side**: Never exposed to the browser
-- **MCP protocol**: The chat server acts as an MCP client calling the Animal Rescue backend as an MCP-compatible tool server (or wraps the REST API as MCP tools)
+- **MCP protocol**: The backend already exposes tools via `spring-ai-starter-mcp-server`. The chat server uses `spring-ai-starter-mcp-client` to connect to it natively -- no manual REST wrapping needed
 - **Streaming**: The chat server can stream LLM responses via SSE without modifying the existing backend
 
 ## Scope Decisions
@@ -74,15 +75,13 @@ The **Chat Server** is a new Spring Boot application that:
 
 | File | Purpose |
 |------|---------|
-| `chat-server/build.gradle` | Spring Boot 3.3.5 app with Spring AI, WebFlux |
+| `chat-server/build.gradle` | Spring Boot 3.5.10 app with Spring AI 1.1.2, WebFlux, MCP client |
 | `chat-server/src/main/java/.../ChatServerApplication.java` | Boot main class |
 | `chat-server/src/main/java/.../ChatController.java` | `POST /chat` endpoint, accepts `{ message, history[] }`, returns SSE stream |
-| `chat-server/src/main/java/.../ChatService.java` | Orchestrates LLM calls with MCP tool definitions |
-| `chat-server/src/main/java/.../mcp/AnimalRescueMcpTools.java` | MCP tool definitions: `getAvailableAnimals` |
-| `chat-server/src/main/java/.../config/ChatServerConfig.java` | LLM client config, backend URL config |
+| `chat-server/src/main/java/.../ChatService.java` | Orchestrates LLM calls; the MCP client auto-discovers tools from the backend MCP server |
+| `chat-server/src/main/java/.../config/ChatServerConfig.java` | LLM client config, MCP client config |
 | `chat-server/src/main/resources/application.yml` | Server port (8081), backend URL, LLM API config |
 | `chat-server/src/test/java/.../ChatControllerTest.java` | Integration tests |
-| `chat-server/src/test/java/.../mcp/AnimalRescueMcpToolsTest.java` | Tool execution unit tests |
 | `frontend/src/components/chat-markdown.js` | Simple Markdown renderer for chat bubbles |
 | `frontend/src/components/chat-markdown.css` | Styles for rendered markdown content |
 
@@ -108,7 +107,7 @@ Add a new `chat-server/` directory as a sibling to `backend/` and `frontend/`.
 **`chat-server/build.gradle`:**
 ```gradle
 plugins {
-    id 'org.springframework.boot' version '3.3.5'
+    id 'org.springframework.boot' version '3.5.10'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'java'
 }
@@ -124,73 +123,77 @@ java {
 
 repositories {
     mavenCentral()
-    maven { url 'https://repo.spring.io/milestone' }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:1.1.2"
+    }
 }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    implementation 'org.springframework.ai:spring-ai-starter-mcp-client'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
 }
 ```
 
+Note: The Spring AI BOM 1.1.2 is used for dependency management, matching the backend. The artifact names follow the new Spring AI 1.x convention (`spring-ai-starter-model-openai` instead of the old `spring-ai-openai-spring-boot-starter`). The `spring-ai-starter-mcp-client` dependency enables the chat server to connect to the backend's MCP server and auto-discover its tools. No milestone repository is needed -- Spring AI 1.1.2 is GA and available from Maven Central.
+
 Update `settings.gradle` to include the new module:
 ```gradle
 include "chat-server"
 ```
 
-### Step 2: Implement MCP Tool Definitions
+### Step 2: MCP Tool Discovery (Backend is Already an MCP Server)
 
-The MCP tools wrap the Animal Rescue backend REST API as callable tools for the LLM.
+The backend already includes `spring-ai-starter-mcp-server` and exposes tools via the MCP protocol. The chat server uses `spring-ai-starter-mcp-client` to **auto-discover** these tools at startup -- no manual tool definitions or REST wrappers are needed in the chat server.
 
-**`AnimalRescueMcpTools.java`:**
+The backend's MCP server should expose a `getAvailableAnimals` tool (defined in the backend codebase using `@Tool`). If this tool does not yet exist in the backend, it needs to be added:
+
+**Backend -- `AnimalRescueMcpTools.java` (if not already present):**
 
 ```java
 @Component
 public class AnimalRescueMcpTools {
 
-    private final WebClient backendClient;
+    private final AnimalRepository animalRepository;
 
-    public AnimalRescueMcpTools(@Value("${animal-rescue.backend-url}") String backendUrl) {
-        this.backendClient = WebClient.builder().baseUrl(backendUrl).build();
+    public AnimalRescueMcpTools(AnimalRepository animalRepository) {
+        this.animalRepository = animalRepository;
     }
 
     @Tool(description = "Get all animals available for adoption at the rescue center. " +
           "Returns a list of animals with their name, description, rescue date, " +
           "avatar URL, and current adoption requests.")
     public Flux<Animal> getAvailableAnimals() {
-        return backendClient.get()
-            .uri("/animals")
-            .retrieve()
-            .bodyToFlux(Animal.class);
+        return animalRepository.findAll();
     }
 }
 ```
 
-The `Animal` record mirrors the backend's JSON response:
-```java
-public record Animal(
-    Long id,
-    String name,
-    String rescueDate,
-    String avatarUrl,
-    String description,
-    List<AdoptionRequest> adoptionRequests
-) {}
+The chat server's MCP client configuration (in `application.yml`) points to the backend's MCP endpoint:
 
-public record AdoptionRequest(
-    Long id,
-    String adopterName,
-    String email,
-    String notes
-) {}
+```yaml
+spring:
+  ai:
+    mcp:
+      client:
+        stdio:
+          servers:
+            animal-rescue:
+              command: ./gradlew
+              args: [":backend:bootRun"]
 ```
+
+Or, if the backend exposes MCP over HTTP (SSE transport), the client connects via URL. The exact transport depends on how the backend's `spring-ai-starter-mcp-server` is configured. The key point is that **tools are discovered automatically** -- the chat server does not need to define `AnimalRescueMcpTools` locally.
 
 ### Step 3: Implement the Chat Service
 
-The `ChatService` wires the LLM client with the MCP tools and manages the system prompt.
+The `ChatService` wires the LLM client with the MCP-discovered tools and manages the system prompt. Spring AI 1.1.2's `ChatClient.Builder` is auto-configured with the MCP client's tool definitions, so tools discovered from the backend MCP server are automatically available to the LLM.
 
 ```java
 @Service
@@ -221,6 +224,8 @@ public class ChatService {
     }
 }
 ```
+
+The MCP tools (e.g. `getAvailableAnimals`) are auto-registered from the backend MCP server -- no explicit tool registration is needed in the chat server code.
 
 ### Step 4: Implement the Chat Controller
 
@@ -259,9 +264,6 @@ The endpoint returns `text/event-stream` so the frontend can consume tokens as t
 server:
   port: 8081
 
-animal-rescue:
-  backend-url: http://localhost:8080
-
 spring:
   ai:
     openai:
@@ -270,9 +272,16 @@ spring:
         options:
           model: gpt-4o
           temperature: 0.7
+    mcp:
+      client:
+        stdio:
+          servers:
+            animal-rescue-backend:
+              command: ./gradlew
+              args: [":backend:bootRun"]
 ```
 
-The API key is read from an environment variable, never hardcoded.
+The API key is read from an environment variable, never hardcoded. The MCP client configuration tells the chat server how to connect to the backend's MCP server. The exact transport (stdio vs. HTTP/SSE) depends on how the backend's `spring-ai-starter-mcp-server` is configured -- adjust accordingly.
 
 ### Step 6: Update the Frontend -- HTTP Client
 
@@ -378,9 +387,7 @@ Update `start()` to call `startChatServer` after `startBackend` (the chat server
 - Verify `POST /chat` returns an SSE stream
 - Verify the MCP tool is invoked when the LLM requests it
 
-**Chat Server -- MCP Tool Test (`AnimalRescueMcpToolsTest.java`):**
-- Use `MockWebServer` to stub `GET /animals`
-- Verify `getAvailableAnimals()` correctly deserializes the response
+Note: MCP tool definitions live in the backend (not the chat server), so tool-level unit tests belong in the backend's test suite. The chat server tests focus on the LLM orchestration and SSE streaming.
 
 **E2E (Cypress):**
 ```js
@@ -433,7 +440,7 @@ This is a pragmatic approach that avoids schema changes to the existing backend.
 | Criteria | How It's Met |
 |----------|-------------|
 | Chat window establishes persistent connection to Chat/MCP Server | Frontend sends `POST /chat` to the chat server (port 8081) and reads the SSE response stream. Connection is per-message; conversation history is sent with each request. |
-| MCP Integration: Chat Server calls `GET /animals` | `AnimalRescueMcpTools.getAvailableAnimals()` is registered as an MCP tool. The LLM invokes it when the user asks about animals. The tool calls `GET /animals` on the backend (port 8080). |
+| MCP Integration: Chat Server calls `GET /animals` | The backend exposes `getAvailableAnimals` as an MCP tool via `spring-ai-starter-mcp-server`. The chat server's MCP client (`spring-ai-starter-mcp-client`) auto-discovers this tool. The LLM invokes it when the user asks about animals. |
 | Context Awareness: LLM filters based on user queries | The LLM receives the full animal list from the tool and uses its language understanding to match descriptions to user criteria. System prompt guides this behavior. |
 | Response Rendering: Markdown or structured responses | `react-markdown` renders assistant messages. The system prompt instructs the LLM to format responses with Markdown (bold names, bullet points, etc.). |
 

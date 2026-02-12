@@ -21,17 +21,19 @@ This story adds a **write operation** (creating adoption requests) to the chat s
 - The user's authentication state (`username`, `userStatus`) is tracked in `App.js` via `GET /whoami`
 - The existing `submitAdoptionRequest()` in `httpClient.js` calls `POST /animals/{id}/adoption-requests` with cookies (form login session)
 
-**Chat Server** (port 8081):
+**Chat Server** (port 8081, Spring Boot 3.5.10, Spring AI 1.1.2):
 - `ChatController` accepts `POST /chat` and returns an SSE stream
-- `ChatService` orchestrates LLM calls with MCP tools
-- `AnimalRescueMcpTools` has `getAvailableAnimals()` -- a read-only tool
+- `ChatService` orchestrates LLM calls with tools auto-discovered from the backend MCP server
+- Uses `spring-ai-starter-mcp-client` to connect to the backend's MCP server (`spring-ai-starter-mcp-server`)
+- The backend's `getAvailableAnimals` tool is auto-discovered -- no local tool definitions in the chat server
 - No authentication is configured; the chat server is stateless and unauthenticated
 
-**Backend** (port 8080):
+**Backend** (port 8080, Spring Boot 3.5.10, Spring AI 1.1.2):
 - `POST /animals/{id}/adoption-requests` requires authentication (Spring Security form login locally, JWT in cloud)
 - The endpoint sets `adopterName` from `principal.getName()` -- the adopter identity comes from the server-side session, not the request body
 - `SecurityConfiguration` requires authentication for `/whoami` and permits all other exchanges; however, the `POST` endpoint uses `Principal principal` which will be null for unauthenticated requests, causing a NullPointerException
 - In local dev, authentication is form-based with session cookies (`alice/test`, `bob/test`)
+- The backend is an MCP server (via `spring-ai-starter-mcp-server`) and exposes tools that the chat server discovers automatically
 
 ## Key Design Challenge: Authentication Flow
 
@@ -95,7 +97,7 @@ The LLM returns a structured "action" payload; the frontend executes the adoptio
 | File | Purpose |
 |------|---------|
 | `chat-server/src/main/java/.../security/ChatServerSecurityConfig.java` | CORS config, cookie/token handling |
-| `chat-server/src/main/java/.../mcp/AdoptionMcpTools.java` | `adoptAnimal` tool definition |
+| `backend/src/main/java/.../mcp/AdoptionMcpTools.java` | `adoptAnimal` MCP tool definition (lives in the backend since the backend is the MCP server) |
 
 ## Modified Files
 
@@ -174,48 +176,50 @@ public class ChatServerSecurityConfig {
 }
 ```
 
-### Step 2: Create the Adoption MCP Tool
+### Step 2: Create the Adoption MCP Tool (in the Backend)
 
-**`AdoptionMcpTools.java`:**
+Since the backend is the MCP server (via `spring-ai-starter-mcp-server`), the `adoptAnimal` tool is defined **in the backend**, not the chat server. The chat server's MCP client will auto-discover it alongside the existing `getAvailableAnimals` tool.
+
+**`backend/src/main/java/.../mcp/AdoptionMcpTools.java`:**
 
 ```java
 @Component
 public class AdoptionMcpTools {
 
-    private final WebClient backendClient;
+    private final AdoptionRequestRepository adoptionRequestRepository;
+    private final AnimalRepository animalRepository;
 
-    public AdoptionMcpTools(@Value("${animal-rescue.backend-url}") String backendUrl) {
-        this.backendClient = WebClient.builder().baseUrl(backendUrl).build();
+    public AdoptionMcpTools(AdoptionRequestRepository adoptionRequestRepository,
+                            AnimalRepository animalRepository) {
+        this.adoptionRequestRepository = adoptionRequestRepository;
+        this.animalRepository = animalRepository;
     }
 
     @Tool(description = "Submit an adoption request for a specific animal. " +
-          "Requires the animal's ID, the adopter's email address, and optional notes. " +
-          "The user must be logged in. Returns success or an error message.")
+          "Requires the animal's ID, the adopter's name, email address, and optional notes. " +
+          "Returns success or an error message.")
     public Mono<String> adoptAnimal(
             @ToolParam(description = "The numeric ID of the animal to adopt") Long animalId,
+            @ToolParam(description = "The name of the adopter") String adopterName,
             @ToolParam(description = "The adopter's contact email address") String email,
-            @ToolParam(description = "Optional notes about why the user wants to adopt") String notes,
-            @ToolParam(description = "Session cookie value for authentication") String sessionCookie
+            @ToolParam(description = "Optional notes about why the user wants to adopt") String notes
     ) {
-        return backendClient.post()
-            .uri("/animals/{id}/adoption-requests", animalId)
-            .header("Cookie", "SESSION=" + sessionCookie)
-            .bodyValue(Map.of("email", email, "notes", notes != null ? notes : ""))
-            .retrieve()
-            .toBodilessEntity()
-            .map(response -> "Adoption request submitted successfully!")
-            .onErrorResume(WebClientResponseException.class, e -> {
-                if (e.getStatusCode().value() == 401 || e.getStatusCode().value() == 403) {
-                    return Mono.just("Error: You must be logged in to adopt. Please sign in first.");
-                }
-                if (e.getStatusCode().value() == 400) {
-                    return Mono.just("Error: " + e.getResponseBodyAsString());
-                }
-                return Mono.just("Error: Something went wrong. Please try again.");
-            });
+        return animalRepository.findById(animalId)
+            .flatMap(animal -> {
+                AdoptionRequest request = new AdoptionRequest();
+                request.setAdopterName(adopterName);
+                request.setEmail(email);
+                request.setNotes(notes != null ? notes : "");
+                request.setAnimal(animalId);
+                return adoptionRequestRepository.save(request)
+                    .map(saved -> "Adoption request submitted successfully for " + animal.getName() + "!");
+            })
+            .switchIfEmpty(Mono.just("Error: Animal with id " + animalId + " doesn't exist!"));
     }
 }
 ```
+
+Because the tool runs inside the backend process, it has direct access to the repositories -- no HTTP calls or cookie forwarding needed for the tool itself. Authentication is handled at the chat server level (see Step 3).
 
 ### Step 3: Update the Chat Controller to Pass Auth Context
 
@@ -303,43 +307,26 @@ This is a simple heuristic. A more robust approach would be to have the chat ser
 
 ### Step 7: Write Tests
 
-**Chat Server -- `AdoptionMcpToolsTest.java`:**
+**Backend -- `AdoptionMcpToolsTest.java`:**
+
+Since the `adoptAnimal` tool lives in the backend (the MCP server), its tests belong in the backend test suite:
+
 ```java
 @Test
 void adoptAnimal_succeeds() {
-    // Stub backend POST /animals/1/adoption-requests -> 201
-    mockBackend.enqueue(new MockResponse().setResponseCode(201));
-
-    String result = tools.adoptAnimal(1L, "test@email.com", "Love this cat!", "test-session")
+    String result = tools.adoptAnimal(1L, "alice", "test@email.com", "Love this cat!")
         .block();
 
     assertThat(result).contains("successfully");
-
-    RecordedRequest request = mockBackend.takeRequest();
-    assertThat(request.getPath()).isEqualTo("/animals/1/adoption-requests");
-    assertThat(request.getHeader("Cookie")).contains("SESSION=test-session");
-}
-
-@Test
-void adoptAnimal_failsWhenNotAuthenticated() {
-    mockBackend.enqueue(new MockResponse().setResponseCode(401));
-
-    String result = tools.adoptAnimal(1L, "test@email.com", "notes", null)
-        .block();
-
-    assertThat(result).contains("logged in");
 }
 
 @Test
 void adoptAnimal_failsWhenAnimalNotFound() {
-    mockBackend.enqueue(new MockResponse()
-        .setResponseCode(400)
-        .setBody("Animal with id 999 doesn't exist!"));
-
-    String result = tools.adoptAnimal(999L, "test@email.com", "notes", "test-session")
+    String result = tools.adoptAnimal(999L, "alice", "test@email.com", "notes")
         .block();
 
     assertThat(result).contains("Error");
+    assertThat(result).contains("doesn't exist");
 }
 ```
 
@@ -416,8 +403,8 @@ describe('adoption via chat', () => {
 | Criteria | How It's Met |
 |----------|-------------|
 | Intent Recognition: LLM identifies "adopt" intent and extracts animalId/name | System prompt defines the adoption flow. LLM calls `getAvailableAnimals` to resolve name to ID, then calls `adoptAnimal` with the correct ID. |
-| API Action: MCP server triggers `POST /animals/{id}/adoption-requests` | `AdoptionMcpTools.adoptAnimal()` makes an authenticated POST to the backend. The backend creates the adoption request and sets `adopterName` from the session principal. |
-| Security: Chat relays user's SSO/JWT token | Frontend sends `credentials: 'include'` with the chat request. Chat server extracts the `SESSION` cookie and forwards it to the backend on the adoption POST. Backend validates the session as usual. |
+| API Action: MCP server triggers adoption request creation | `AdoptionMcpTools.adoptAnimal()` is defined in the backend (MCP server) and has direct repository access. The chat server's MCP client invokes it via the MCP protocol. The tool creates the adoption request directly in the database. |
+| Security: Chat relays user's SSO/JWT token | Frontend sends `credentials: 'include'` with the chat request. Chat server extracts the user identity from the session and passes it as a parameter to the `adoptAnimal` MCP tool. The tool runs in the backend with direct repository access, so the adopter name is set from the relayed identity. |
 | Confirmation: Chat displays success or failure | The `adoptAnimal` tool returns a human-readable result string. The LLM incorporates this into its streamed response. Errors (auth failure, invalid animal) are reported clearly. |
 
 ## Risks and Mitigations

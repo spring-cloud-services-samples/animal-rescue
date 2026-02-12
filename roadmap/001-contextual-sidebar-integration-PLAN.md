@@ -6,7 +6,7 @@
 
 ## Current State Analysis
 
-The frontend is a React 18 class-component application using Semantic UI React. It is a single-page app with no client-side routing -- `App.js` renders a header, carousel, and `AnimalCards` grid in a single view. State is managed locally in each component (no Redux, no global store beyond a minimal `AppContext` that provides a `refresh` callback). The app proxies API calls to a Spring Boot WebFlux backend on port 8080.
+The frontend is a React 18 class-component application using Semantic UI React. It is a single-page app with no client-side routing -- `App.js` renders a header, carousel, and `AnimalCards` grid in a single view. State is managed locally in each component (no Redux, no global store beyond a minimal `AppContext` that provides a `refresh` callback). The app proxies API calls to a Spring Boot 3.5.10 WebFlux backend on port 8080.
 
 Key constraints:
 - All existing components are **class components** (not hooks-based)
