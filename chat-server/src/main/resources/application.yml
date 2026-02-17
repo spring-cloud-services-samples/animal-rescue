@@ -12,10 +12,10 @@ spring:
           temperature: 0.7
     mcp:
       client:
-        sse:
-          connections:
-            animal-rescue-backend:
-              url: http://localhost:8080
+        enabled: false
+
+animal-rescue:
+  backend-url: ${ANIMAL_RESCUE_BACKEND_URL:http://localhost:8080}
 
 logging:
   level:
