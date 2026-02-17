@@ -1,0 +1,23 @@
+server:
+  port: 8081
+
+spring:
+  ai:
+    openai:
+      base-url: ${OPENAI_BASE_URL:}
+      api-key: ${OPENAI_API_KEY:}
+      chat:
+        options:
+          model: gpt-oss:20b
+          temperature: 0.7
+    mcp:
+      client:
+        sse:
+          connections:
+            animal-rescue-backend:
+              url: http://localhost:8080
+
+logging:
+  level:
+    io.spring.cloud.samples.animalrescue.chatserver: DEBUG
+    org.springframework.ai: DEBUG

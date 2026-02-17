@@ -6,7 +6,7 @@ import logo from './logo.svg';
 import AnimalCards from "./components/animal-cards";
 import Carousel from "./components/carousel";
 import ChatSidebar from "./components/chat-sidebar";
-import {getAnimals, getUsername} from "./httpClient";
+import {getAnimals, getUsername, sendChatMessage} from "./httpClient";
 import {AppContext} from "./AppContext";
 
 const PENDING = 'pending', AUTHENTICATED = 'authenticated', ANONYMOUS = 'anonymous';
@@ -44,22 +44,94 @@ export default class App extends React.Component {
         this.setState(prev => ({isSidebarOpen: !prev.isSidebarOpen}));
     };
 
-    addChatMessage = (text) => {
+    addChatMessage = async (text) => {
         const userMsg = {
             id: nextMessageId++,
             text,
             sender: 'user',
             timestamp: new Date(),
         };
-        const botMsg = {
+        const assistantMsg = {
             id: nextMessageId++,
-            text: 'Thanks for your question! A volunteer will get back to you soon.',
+            text: '',
             sender: 'assistant',
             timestamp: new Date(),
+            isStreaming: true,
         };
+
         this.setState(prev => ({
-            chatMessages: [...prev.chatMessages, userMsg, botMsg],
+            chatMessages: [...prev.chatMessages, userMsg, assistantMsg],
         }));
+
+        const history = this.state.chatMessages
+            .filter(m => m.sender !== 'system')
+            .map(m => ({role: m.sender, content: m.text}));
+
+        try {
+            const response = await sendChatMessage({message: text, history});
+
+            if (!response.ok) {
+                this.setState(prev => {
+                    const messages = [...prev.chatMessages];
+                    const last = messages[messages.length - 1];
+                    messages[messages.length - 1] = {
+                        ...last,
+                        text: 'Sorry, something went wrong. Please try again.',
+                        isStreaming: false,
+                    };
+                    return {chatMessages: messages};
+                });
+                return;
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+                const {done, value} = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                // Parse SSE data lines
+                const lines = chunk.split('\n');
+                for (const line of lines) {
+                    if (line.startsWith('data:')) {
+                        const data = line.slice(5);
+                        if (data.trim() === '') continue;
+                        this.setState(prev => {
+                            const messages = [...prev.chatMessages];
+                            const last = messages[messages.length - 1];
+                            messages[messages.length - 1] = {
+                                ...last,
+                                text: last.text + data,
+                            };
+                            return {chatMessages: messages};
+                        });
+                    }
+                }
+            }
+
+            // Mark streaming as complete
+            this.setState(prev => {
+                const messages = [...prev.chatMessages];
+                const last = messages[messages.length - 1];
+                messages[messages.length - 1] = {...last, isStreaming: false};
+                return {chatMessages: messages};
+            });
+        }
+        catch (error) {
+            console.error('Chat error:', error);
+            this.setState(prev => {
+                const messages = [...prev.chatMessages];
+                const last = messages[messages.length - 1];
+                messages[messages.length - 1] = {
+                    ...last,
+                    text: 'Sorry, I could not connect to the chat server. Please make sure it is running.',
+                    isStreaming: false,
+                };
+                return {chatMessages: messages};
+            });
+        }
     };
 
     componentDidMount() {

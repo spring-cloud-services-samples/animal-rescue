@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const backendBaseUrl = process.env.REACT_APP_BACKEND_BASE_URI || '';
+const chatServerBaseUrl = process.env.REACT_APP_CHAT_SERVER_URI || 'http://localhost:8081';
 
 export async function getAnimals() {
     return axios
@@ -19,6 +20,14 @@ export async function editAdoptionRequest({animalId, adoptionRequestId, email, n
 
 export async function deleteAdoptionRequest({animalId, adoptionRequestId}) {
     return axios.delete(`${backendBaseUrl}/animals/${animalId}/adoption-requests/${adoptionRequestId}`);
+}
+
+export function sendChatMessage({message, history}) {
+    return fetch(`${chatServerBaseUrl}/chat`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message, history}),
+    });
 }
 
 export async function getUsername() {

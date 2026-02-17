@@ -1,6 +1,7 @@
 import React from 'react';
 import {Button, Form, Icon} from 'semantic-ui-react';
 import * as PropTypes from 'prop-types';
+import ChatMarkdown from './chat-markdown';
 import './chat-sidebar.css';
 
 export default class ChatSidebar extends React.Component {
@@ -45,9 +46,18 @@ export default class ChatSidebar extends React.Component {
 
     renderMessage(msg) {
         const isUser = msg.sender === 'user';
+        const showTyping = !isUser && msg.isStreaming && msg.text === '';
         return (
             <div key={msg.id} className={`chat-bubble ${isUser ? 'chat-bubble-user' : 'chat-bubble-assistant'}`}>
-                <div className="chat-bubble-text">{msg.text}</div>
+                {showTyping ? (
+                    <div className="chat-typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                ) : isUser ? (
+                    <div className="chat-bubble-text">{msg.text}</div>
+                ) : (
+                    <ChatMarkdown content={msg.text} />
+                )}
             </div>
         );
     }
@@ -110,6 +120,7 @@ ChatSidebar.propTypes = {
         id: PropTypes.number.isRequired,
         text: PropTypes.string.isRequired,
         sender: PropTypes.string.isRequired,
+        isStreaming: PropTypes.bool,
     })).isRequired,
     onSendMessage: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,

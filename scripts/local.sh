@@ -50,14 +50,35 @@ startBackend() {
   fi
 }
 
+stopChatServer() {
+  if lsof -i:8081 -t &> /dev/null; then
+    printf "\n======== Stopping chat-server ========\n"
+    kill $(lsof -i:8081 -t) || true
+  fi
+}
+
+startChatServer() {
+  stopChatServer
+  printf "\n======== Starting chat-server ========\n"
+
+  if [[ $1 == "$QUIET_MODE" ]]; then
+    echo "Entering quiet mode, output goes here ./scripts/out/chat_server_output.log"
+    ./gradlew :chat-server:bootRun > "$ROOT_DIR/scripts/out/chat_server_output.log" &
+  else
+    ./gradlew :chat-server:bootRun &
+  fi
+}
+
 start() {
   mkdir -p "$ROOT_DIR/scripts/out"
 
   startBackend "$1"
+  startChatServer "$1"
   startFrontend "$1"
 }
 
 stop() {
+  stopChatServer
   stopBackend
   stopFrontend
 }

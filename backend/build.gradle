@@ -49,7 +49,7 @@ dependencies {
  	implementation('io.pivotal.cfenv:java-cfenv-boot:3.4.0')
 	implementation 'org.springdoc:springdoc-openapi-starter-webflux-api:2.8.6'
 
-    implementation 'org.springframework.ai:spring-ai-starter-mcp-server'
+    implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webflux'
 
     runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'io.r2dbc:r2dbc-h2'

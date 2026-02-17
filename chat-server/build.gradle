@@ -1,0 +1,42 @@
+plugins {
+	id 'org.springframework.boot' version '3.5.10'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'java'
+}
+
+group = 'io.spring.cloud.samples.animalrescue'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.ai:spring-ai-bom:1.1.2"
+	}
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+	implementation 'org.springframework.ai:spring-ai-starter-mcp-client'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+	
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+}
+
+test {
+	useJUnitPlatform()
+	testLogging {
+		exceptionFormat = "full"
+		events = ["passed", "skipped", "failed"]
+	}
+}
