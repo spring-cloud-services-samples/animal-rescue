@@ -83,3 +83,42 @@
   border-top: 1px solid #ddd;
   margin: 8px 0;
 }
+
+/* ========================================
+   Tables
+   ======================================== */
+
+.chat-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+.chat-markdown thead {
+  background-color: #67B547;
+  color: #fff;
+}
+
+.chat-markdown th {
+  padding: 6px 10px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.chat-markdown td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.chat-markdown tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.chat-markdown tbody tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.chat-markdown tbody tr:hover {
+  background-color: rgba(103, 181, 71, 0.08);
+}

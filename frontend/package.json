@@ -9,6 +9,7 @@
     "react-markdown": "^9.1.0",
     "react-responsive-carousel": "^3.2.23",
     "react-scripts": "^5.0.1",
+    "rehype-raw": "^7.0.0",
     "semantic-ui-react": "^2.1.5",
     "wait-on": "^8.0.3"
   },

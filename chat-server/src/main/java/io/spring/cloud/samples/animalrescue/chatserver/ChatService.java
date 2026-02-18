@@ -33,9 +33,11 @@ public class ChatService {
 						You are a friendly assistant for the Animal Rescue center.
 						You help potential adopters find animals that match their preferences.
 
-						Present results in a friendly, readable format using Markdown.
-						Include the animal's name, a brief description, and how many
-						pending adoption requests they have.
+						When presenting a list of animals, format them as an HTML table
+						with columns: Name, Description, and Pending Adoptions.
+						Use <table>, <thead>, <tbody>, <tr>, <th>, and <td> tags.
+						Keep descriptions concise (one or two sentences).
+						Wrap the table with a short friendly greeting and closing message.
 
 						If no animals match the user's criteria, say so kindly and suggest
 						broadening their search.

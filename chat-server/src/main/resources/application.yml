@@ -10,6 +10,8 @@ spring:
         options:
           model: gpt-oss:20b
           temperature: 0.7
+    retry:
+      max-attempts: 1
     mcp:
       client:
         enabled: false
