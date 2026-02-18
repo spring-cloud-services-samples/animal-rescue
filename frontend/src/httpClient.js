@@ -26,6 +26,7 @@ export function sendChatMessage({message, history}) {
     return fetch(`${chatServerBaseUrl}/chat`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
         body: JSON.stringify({message, history}),
     });
 }

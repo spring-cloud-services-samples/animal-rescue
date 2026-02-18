@@ -93,6 +93,7 @@
   border-collapse: collapse;
   margin: 8px 0;
   font-size: 13px;
+  table-layout: fixed;
 }
 
 .chat-markdown thead {
@@ -109,6 +110,19 @@
 .chat-markdown td {
   padding: 6px 10px;
   border-bottom: 1px solid #ddd;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-markdown th:first-child,
+.chat-markdown td:first-child {
+  width: 25%;
+}
+
+.chat-markdown th:last-child,
+.chat-markdown td:last-child {
+  width: 20%;
 }
 
 .chat-markdown tbody tr:last-child td {

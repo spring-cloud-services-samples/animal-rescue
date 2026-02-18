@@ -1,6 +1,7 @@
 package io.spring.cloud.samples.animalrescue.backend.security;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.boot.cloud.CloudPlatform;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @Conditional(SecurityConfiguration.NotOnCloudCondition.class)
@@ -51,15 +53,28 @@ public class SecurityConfiguration {
 			.logout(logoutSpec -> {
 				logoutSpec.logoutSuccessHandler(logoutHandler);
 			})
-			.csrf(csrfSpec -> {
-				csrfSpec.disable();
-			})
-			.authorizeExchange(authorizeExchangeSpec -> {
-				authorizeExchangeSpec
-					.pathMatchers("/whoami").authenticated()
-					.anyExchange().permitAll();
-			})
-			.build();
+		.csrf(csrfSpec -> {
+			csrfSpec.disable();
+		})
+		.cors(corsSpec -> {
+			corsSpec.configurationSource(exchange -> {
+				var config = new CorsConfiguration();
+				config.setAllowedOrigins(List.of(
+					"http://localhost:3000",
+					"http://localhost:8081"
+				));
+				config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+				config.setAllowCredentials(true);
+				config.setAllowedHeaders(List.of("*"));
+				return config;
+			});
+		})
+		.authorizeExchange(authorizeExchangeSpec -> {
+			authorizeExchangeSpec
+				.pathMatchers("/whoami").authenticated()
+				.anyExchange().permitAll();
+		})
+		.build();
 		// @formatter:on
 	}
 

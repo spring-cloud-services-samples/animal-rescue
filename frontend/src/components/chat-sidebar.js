@@ -86,6 +86,11 @@ export default class ChatSidebar extends React.Component {
                         {messages.length === 0 && (
                             <div className="chat-sidebar-empty">
                                 Ask us anything about our animals!
+                                {!this.props.username && (
+                                    <div className="chat-sidebar-auth-hint">
+                                        Sign in to adopt animals through chat.
+                                    </div>
+                                )}
                             </div>
                         )}
                         {messages.map(msg => this.renderMessage(msg))}
@@ -125,4 +130,5 @@ ChatSidebar.propTypes = {
     onSendMessage: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
     onOpen: PropTypes.func.isRequired,
+    username: PropTypes.string,
 };

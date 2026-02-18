@@ -22,6 +22,48 @@ public class ChatService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ChatService.class);
 
+	private static final String SYSTEM_PROMPT = """
+			You are a friendly assistant for the Animal Rescue center.
+			You help potential adopters find animals and complete adoptions.
+
+			CAPABILITIES:
+			- Use getAvailableAnimals to look up animals when users ask about them.
+			- Use adoptAnimal to submit adoption requests when users want to adopt.
+
+			ADOPTION FLOW:
+			1. When a user expresses intent to adopt (e.g. "I want to adopt Chocobo"),
+			   first confirm the animal name and look up its ID using getAvailableAnimals.
+			2. Ask for their contact email if not already provided.
+			3. Ask if they'd like to add any notes (optional).
+			4. Call adoptAnimal with the gathered information.
+			5. Report the result -- success or error -- clearly.
+
+			IMPORTANT:
+			- Anyone can browse and ask about available animals, even without signing in.
+			  Always use getAvailableAnimals freely regardless of login status.
+			- Only the adoptAnimal action requires authentication. If the user is not
+			  logged in (you'll be told in the user context) and wants to adopt, tell
+			  them they need to sign in first using the button in the top-right corner.
+			- Never fabricate animal IDs. Always look up the real ID from getAvailableAnimals.
+			- Be conversational and friendly. Use the animal's name, not just its ID.
+
+			When presenting a list of animals, format them as an HTML table
+			with columns: Name, Description, and Pending Adoptions.
+			Use <table>, <thead>, <tbody>, <tr>, <th>, and <td> tags.
+			Output the HTML tags directly inline in your response — do NOT wrap
+			them in markdown code fences (no triple backticks, no ```html blocks).
+			Truncate descriptions to at most 8-10 words so the table stays compact.
+			For example: "Playful orange tabby, loves to nap" instead of a full paragraph.
+
+			Important guidelines:
+			- Only mention animals from the provided data. Never invent animals.
+			- The animal descriptions contain hints about personality, energy level,
+			  and temperament. Use these to match user preferences.
+			- The avatarUrl often contains breed information in the URL path.
+			- Be conversational and warm. You represent a rescue center that cares
+			  about finding the right match between adopters and animals.
+			""";
+
 	private final ChatClient chatClient;
 	private final WebClient backendClient;
 
@@ -29,79 +71,53 @@ public class ChatService {
 			@Value("${animal-rescue.backend-url:http://localhost:8080}") String backendUrl) {
 		this.backendClient = WebClient.create(backendUrl);
 		this.chatClient = chatClientBuilder
-				.defaultSystem("""
-						You are a friendly assistant for the Animal Rescue center.
-						You help potential adopters find animals that match their preferences.
-
-						When presenting a list of animals, format them as an HTML table
-						with columns: Name, Description, and Pending Adoptions.
-						Use <table>, <thead>, <tbody>, <tr>, <th>, and <td> tags.
-						Keep descriptions concise (one or two sentences).
-						Wrap the table with a short friendly greeting and closing message.
-
-						If no animals match the user's criteria, say so kindly and suggest
-						broadening their search.
-
-						Important guidelines:
-						- Only mention animals from the provided data. Never invent animals.
-						- The animal descriptions contain hints about personality, energy level,
-						  and temperament. Use these to match user preferences.
-						- The avatarUrl often contains breed information in the URL path.
-						- Be conversational and warm. You represent a rescue center that cares
-						  about finding the right match between adopters and animals.
-						""")
+				.defaultSystem(SYSTEM_PROMPT)
 				.build();
 	}
 
-	public Flux<String> chat(String userMessage, List<ChatMessage> history) {
+	public Flux<String> chat(String userMessage, List<ChatMessage> history, String sessionCookie) {
 		LOGGER.info("Processing chat message: {}", userMessage);
 
-		List<Message> messages = buildMessages(history);
+		return resolveUsername(sessionCookie)
+				.defaultIfEmpty("")
+				.flatMapMany(username -> {
+					List<Message> messages = buildMessages(history);
+					String enrichedMessage = buildEnrichedMessage(userMessage, username);
+					return Mono.fromCallable(() -> chatClient.prompt()
+							.messages(messages)
+							.user(enrichedMessage)
+							.call()
+							.content())
+							.subscribeOn(Schedulers.boundedElastic())
+							.flux();
+				});
+	}
 
-		boolean needsAnimalData = looksLikeAnimalQuery(userMessage);
-
-		if (needsAnimalData) {
-			return fetchAnimalData()
-					.flatMap(animalJson -> {
-						String enrichedMessage = userMessage + "\n\n"
-								+ "Here is the current animal data from our rescue center "
-								+ "(use this to answer the question):\n" + animalJson;
-						return Mono.fromCallable(() -> chatClient.prompt()
-								.messages(messages)
-								.user(enrichedMessage)
-								.call()
-								.content())
-								.subscribeOn(Schedulers.boundedElastic());
-					})
-					.flux();
+	private String buildEnrichedMessage(String userMessage, String username) {
+		StringBuilder sb = new StringBuilder();
+		if (username != null && !username.isEmpty()) {
+			sb.append("[User context: logged in as \"").append(username).append("\"]\n\n");
 		}
-
-		return Mono.fromCallable(() -> chatClient.prompt()
-				.messages(messages)
-				.user(userMessage)
-				.call()
-				.content())
-				.subscribeOn(Schedulers.boundedElastic())
-				.flux();
+		else {
+			sb.append("[User context: not logged in]\n\n");
+		}
+		sb.append(userMessage);
+		return sb.toString();
 	}
 
-	private boolean looksLikeAnimalQuery(String message) {
-		String lower = message.toLowerCase();
-		return lower.contains("animal") || lower.contains("adopt") || lower.contains("pet")
-				|| lower.contains("dog") || lower.contains("cat") || lower.contains("available")
-				|| lower.contains("breed") || lower.contains("rescue") || lower.contains("kitten")
-				|| lower.contains("puppy");
-	}
-
-	private Mono<String> fetchAnimalData() {
+	private Mono<String> resolveUsername(String sessionCookie) {
+		if (sessionCookie == null || sessionCookie.isEmpty()) {
+			return Mono.just("");
+		}
 		return backendClient.get()
-				.uri("/animals")
+				.uri("/whoami")
+				.cookie("SESSION", sessionCookie)
 				.retrieve()
 				.bodyToMono(String.class)
-				.doOnNext(data -> LOGGER.debug("Fetched animal data: {} chars", data.length()))
+				.doOnNext(name -> LOGGER.debug("Resolved username from session: {}", name))
 				.onErrorResume(e -> {
-					LOGGER.error("Failed to fetch animal data from backend", e);
-					return Mono.just("[]");
+					LOGGER.debug("Could not resolve username from session cookie: {}", e.getMessage());
+					return Mono.just("");
 				});
 	}
 

@@ -96,8 +96,14 @@ export default class App extends React.Component {
                 const lines = chunk.split('\n');
                 for (const line of lines) {
                     if (line.startsWith('data:')) {
-                        const data = line.slice(5);
-                        if (data.trim() === '') continue;
+                        const raw = line.slice(5);
+                        if (raw.trim() === '') continue;
+                        let data;
+                        try {
+                            data = JSON.parse(raw);
+                        } catch {
+                            data = raw;
+                        }
                         this.setState(prev => {
                             const messages = [...prev.chatMessages];
                             const last = messages[messages.length - 1];
@@ -118,6 +124,12 @@ export default class App extends React.Component {
                 messages[messages.length - 1] = {...last, isStreaming: false};
                 return {chatMessages: messages};
             });
+
+            // Refresh animal cards if the response indicates a successful adoption
+            const lastMsg = this.state.chatMessages[this.state.chatMessages.length - 1];
+            if (lastMsg && lastMsg.text.toLowerCase().includes('successfully')) {
+                this.fetchAnimals();
+            }
         }
         catch (error) {
             console.error('Chat error:', error);
@@ -162,6 +174,7 @@ export default class App extends React.Component {
                     onSendMessage={this.addChatMessage}
                     onClose={this.toggleSidebar}
                     onOpen={this.toggleSidebar}
+                    username={this.state.username}
                 />
             </div>
         );

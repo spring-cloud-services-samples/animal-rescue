@@ -169,4 +169,35 @@ context('Animal Rescue', () => {
       cy.contains('Sign in to adopt');
     });
   });
+
+  describe('adoption via chat', () => {
+
+    before(() => {
+      cy.login(username, password);
+    });
+
+    it('adopts an animal through chat conversation', () => {
+      cy.get('.chat-fab').click();
+
+      cy.get('.chat-sidebar-input input')
+          .type('I would like to adopt Chocobo{enter}');
+
+      cy.get('.chat-sidebar-messages .chat-bubble-assistant', {timeout: 30000})
+          .last()
+          .invoke('text')
+          .should('match', /email/i);
+
+      cy.get('.chat-sidebar-input input')
+          .type('alice@example.com{enter}');
+
+      cy.get('.chat-sidebar-messages .chat-bubble-assistant', {timeout: 30000})
+          .last()
+          .invoke('text')
+          .should('match', /success|submitted/i);
+    });
+
+    after(() => {
+      cy.get('.chat-sidebar-header .close.icon').click({force: true});
+    });
+  });
 });
