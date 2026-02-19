@@ -58,6 +58,10 @@ public class SecurityConfiguration {
 		})
 		.cors(corsSpec -> {
 			corsSpec.configurationSource(exchange -> {
+				String path = exchange.getRequest().getPath().value();
+				if (path.startsWith("/login") || path.startsWith("/logout")) {
+					return null;
+				}
 				var config = new CorsConfiguration();
 				config.setAllowedOrigins(List.of(
 					"http://localhost:3000",
