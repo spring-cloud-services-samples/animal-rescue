@@ -1,5 +1,6 @@
 package io.spring.cloud.samples.animalrescue.backend.mcp;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,6 +69,21 @@ public class AnimalRescueMcpTools {
 							.map(saved -> "Adoption request submitted successfully for " + animal.getName() + "!");
 				})
 				.switchIfEmpty(Mono.just("Error: Animal with id " + animalId + " doesn't exist!"))
+				.block();
+	}
+
+	@Tool(name = "getPendingAdopters",
+			description = "Get the list of pending adopters for a specific animal. " +
+					"Requires the animal's name. Returns adopter names, emails, and notes. " +
+					"This tool should only be used for authenticated users.")
+	public List<AdoptionRequest> getPendingAdopters(
+			@ToolParam(description = "The name of the animal to look up pending adopters for") String animalName
+	) {
+		LOGGER.info("MCP tool invoked: getPendingAdopters(animalName={})", animalName);
+		return animalRepository.findByNameIgnoreCase(animalName)
+				.flatMap(animal -> adoptionRequestRepository.findByAnimal(animal.getId())
+						.collectList())
+				.defaultIfEmpty(Collections.emptyList())
 				.block();
 	}
 
