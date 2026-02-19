@@ -13,6 +13,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -68,10 +69,12 @@ public class ChatService {
 	private final WebClient backendClient;
 
 	public ChatService(ChatClient.Builder chatClientBuilder,
+			ToolCallbackProvider[] toolCallbackProviders,
 			@Value("${animal-rescue.backend-url:http://localhost:8080}") String backendUrl) {
 		this.backendClient = WebClient.create(backendUrl);
 		this.chatClient = chatClientBuilder
 				.defaultSystem(SYSTEM_PROMPT)
+				.defaultToolCallbacks(toolCallbackProviders)
 				.build();
 	}
 
