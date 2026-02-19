@@ -1,5 +1,7 @@
 .App-header {
   background-color: #282c34;
+  position: relative;
+  z-index: 1001;
 }
 
 .App-header .content.hidden {

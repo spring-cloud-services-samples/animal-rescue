@@ -38,8 +38,8 @@
 .chat-sidebar {
   position: fixed;
   right: 0;
-  top: 0;
-  height: 100vh;
+  top: 68px;
+  height: calc(100vh - 68px);
   width: 520px;
   z-index: 1000;
   background-color: #fff;
