@@ -12,11 +12,18 @@ export default class ChatSidebar extends React.Component {
             inputValue: '',
         };
         this.messagesEndRef = React.createRef();
+        this.inputRef = React.createRef();
     }
 
     componentDidUpdate(prevProps) {
         if (prevProps.messages.length !== this.props.messages.length) {
             this.scrollToBottom();
+        }
+        if (this.props.isOpen && !prevProps.isOpen) {
+            setTimeout(() => {
+                const input = this.inputRef.current?.querySelector('input');
+                if (input) input.focus();
+            }, 300);
         }
     }
 
@@ -96,7 +103,7 @@ export default class ChatSidebar extends React.Component {
                         {messages.map(msg => this.renderMessage(msg))}
                         <div ref={this.messagesEndRef} />
                     </div>
-                    <div className="chat-sidebar-input">
+                    <div className="chat-sidebar-input" ref={this.inputRef}>
                         <Form onSubmit={this.handleSend}>
                             <Form.Input
                                 placeholder="Type a message..."
