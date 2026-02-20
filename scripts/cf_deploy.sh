@@ -6,6 +6,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 GATEWAY_NAME=gateway-demo
 FRONTEND_APP_NAME=animal-rescue-frontend
 BACKEND_APP_NAME=animal-rescue-backend
+CHAT_SERVER_APP_NAME=animal-rescue-chat-server
 
 init() {
   ./gradlew :frontend:npm_ci
@@ -41,12 +42,20 @@ bind_all() {
   fi
 
   cf bind-service $FRONTEND_APP_NAME $GATEWAY_NAME -c ./frontend/api-route-config.json
+
+  # Bind chat-server app
+  if gatewayDetailContains "$CHAT_SERVER_APP_NAME"; then
+    unbind $CHAT_SERVER_APP_NAME
+  fi
+
+  cf bind-service $CHAT_SERVER_APP_NAME $GATEWAY_NAME -c ./chat-server/api-route-config.json
   while gatewayDetailContains "create in progress"; do
-    echo "Waiting for binding $FRONTEND_APP_NAME to finish..."
+    echo "Waiting for bindings to finish..."
     sleep 1
   done
 
   cf restart $BACKEND_APP_NAME
+  cf restart $CHAT_SERVER_APP_NAME
 }
 
 unbind() {
@@ -60,6 +69,7 @@ unbind() {
 unbind_all() {
   unbind $FRONTEND_APP_NAME
   unbind $BACKEND_APP_NAME
+  unbind $CHAT_SERVER_APP_NAME
 }
 
 routes_update_for_app() {
@@ -84,6 +94,7 @@ routes_update_for_app() {
 routes_update_all() {
   routes_update_for_app $FRONTEND_APP_NAME 'frontend'
   routes_update_for_app $BACKEND_APP_NAME 'backend'
+  routes_update_for_app $CHAT_SERVER_APP_NAME 'chat-server'
 }
 
 deploy_all() {
@@ -113,6 +124,7 @@ deploy_all() {
   done
 
   push
+  cf add-network-policy $CHAT_SERVER_APP_NAME $BACKEND_APP_NAME --port 8080 --protocol tcp
   bind_all
   routes_update_all
 }
@@ -123,6 +135,7 @@ destroy_all() {
   cf delete-service -f $GATEWAY_NAME
   cf delete -r -f $FRONTEND_APP_NAME
   cf delete -r -f $BACKEND_APP_NAME
+  cf delete -r -f $CHAT_SERVER_APP_NAME
 
   while serviceSummaryContains "$GATEWAY_NAME"; do
     echo "Waiting for $GATEWAY_NAME to be deleted..."

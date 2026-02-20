@@ -1,0 +1,11 @@
+{
+  "routes": [
+    {
+      "title": "AI Chat endpoint",
+      "description": "Streaming chat endpoint for AI-powered animal rescue assistant.",
+      "path": "/chat",
+      "method": "POST",
+      "tags": ["chat"]
+    }
+  ]
+}
