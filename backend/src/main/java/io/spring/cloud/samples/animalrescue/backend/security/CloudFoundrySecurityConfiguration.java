@@ -27,18 +27,26 @@ public class CloudFoundrySecurityConfiguration {
 
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity httpSecurity, CfEnv cfEnv) {
-		List<CfService> services = cfEnv.findServicesByLabel("p.gateway");
-		if (services.isEmpty()) return httpSecurity.build();
-
-		String authDomain = cfEnv.findCredentialsByLabel("p.gateway").getString("auth_domain");
-		if (authDomain != null) {
-			LOG.info("Found SSO auth_domain {}, configuring Resource Server support", authDomain);
-			httpSecurity.oauth2ResourceServer(oAuth2ResourceServerSpec -> {
-				oAuth2ResourceServerSpec.jwt(jwtSpec -> {
-					jwtSpec.jwkSetUri(authDomain + "/token_keys")
-						.jwtAuthenticationConverter(new ReactiveJwtAuthenticationConverterAdapter(new UserNameJwtAuthenticationConverter()));
-				});
+		httpSecurity
+			.csrf(csrfSpec -> csrfSpec.disable())
+			.authorizeExchange(authorizeExchangeSpec -> {
+				authorizeExchangeSpec
+					.pathMatchers("/whoami").authenticated()
+					.anyExchange().permitAll();
 			});
+
+		List<CfService> services = cfEnv.findServicesByLabel("p.gateway");
+		if (!services.isEmpty()) {
+			String authDomain = cfEnv.findCredentialsByLabel("p.gateway").getString("auth_domain");
+			if (authDomain != null) {
+				LOG.info("Found SSO auth_domain {}, configuring Resource Server support", authDomain);
+				httpSecurity.oauth2ResourceServer(oAuth2ResourceServerSpec -> {
+					oAuth2ResourceServerSpec.jwt(jwtSpec -> {
+						jwtSpec.jwkSetUri(authDomain + "/token_keys")
+							.jwtAuthenticationConverter(new ReactiveJwtAuthenticationConverterAdapter(new UserNameJwtAuthenticationConverter()));
+					});
+				});
+			}
 		}
 
 		return httpSecurity.build();
