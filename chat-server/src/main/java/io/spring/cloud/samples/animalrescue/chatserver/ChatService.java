@@ -82,6 +82,7 @@ public class ChatService {
 	public ChatService(ChatClient.Builder chatClientBuilder,
 			ToolCallbackProvider[] toolCallbackProviders,
 			@Value("${animal-rescue.backend-url:http://localhost:8080}") String backendUrl) {
+		LOGGER.info("backendUrl: " + backendUrl);
 		this.backendClient = WebClient.create(backendUrl);
 		this.chatClient = chatClientBuilder
 				.defaultSystem(SYSTEM_PROMPT)

@@ -8,10 +8,11 @@ management:
       exposure:
         include: "*"
 
-logging.level:
-  org.springframework.data: debug
-
 spring:
+  ai:
+    mcp:
+      server:
+        protocol: STREAMABLE
   security:
     oauth2:
       resourceserver:

@@ -15,10 +15,11 @@ spring:
     mcp:
       client:
         enabled: true
-        sse:
+        streamable-http:
           connections:
             animal-rescue-backend:
-              url: ${animal-rescue.backend-url:http://localhost:8080}
+              url: ${animal-rescue.backend-url}
+        request-timeout: 20s
 
 animal-rescue:
   backend-url: ${ANIMAL_RESCUE_BACKEND_URL:http://localhost:8080}
@@ -26,4 +27,5 @@ animal-rescue:
 logging:
   level:
     io.spring.cloud.samples.animalrescue.chatserver: DEBUG
+    io.modelcontextprotocol.client.transport: DEBUG
     org.springframework.ai: DEBUG

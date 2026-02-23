@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import io.spring.cloud.samples.animalrescue.backend.domain.AdoptionRequest;
 
-import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.ai.tool.annotation.ToolParam;
+import org.springaicommunity.mcp.annotation.McpTool;
+import org.springaicommunity.mcp.annotation.McpToolParam;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -32,7 +32,7 @@ public class AnimalRescueMcpTools {
 		this.adoptionRequestRepository = adoptionRequestRepository;
 	}
 
-	@Tool(name = "getAvailableAnimals",
+	@McpTool(name = "getAvailableAnimals",
 			description = "Get all animals available for adoption at the rescue center. " +
 					"Returns a list of animals with their name, description, rescue date, " +
 					"avatar URL, and current adoption requests. Use this tool when the user " +
@@ -47,15 +47,15 @@ public class AnimalRescueMcpTools {
 				.block();
 	}
 
-	@Tool(name = "adoptAnimal",
+	@McpTool(name = "adoptAnimal",
 			description = "Submit an adoption request for a specific animal. " +
 					"Requires the animal's ID, the adopter's name, email address, and optional notes. " +
 					"Returns a success message or an error message if the animal does not exist.")
 	public String adoptAnimal(
-			@ToolParam(description = "The numeric ID of the animal to adopt") Long animalId,
-			@ToolParam(description = "The name of the adopter") String adopterName,
-			@ToolParam(description = "The adopter's contact email address") String email,
-			@ToolParam(description = "Optional notes about why the user wants to adopt") String notes
+			@McpToolParam(description = "The numeric ID of the animal to adopt") Long animalId,
+			@McpToolParam(description = "The name of the adopter") String adopterName,
+			@McpToolParam(description = "The adopter's contact email address") String email,
+			@McpToolParam(description = "Optional notes about why the user wants to adopt") String notes
 	) {
 		LOGGER.info("MCP tool invoked: adoptAnimal(animalId={}, adopterName={}, email={})", animalId, adopterName, email);
 		return animalRepository.findById(animalId)
@@ -72,12 +72,12 @@ public class AnimalRescueMcpTools {
 				.block();
 	}
 
-	@Tool(name = "getPendingAdopters",
+	@McpTool(name = "getPendingAdopters",
 			description = "Get the list of pending adopters for a specific animal. " +
 					"Requires the animal's name. Returns adopter names, emails, and notes. " +
 					"This tool should only be used for authenticated users.")
 	public List<AdoptionRequest> getPendingAdopters(
-			@ToolParam(description = "The name of the animal to look up pending adopters for") String animalName
+			@McpToolParam(description = "The name of the animal to look up pending adopters for") String animalName
 	) {
 		LOGGER.info("MCP tool invoked: getPendingAdopters(animalName={})", animalName);
 		return animalRepository.findByNameIgnoreCase(animalName)

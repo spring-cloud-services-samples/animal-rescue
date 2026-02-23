@@ -1,0 +1,15 @@
+---
+applications:
+- name: animal-rescue-chat-server
+  path: ./chat-server/build/libs/chat-server-0.0.1-SNAPSHOT.jar
+  buildpack: java_buildpack_offline
+  memory: 1G
+  routes:
+    - route: animal-rescue-chat-server-cs.apps.internal
+  services:
+    - name: animal-rescue-model
+  env:
+    JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 17.+}}'
+    #JBP_CONFIG_SPRING_BOOT_EFFICIENCY: '{ "spring_aot_enabled": true, "aot_cache_enabled": true }'
+    ANIMAL_RESCUE_BACKEND_URL: https://animal-rescue-backend.apps.tas-ndc.kuhn-labs.com
+
