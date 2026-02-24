@@ -1,0 +1,8 @@
+---
+applications:
+- name: animal-rescue-frontend
+  path: ./frontend/build
+  routes:
+    - route: animal-rescue-frontend-cs.apps.internal
+  # env:
+    # REACT_APP_CHAT_SERVER_URI: 'https://gateway-demo-cs.apps.tas-ndc.kuhn-labs.com'
