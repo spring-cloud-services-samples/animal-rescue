@@ -70,6 +70,20 @@ export default class App extends React.Component {
         try {
             const response = await sendChatMessage({message: text, history});
 
+            if (response.status === 429) {
+                this.setState(prev => {
+                    const messages = [...prev.chatMessages];
+                    const last = messages[messages.length - 1];
+                    messages[messages.length - 1] = {
+                        ...last,
+                        text: "Whoa there, chatterbox! 🐾 You're talking faster than a parrot on espresso. Give me a moment to catch my breath and try again in a few seconds!",
+                        isStreaming: false,
+                    };
+                    return {chatMessages: messages};
+                });
+                return;
+            }
+
             if (!response.ok) {
                 this.setState(prev => {
                     const messages = [...prev.chatMessages];
