@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const backendBaseUrl = process.env.REACT_APP_BACKEND_BASE_URI || '';
-const chatServerBaseUrl = process.env.REACT_APP_CHAT_SERVER_URI || 'http://localhost:8081';
+const chatServerUrl = process.env.REACT_APP_CHAT_SERVER_URI || '/chat';
 
 export async function getAnimals() {
     return axios
@@ -23,7 +23,7 @@ export async function deleteAdoptionRequest({animalId, adoptionRequestId}) {
 }
 
 export function sendChatMessage({message, history}) {
-    return fetch(`${chatServerBaseUrl}/chat`, {
+    return fetch(`${chatServerUrl}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         credentials: 'include',

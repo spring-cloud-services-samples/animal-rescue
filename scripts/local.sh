@@ -22,6 +22,7 @@ startFrontend() {
   stopFrontend
 
   printf "\n======== Starting frontend ========\n"
+  export REACT_APP_CHAT_SERVER_URI="http://localhost:8081/chat"
   if [[ $1 == "$QUIET_MODE" ]]; then
     echo "Entering quiet mode, output goes here ./scripts/out/frontend_output.log"
     BROWSER=none npm start &> "$ROOT_DIR/scripts/out/frontend_output.log" &
