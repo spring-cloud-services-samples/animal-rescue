@@ -45,6 +45,7 @@ export default class ChatSidebar extends React.Component {
     };
 
     handleSend = () => {
+        if (this.props.isBusy) return;
         const text = this.state.inputValue.trim();
         if (text === '') return;
         this.props.onSendMessage(text);
@@ -70,7 +71,7 @@ export default class ChatSidebar extends React.Component {
     }
 
     render() {
-        const {isOpen, messages, onClose, onOpen} = this.props;
+        const {isOpen, messages, onClose, onOpen, isBusy} = this.props;
 
         return (
             <>
@@ -103,18 +104,20 @@ export default class ChatSidebar extends React.Component {
                         {messages.map(msg => this.renderMessage(msg))}
                         <div ref={this.messagesEndRef} />
                     </div>
-                    <div className="chat-sidebar-input" ref={this.inputRef}>
+                    <div className={`chat-sidebar-input ${isBusy ? 'chat-sidebar-input-busy' : ''}`} ref={this.inputRef}>
                         <Form onSubmit={this.handleSend}>
                             <Form.Input
-                                placeholder="Type a message..."
+                                placeholder={isBusy ? "Waiting for response..." : "Type a message..."}
                                 value={this.state.inputValue}
                                 onChange={this.handleInputChange}
                                 onKeyDown={this.handleKeyDown}
+                                disabled={isBusy}
                                 action={
                                     <Button
                                         type="submit"
                                         icon="send"
                                         color="green"
+                                        disabled={isBusy}
                                     />
                                 }
                             />
@@ -138,4 +141,5 @@ ChatSidebar.propTypes = {
     onClose: PropTypes.func.isRequired,
     onOpen: PropTypes.func.isRequired,
     username: PropTypes.string,
+    isBusy: PropTypes.bool,
 };

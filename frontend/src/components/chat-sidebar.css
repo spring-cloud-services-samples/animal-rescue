@@ -216,6 +216,11 @@
   border-radius: 0 20px 20px 0 !important;
 }
 
+.chat-sidebar-input-busy {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
 /* ========================================
    Backdrop (mobile only by default,
    but rendered when sidebar is open)

@@ -26,6 +26,7 @@ export default class App extends React.Component {
             userStatus: PENDING,
             chatMessages: [],
             isSidebarOpen: false,
+            isChatBusy: false,
         };
     }
 
@@ -44,6 +45,16 @@ export default class App extends React.Component {
         this.setState(prev => ({isSidebarOpen: !prev.isSidebarOpen}));
     };
 
+    updateAssistantMessage(targetId, updates) {
+        this.setState(prev => {
+            const messages = [...prev.chatMessages];
+            const idx = messages.findIndex(m => m.id === targetId);
+            if (idx === -1) return null;
+            messages[idx] = {...messages[idx], ...updates};
+            return {chatMessages: messages};
+        });
+    }
+
     addChatMessage = async (text) => {
         const userMsg = {
             id: nextMessageId++,
@@ -58,9 +69,11 @@ export default class App extends React.Component {
             timestamp: new Date(),
             isStreaming: true,
         };
+        const assistantId = assistantMsg.id;
 
         this.setState(prev => ({
             chatMessages: [...prev.chatMessages, userMsg, assistantMsg],
+            isChatBusy: true,
         }));
 
         const history = this.state.chatMessages
@@ -71,30 +84,20 @@ export default class App extends React.Component {
             const response = await sendChatMessage({message: text, history});
 
             if (response.status === 429) {
-                this.setState(prev => {
-                    const messages = [...prev.chatMessages];
-                    const last = messages[messages.length - 1];
-                    messages[messages.length - 1] = {
-                        ...last,
-                        text: "Whoa there, chatterbox! 🐾 You're talking faster than a parrot on espresso. Give me a moment to catch my breath and try again in a few seconds!",
-                        isStreaming: false,
-                    };
-                    return {chatMessages: messages};
+                this.updateAssistantMessage(assistantId, {
+                    text: "Whoa there, chatterbox! 🐾 You're talking faster than a parrot on espresso. Give me a moment to catch my breath and try again in a few seconds!",
+                    isStreaming: false,
                 });
+                this.setState({isChatBusy: false});
                 return;
             }
 
             if (!response.ok) {
-                this.setState(prev => {
-                    const messages = [...prev.chatMessages];
-                    const last = messages[messages.length - 1];
-                    messages[messages.length - 1] = {
-                        ...last,
-                        text: 'Sorry, something went wrong. Please try again.',
-                        isStreaming: false,
-                    };
-                    return {chatMessages: messages};
+                this.updateAssistantMessage(assistantId, {
+                    text: 'Sorry, something went wrong. Please try again.',
+                    isStreaming: false,
                 });
+                this.setState({isChatBusy: false});
                 return;
             }
 
@@ -106,7 +109,6 @@ export default class App extends React.Component {
                 if (done) break;
 
                 const chunk = decoder.decode(value);
-                // Parse SSE data lines
                 const lines = chunk.split('\n');
                 for (const line of lines) {
                     if (line.startsWith('data:')) {
@@ -120,10 +122,11 @@ export default class App extends React.Component {
                         }
                         this.setState(prev => {
                             const messages = [...prev.chatMessages];
-                            const last = messages[messages.length - 1];
-                            messages[messages.length - 1] = {
-                                ...last,
-                                text: last.text + data,
+                            const idx = messages.findIndex(m => m.id === assistantId);
+                            if (idx === -1) return null;
+                            messages[idx] = {
+                                ...messages[idx],
+                                text: messages[idx].text + data,
                             };
                             return {chatMessages: messages};
                         });
@@ -131,32 +134,21 @@ export default class App extends React.Component {
                 }
             }
 
-            // Mark streaming as complete
-            this.setState(prev => {
-                const messages = [...prev.chatMessages];
-                const last = messages[messages.length - 1];
-                messages[messages.length - 1] = {...last, isStreaming: false};
-                return {chatMessages: messages};
-            });
+            this.updateAssistantMessage(assistantId, {isStreaming: false});
+            this.setState({isChatBusy: false});
 
-            // Refresh animal cards if the response indicates a successful adoption
-            const lastMsg = this.state.chatMessages[this.state.chatMessages.length - 1];
-            if (lastMsg && lastMsg.text.toLowerCase().includes('successfully')) {
+            const assistantResult = this.state.chatMessages.find(m => m.id === assistantId);
+            if (assistantResult && assistantResult.text.toLowerCase().includes('successfully')) {
                 this.fetchAnimals();
             }
         }
         catch (error) {
             console.error('Chat error:', error);
-            this.setState(prev => {
-                const messages = [...prev.chatMessages];
-                const last = messages[messages.length - 1];
-                messages[messages.length - 1] = {
-                    ...last,
-                    text: 'Sorry, I could not connect to the chat server. Please make sure it is running.',
-                    isStreaming: false,
-                };
-                return {chatMessages: messages};
+            this.updateAssistantMessage(assistantId, {
+                text: 'Sorry, I could not connect to the chat server. Please make sure it is running.',
+                isStreaming: false,
             });
+            this.setState({isChatBusy: false});
         }
     };
 
@@ -189,6 +181,7 @@ export default class App extends React.Component {
                     onClose={this.toggleSidebar}
                     onOpen={this.toggleSidebar}
                     username={this.state.username}
+                    isBusy={this.state.isChatBusy}
                 />
             </div>
         );
