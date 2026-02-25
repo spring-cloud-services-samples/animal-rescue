@@ -190,9 +190,9 @@ export default class App extends React.Component {
     getGreetButton() {
         switch (this.state.userStatus) {
             case ANONYMOUS:
-                return <Button disabled color='white' basic> Let meow greet ya! </Button>;
+                return <Button disabled style={{color: '#ffffff', backgroundColor: 'transparent', fontSize: '20px', fontWeight: 'bold'}}> Let meow greet ya! </Button>;
             case AUTHENTICATED:
-                return <Button disabled color='white' basic> Have a cute day {this.state.username}! </Button>;
+                return <Button disabled style={{color: '#ffffff', backgroundColor: 'transparent', fontSize: '20px', fontWeight: 'bold'}}> Have a cute day {this.state.username}! </Button>;
             default:
                 return <div/>;
         }
