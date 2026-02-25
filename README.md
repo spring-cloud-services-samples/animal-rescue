@@ -1,153 +1,177 @@
 # Animal Rescue
-![Test All](https://github.com/spring-cloud-services-samples/animal-rescue/workflows/Test%20All/badge.svg?branch=master)
 
-Sample app for VMware's Spring Cloud Gateway commercial products. Features we demonstrate with this sample app:
+Sample app for Spring Cloud Gateway, enhanced with AI-powered chat using Spring AI and Model Context Protocol (MCP). Originally built to demonstrate gateway routing and SSO, this branch adds an AI assistant that can browse animals, submit adoptions, and query pending adopters through natural language.
 
-- Routing traffic to configured internal routes with container-to-container network
+## Features
+
+### Gateway & SSO
+- Routing traffic to configured internal routes with container-to-container networking
 - Gateway routes configured through service bindings
 - Simplified route configuration
-- SSO login and token relay on behalf of the routed services
-- Required scopes on routes (tag: `require-sso-scopes`)
+- SSO login and token relay on behalf of routed services
 - Circuit breaker filter
-- OpenAPI route conversion
-- OpenAPI auto generation
 
-![architecture](./docs/images/animal-rescue-arch.png)
+### AI Chat (Spring AI + MCP)
+- Conversational chat sidebar powered by Spring AI and OpenAI-compatible models
+- MCP server on the backend exposing tools: `getAvailableAnimals`, `adoptAnimal`, `getPendingAdopters`
+- MCP client in the chat-server that discovers and invokes backend tools via Streamable HTTP transport
+- Authentication-aware: the chat relays the user's session to enforce login requirements for write operations
+- Rate limiting on the `/chat` endpoint with friendly 429 handling in the UI
+
+## Architecture
+
+The application consists of three services:
+
+| Service | Port | Description |
+|---|---|---|
+| **backend** | 8080 | Spring WebFlux API with H2 database, Spring Security, and MCP server |
+| **chat-server** | 8081 | Spring AI chat service with MCP client that connects to the backend |
+| **frontend** | 3000 | React app with animal cards, adoption workflow, and chat sidebar |
+
+```
+┌──────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│   Frontend   │────▶│   Chat Server    │────▶│     Backend      │
+│  (React)     │     │ (Spring AI +     │ MCP │ (WebFlux + MCP   │
+│  port 3000   │     │  MCP Client)     │     │  Server + H2)    │
+│              │     │  port 8081       │     │  port 8080       │
+└──────────────┘     └──────────────────┘     └──────────────────┘
+        │                                             ▲
+        └─────────────────────────────────────────────┘
+                    REST API (animals, adoptions, auth)
+```
+
+## Tech Stack
+
+- **Spring Boot 3.5.10** with Java 17
+- **Spring AI 1.1.2** (OpenAI starter, MCP client & server)
+- **Spring WebFlux** (reactive backend and chat server)
+- **Spring Security** (form login locally, OAuth2/JWT on Cloud Foundry)
+- **H2** (embedded database via R2DBC)
+- **React** with Semantic UI
 
 ## Table of Contents
 
-* [Deploy to Tanzu Application Service](#deploy-to-tanzu-application-service)
-* [Special frontend config related to gateway](#special-frontend-config-related-to-gateway)
-* [Gateway and Animal Rescue application features](#gateway-and-animal-rescue-application-features)
 * [Development](#development)
-
-## Deploy to Tanzu Application Service
-
-Run the following scripts to set up everything:
-```bash
-./scripts/cf_deploy init    # installs dependencies and builds the deployment artifact
-./scripts/cf_deploy deploy  # handles everything you need to deploy the frontend, backend, and gateway. This script can be executed repeatedly to deploy new changes.
-```
-Then visit the frontend url `https://gateway-demo.${appsDomain}/rescue` to view the sample app.
-
-Once you have enough fun with the sample app, run the following script to clean up the environment:
-```bash
-./scripts/cf_deploy destroy # tears down everything
-```
-
-Some other commands that might be helpful:
-```bash
-./scripts/cf_deploy push                     # builds and pushes frontend and backend
-./scripts/cf_deploy dynamic_route_config_update  # update bound apps' configuration with calling the update endpoint on the backing app. You will need to be a space developer to do so.
-./scripts/cf_deploy rebind                   # unbinds and rebinds frontend and backend
-./scripts/cf_deploy upgrade                  # upgrade the gateway instance
-```
-
-All the gateway configuration can be found and updated here:
-
-- Gateway service instance configuration file used on create/update: `./api-gateway-config.json`
-- Frontend routes configuration used on binding used on bind: `./frontend/api-route-config.json`
-- Backend routes configuration used on binding used on bind:`./backend/api-route-config.json`
-
-## Special frontend config related to gateway
-
-The frontend application is implemented in ReactJS, and is pushed with static buildpack. Because of it's static nature, we had to do the following:
-
-1. `homepage` in `package.json` is set to `/rescue`, which is the path we set for the frontend application in gateway config (`frontend/api-route-config.json`). This is to make sure all related assets is requested under `/rescue` path as well.
-1. `Sign in to adopt` button is linked to `/rescue/login`, which is a path that is `sso-enabled` in gateway config (`frontend/api-route-config.json`). This is necessary for frontend apps bound to a sub path on gateway because the Oauth2 login flow redirects users to the original requested location or back to `/` if no saved request exists. This setting is not necessary if the frontend app is bound to path `/`.
-1. `REACT_APP_BACKEND_BASE_URI` is set to `/backend` in build script, which is the path we set for the backend application in gateway config (`backend/api-route-config.json`). This is to make sure all our backend API calls are appended with the `backend` path.
-
-## Gateway and Animal Rescue application features
-
-Visit `https://gateway-demo.${appsDomain}/rescue`, you should see cute animal bios with the `Adopt` buttons disabled. All the information are fetched from a public `GET` backend endpoint `/animals`.
-![homepage](./docs/images/homepage.png)
-
-Click the `Sign in to adopt` button in the top right corner, you should be redirected to the SSO login page if you haven't already logged in to SSO.
-![log in page](./docs/images/login.png)
-
-Once you logged in, you should see a greeting message regarding the username you log in with in the top right corner, and the `Adopt` buttons should be enabled.
-![logged in view](./docs/images/logged-in.png)
-
-Click on the `Adopt` button, input your contact email and application notes in the model, then click `Apply`, a `POST` request should be sent to a `sso-enabled` backend endpoint `/animals/{id}/adoption-requests`, with the adopter set to your username we parsed from your token.
-![adopt model](./docs/images/adopt.png)
-
-Then the model should close, and you should see the `Adopt` button you clicked just now has turned into `Edit Adoption Request`. This is matched by your SSO log in username.
-![adopted view](./docs/images/adopted.png)
-
-Click on the `Edit Adoption Request` again, you can view, edit (`PUT`), and delete (`DELETE`) the existing request.
-![view or edit existing adoption request model](./docs/images/edit-or-delete.png)
-
-    **Note**
-    Documentation may get out of date. Please refer to the [e2e test](./e2e/cypress/integration/) and the test output video for the most accurate user flow description.
-
-To see circuit breaker filter in action, stop `animal-rescue-frontend` application and refresh page. You should see a response from `https://example.org` web-site, this is configured in `api-route-config.json` file in `/fallback` route.
+* [Deploy to Tanzu Application Service](#deploy-to-tanzu-application-service)
+* [AI Chat Configuration](#ai-chat-configuration)
+* [Gateway Frontend Config](#gateway-frontend-config)
+* [Application Walkthrough](#application-walkthrough)
 
 ## Development
 
+### Prerequisites
+
+- Java 17+
+- Node.js (for the frontend)
+- An OpenAI-compatible API endpoint (set via environment variables)
+
 ### Run locally
 
-Use the following commands to manage the local lifecycle of animal-rescue:
-
 ```bash
-./scripts/local.sh start         # start auth server, frontend app, and backend app
-./scripts/local.sh start --quiet # start everything without launching the app in browser, and redirects all output to `./scripts/out/`
-./scripts/local.sh stop          # stop auth server, frontend app, and backend app. You would only need to do this if you start the app in quiet mode.
+./scripts/local.sh start         # start backend, chat-server, and frontend
+./scripts/local.sh start --quiet # start everything without opening browser; output goes to ./scripts/out/
+./scripts/local.sh stop          # stop all services
 ```
 
 ### Local security configuration
 
-Backend uses Form login for local development with two test accounts - `alice / test` and `bob / test`.
-Note that in a real deployment with Gateway, OAuth2 login will be managed by the gateway itself, and your app should use `TokenRelay` filter to receive OpenID ID Token in `Authorization` header. See `CloudFoundrySecurityConfiguration` class for an example of Spring Security 5 configuration to handle token relay correctly.
+The backend uses form login for local development with two test accounts: `alice / test` and `bob / test`.
 
-> It is also possible to use OAuth2 login flow for the app. This requires running an authorization server locally. See `local-oauth2-flow` for an example of using Cloud Foundry User Account and Authentication (UAA) running in a Docker container locally.
+In a real deployment with Spring Cloud Gateway, OAuth2 login is managed by the gateway and your app receives an OpenID ID Token via the `TokenRelay` filter in the `Authorization` header.
 
 ### Tests
 
-Execute the following script to run all tests:
-
 ```bash
-./scripts/local.sh init          # install dependencies for the frontend folder and the e2e folder
+./scripts/local.sh init          # install frontend and e2e dependencies
 ./scripts/local.sh ci            # run backend tests and e2e tests
-./scripts/local.sh backend       # run backend test only
-./scripts/local.sh e2e --quiet   # run e2e test only without interactive mode
+./scripts/local.sh backend       # run backend tests only
+./scripts/local.sh e2e --quiet   # run e2e tests headlessly
 ```
 
-You can find an e2e test output video showing the whole journey in `./e2e/cypress/videos/` after the test run. If you would like to launch the test in an actual browser and run e2e test interactively, you may run the following commands:
+For interactive e2e testing:
 
 ```bash
 ./scripts/local.sh start
 ./scripts/local.sh e2e
 ```
 
-More detail about the e2e testing framework can be found at [cypress api doc](https://docs.cypress.io/api/api/table-of-contents.html)
+E2e test output videos are saved to `./e2e/cypress/videos/`. See the [Cypress API docs](https://docs.cypress.io/api/api/table-of-contents.html) for more information.
 
-### CI
-
-#### GitHub Actions
-
-GitHub Actions run all checks for the `main` branch and all PR requests. All workflow configuration can be found in `.github/workflows`.
-
-#### Concourse
-
-If you'd like to get the most updated sample app deployed in a real TAS environment, you can set up a concourse pipeline to do so:
+## Deploy to Tanzu Application Service
 
 ```bash
-fly -t ${yourConcourseTeamName} set-pipeline -p sample-app-to-demo-environment -c concourse/pipeline.yml -l config.yml
+./scripts/cf_deploy init    # install dependencies and build artifacts
+./scripts/cf_deploy deploy  # deploy frontend, backend, chat-server, and gateway
 ```
 
-You will need to update the Slack notification settings and add the following environment variables to your concourse credentials manager. Here are the variables we set in our concourse credhub:
+Visit `https://gateway-demo.${appsDomain}/rescue` to view the app.
 
-```
-- name: /concourse/main/sample-app-to-demo-environment/CF_API_HOST
-- name: /concourse/main/sample-app-to-demo-environment/CF_USERNAME
-- name: /concourse/main/sample-app-to-demo-environment/CF_PASSWORD
-- name: /concourse/main/sample-app-to-demo-environment/SKIP_SSL_VALIDATION
-- name: /concourse/main/sample-app-to-demo-environment/CF_ORG
-- name: /concourse/main/sample-app-to-demo-environment/CF_SPACE
+To tear down:
+
+```bash
+./scripts/cf_deploy destroy
 ```
 
-## Check out our tags
+Other useful commands:
 
-Tags that looks like `SCG-VT-v${VERSION}+` indicates that this commit and the commits after are compatible with the specified `VERSION` of the `SCG-VT` tile.
+```bash
+./scripts/cf_deploy push                          # build and push frontend and backend
+./scripts/cf_deploy dynamic_route_config_update   # update bound apps' route config
+./scripts/cf_deploy rebind                        # unbind and rebind services
+./scripts/cf_deploy upgrade                       # upgrade the gateway instance
+```
 
-The other tags demonstrate different configuration with `SCG-VT`, have fun exploring what's possible!
+Gateway configuration files:
+
+- Gateway instance config: `./api-gateway-config.json`
+- Frontend route config: `./frontend/api-route-config.json`
+- Backend route config: `./backend/api-route-config.json`
+
+## AI Chat Configuration
+
+The chat-server requires an OpenAI-compatible endpoint. Configure it via environment variables or `chat-server/src/main/resources/application.yml`:
+
+| Variable | Description | Default |
+|---|---|---|
+| `OPENAI_BASE_URL` | Base URL of the OpenAI-compatible API | _(none)_ |
+| `OPENAI_API_KEY` | API key for the model endpoint | _(none)_ |
+| `ANIMAL_RESCUE_BACKEND_URL` | URL of the backend for MCP tool discovery | `http://localhost:8080` |
+
+The chat-server connects to the backend's MCP server over Streamable HTTP to discover and invoke tools (`getAvailableAnimals`, `adoptAnimal`, `getPendingAdopters`). On Cloud Foundry, the model endpoint is provided via a bound service (`animal-rescue-model`).
+
+### MCP Tools
+
+The backend exposes three MCP tools:
+
+- **`getAvailableAnimals`** — Returns all animals with their details and current adoption requests. No authentication required.
+- **`adoptAnimal`** — Submits an adoption request for a given animal ID with adopter name, email, and notes. Requires an authenticated user.
+- **`getPendingAdopters`** — Lists pending adoption requests for a named animal. Requires an authenticated user.
+
+## Gateway Frontend Config
+
+The frontend is a React SPA pushed with a static buildpack. Key configuration points:
+
+1. `homepage` in `package.json` is set to `/rescue`, matching the gateway route path, so all assets are served under `/rescue`.
+2. The "Sign in to adopt" button links to `/rescue/login`, an SSO-enabled gateway path that triggers the OAuth2 flow and redirects back to `/rescue`.
+3. `REACT_APP_BACKEND_BASE_URI` is set to `/backend`, matching the backend's gateway route path.
+
+## Application Walkthrough
+
+Visit the app to see animal bios with `Adopt` buttons (disabled until you sign in).
+
+Click **Sign in to adopt** to authenticate. Once logged in, you'll see a greeting and enabled `Adopt` buttons.
+
+Click **Adopt** on any animal card to submit an adoption request with your email and notes.
+
+Open the **chat sidebar** (bottom-right bubble) to interact with the AI assistant. You can:
+- Ask about available animals
+- Request to adopt an animal through conversation
+- Query pending adopters for a specific animal (when signed in)
+
+The assistant enforces authentication — unauthenticated users can browse but cannot adopt or view pending requests.
+
+## CI
+
+### GitHub Actions
+
+GitHub Actions run all checks for the `main` branch and pull requests. Workflow configuration is in `.github/workflows`.
