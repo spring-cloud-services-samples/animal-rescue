@@ -13,8 +13,8 @@
       "description": "Retrieve the current authenticated user's information.",
       "path": "/api/whoami",
       "method": "GET",
-      "token-relay": true,
       "sso-enabled": true,
+      "filters": [ "ClaimHeader=user_name,X-User-Name", "ClaimHeader=sub,X-User-Sub" ],
       "tags": ["sso"]
     },
     {
@@ -22,8 +22,8 @@
       "description": "Create pet adoption requests.",
       "path": "/api/animals/{animalId}/adoption-requests",
       "method": "POST",
-      "token-relay": true,
       "sso-enabled": true,
+      "filters": [ "ClaimHeader=user_name,X-User-Name", "ClaimHeader=sub,X-User-Sub" ],
       "tags": ["pet adoption"],
       "model": {
         "requestBody": {
@@ -62,8 +62,8 @@
       "description": "Update/delete pet adoption requests.",
       "path": "/api/animals/{animalId}/adoption-requests/{adoptionId}",
       "method": "PUT,DELETE",
-      "token-relay": true,
       "sso-enabled": true,
+      "filters": [ "ClaimHeader=user_name,X-User-Name", "ClaimHeader=sub,X-User-Sub" ],
       "tags": ["pet adoption"],
       "model": {
         "requestBody": {

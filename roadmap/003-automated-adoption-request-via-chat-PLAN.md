@@ -37,55 +37,88 @@ This story adds a **write operation** (creating adoption requests) to the chat s
 
 ## Key Design Challenge: Authentication Flow
 
-The chat server needs to make **authenticated** requests to the backend on behalf of the logged-in user. There are several options:
+The chat server needs to know the **identity** of the logged-in user so it can pass the adopter name to MCP tools. There are several options:
 
-### Option A: Token Relay (Chosen)
+### Option A: Token Relay
 The frontend sends the user's session cookie (or JWT token) to the chat server, which relays it to the backend when making adoption requests.
 
 - **Pros**: The backend's existing auth model is unchanged; the chat server acts as a transparent proxy for auth
 - **Cons**: Requires the chat server to forward credentials; CORS and cookie handling need care
 
-### Option B: Service-to-Service Auth
+### Option B: ClaimHeader (Chosen)
+The API Gateway's `ClaimHeader` filter extracts JWT claim values (e.g. `user_name`, `sub`) and forwards them as HTTP headers (`X-User-Name`, `X-User-Sub`) to downstream services. Both the backend and chat server read the username directly from the header. For local dev (no gateway), the session cookie flow is preserved as a fallback.
+
+- **Pros**: Simpler than TokenRelay -- no JWT validation in backend, no cookie forwarding in chat server, no cross-origin credential complexity; the gateway is the single point of token validation
+- **Cons**: Backend trusts the gateway to have validated the token (acceptable since the gateway always sits in front in production); local dev requires a fallback mechanism
+
+### Option C: Service-to-Service Auth
 The chat server authenticates to the backend with its own service credentials and passes the username in the request body.
 
 - **Pros**: Simpler frontend; no credential forwarding
 - **Cons**: Requires backend changes (accept username from trusted services); breaks the existing security model
 
-### Option C: Frontend Makes the API Call
+### Option D: Frontend Makes the API Call
 The LLM returns a structured "action" payload; the frontend executes the adoption request directly using its existing `submitAdoptionRequest()`.
 
 - **Pros**: No auth changes needed; reuses existing frontend code
 - **Cons**: The LLM can't confirm success/failure in its response; requires a two-phase flow
 
-**Decision: Option A (Token Relay)** -- This is the most architecturally clean approach and aligns with how Spring Cloud Gateway already handles token relay in production. For local dev, the frontend will forward its session cookie to the chat server, which relays it to the backend.
+**Decision: Option B (ClaimHeader)** -- This leverages the API Gateway's `ClaimHeader` filter on Tanzu Platform to forward user claims as HTTP headers. It simplifies both the backend (no JWT resource server needed) and the chat server (no `/whoami` call needed in cloud). For local dev, the existing session cookie + `/whoami` fallback is preserved via the `NotOnCloudCondition` pattern already used throughout the codebase.
 
 ## Architecture
+
+### Cloud (with API Gateway + ClaimHeader)
+
+```
+ Browser (React)         API Gateway (Tanzu)         Chat Server               Animal Rescue Backend
+ +--------------+       +--------------------+      +-------------------+     +--------------------+
+ | ChatSidebar  | SSO   | SSO Login          |      | ChatController    |     |                    |
+ |              | ----> | ClaimHeader filter  |      |   reads           |     | reads              |
+ |              |       | extracts user_name  |      |   X-User-Name hdr |     | X-User-Name hdr    |
+ |              |       | from JWT, sets      |      |   |               |     | -> Principal       |
+ |              |       | X-User-Name header  |      |   v               |     |                    |
+ |              |       |                     | ---> | ChatService       |     |                    |
+ |              |       |                     |      |   +-- LLM Client  |     |                    |
+ |              |       |                     |      |   +-- MCP Tools:  |     |                    |
+ |              |       |                     |      |   |  getAnimals() +---> | GET /animals       |
+ |              |       |                     |      |   | adoptAnimal() +---> | (via MCP, direct   |
+ |              |       |  SSE stream         |      |   |               |     |  repository access)|
+ |              | <---- | <----------------- |      |   |               |     |                    |
+ +--------------+       +--------------------+      +-------------------+     +--------------------+
+```
+
+### Local Dev (session cookie fallback)
 
 ```
  Browser (React)                         Chat Server                    Animal Rescue Backend
  +------------------+                    +------------------------+     +--------------------+
  | ChatSidebar      |  POST /chat        | ChatController         |     |                    |
- |                  |  + Cookie/Token     |   |                    |     |                    |
- |                  | -----------------> |   v                    |     |                    |
- |                  |                    | ChatService            |     |                    |
- |                  |                    |   +-- LLM Client       |     |                    |
- |                  |                    |   +-- MCP Tools:       |     |                    |
- |                  |                    |   |   getAnimals() ----+---> | GET /animals       |
- |                  |                    |   |   adoptAnimal() ---+---> | POST /animals/{id} |
- |                  |  SSE stream        |   |     (+ cookie)     |     |   /adoption-reqs   |
- |                  | <----------------- |   |                    |     |   (authenticated)  |
+ |                  |  + SESSION cookie   |   (no X-User-Name hdr) |     |                    |
+ |                  | -----------------> |   falls back to cookie  |     |                    |
+ |                  |                    |   |                     |     |                    |
+ |                  |                    |   v                     |     |                    |
+ |                  |                    | ChatService             |     |                    |
+ |                  |                    |   calls /whoami --------+---> | GET /whoami        |
+ |                  |                    |   with SESSION cookie   |     | (returns username) |
+ |                  |                    |   +-- MCP Tools:        |     |                    |
+ |                  |                    |   |   getAnimals() -----+---> | GET /animals       |
+ |                  |                    |   |   adoptAnimal() ----+---> | (via MCP, direct   |
+ |                  |  SSE stream        |   |                     |     |  repository access)|
+ |                  | <----------------- |   |                     |     |                    |
  +------------------+                    +------------------------+     +--------------------+
 ```
 
 ## Scope Decisions
 
 ### In Scope
-1. New MCP tool: `adoptAnimal(animalId, email, notes)` -- makes an authenticated `POST` to the backend
-2. Authentication relay: frontend sends credentials with chat requests; chat server forwards them
-3. LLM intent recognition: system prompt updated to handle adoption intents
-4. Confirmation/error display: LLM reports success or failure in its streamed response
-5. Conversational data gathering: if the user says "I want to adopt Chocobo" without providing email/notes, the LLM asks follow-up questions before calling the tool
-6. Security configuration for the chat server (CORS, cookie forwarding)
+1. New MCP tool: `adoptAnimal(animalId, email, notes)` -- creates adoption requests via direct repository access in the backend MCP server
+2. ClaimHeader-based auth (cloud): API Gateway forwards `user_name` JWT claim as `X-User-Name` header to both backend and chat server
+3. Session cookie auth fallback (local dev): chat server resolves username via backend's `/whoami` endpoint
+4. Backend cloud security: `CloudFoundrySecurityConfiguration` reads `X-User-Name` header to populate `Principal` (replaces JWT resource server)
+5. LLM intent recognition: system prompt updated to handle adoption intents
+6. Confirmation/error display: LLM reports success or failure in its streamed response
+7. Conversational data gathering: if the user says "I want to adopt Chocobo" without providing email/notes, the LLM asks follow-up questions before calling the tool
+8. Security configuration for the chat server (CORS for local dev)
 
 ### Out of Scope
 - Edit/delete adoption requests via chat (can be a follow-up story)
@@ -103,78 +136,81 @@ The LLM returns a structured "action" payload; the frontend executes the adoptio
 
 | File | Change |
 |------|--------|
-| `chat-server/src/main/java/.../ChatController.java` | Extract auth credentials from request, pass to `ChatService` |
-| `chat-server/src/main/java/.../ChatService.java` | Pass auth context to MCP tools; update system prompt for adoption intents |
-| `chat-server/src/main/java/.../config/ChatServerConfig.java` | Configure `WebClient` to forward cookies |
-| `chat-server/src/main/resources/application.yml` | CORS allowed origins |
+| `backend/api-route-config.json` | Replace `token-relay` with `ClaimHeader=user_name,X-User-Name` and `ClaimHeader=sub,X-User-Sub` filters |
+| `chat-server/api-route-config.json` | Add `sso-enabled` and `ClaimHeader` filters for the `/chat` route |
+| `backend/src/main/java/.../security/CloudFoundrySecurityConfiguration.java` | Replace JWT resource server with `WebFilter` that reads `X-User-Name` header and populates `Principal` |
+| `chat-server/src/main/java/.../ChatController.java` | Read `X-User-Name` header (cloud) alongside `SESSION` cookie (local), pass both to `ChatService` |
+| `chat-server/src/main/java/.../ChatService.java` | Prefer ClaimHeader username; fall back to cookie-based `/whoami` resolution; update system prompt for adoption intents |
 | `frontend/src/httpClient.js` | Add `credentials: 'include'` to `sendChatMessage` fetch call |
 | `frontend/src/App.js` | Pass `username` to `ChatSidebar` for display context |
 | `frontend/src/components/chat-sidebar.js` | Show login prompt if user tries to adopt while unauthenticated |
 | `e2e/cypress/e2e/rescue.cy.js` | Add tests for chat-based adoption flow |
-| `backend/src/main/java/.../security/SecurityConfiguration.java` | Add CORS config to allow chat server origin for cookie-based requests |
+| `backend/src/main/java/.../security/SecurityConfiguration.java` | Add CORS config to allow chat server origin for cookie-based requests (local dev) |
 
 ## Detailed Implementation Steps
 
-### Step 1: Configure Authentication Relay
+### Step 1: Configure Authentication (ClaimHeader for cloud, cookie fallback for local)
+
+**Gateway route configs (`backend/api-route-config.json`, `chat-server/api-route-config.json`):**
+
+Replace `"token-relay": true` with `ClaimHeader` filters on all SSO-protected routes. The gateway extracts JWT claims and forwards them as HTTP headers:
+```json
+{
+    "path": "/api/whoami",
+    "method": "GET",
+    "sso-enabled": true,
+    "filters": [ "ClaimHeader=user_name,X-User-Name", "ClaimHeader=sub,X-User-Sub" ]
+}
+```
+
+The chat server route also gets ClaimHeader filters:
+```json
+{
+    "path": "/chat",
+    "method": "POST",
+    "sso-enabled": true,
+    "filters": [ "StripPrefix=0", "RateLimit=1,10s", "ClaimHeader=user_name,X-User-Name", "ClaimHeader=sub,X-User-Sub" ]
+}
+```
+
+**Backend -- `CloudFoundrySecurityConfiguration.java`:**
+
+Replace the JWT resource server with a `WebFilter` that reads the `X-User-Name` header (set by the gateway's ClaimHeader filter) and populates a `Principal` in the security context. This way `AnimalController` continues to use `Principal.getName()` unchanged:
+```java
+private WebFilter claimHeaderAuthenticationFilter() {
+    return (exchange, chain) -> {
+        String username = exchange.getRequest().getHeaders().getFirst("X-User-Name");
+        if (username == null || username.isBlank()) {
+            username = exchange.getRequest().getHeaders().getFirst("X-User-Sub");
+        }
+        if (username != null && !username.isBlank()) {
+            Authentication auth = new UsernamePasswordAuthenticationToken(
+                username, null, AuthorityUtils.createAuthorityList("ROLE_USER"));
+            return chain.filter(exchange)
+                .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
+        }
+        return chain.filter(exchange);
+    };
+}
+```
 
 **Frontend -- `httpClient.js`:**
 
-Update `sendChatMessage` to include credentials:
+`sendChatMessage` includes credentials for local dev session cookie forwarding (already done):
 ```js
 export function sendChatMessage({ message, history }) {
-    return fetch(`${chatServerBaseUrl}/chat`, {
+    return fetch(`${chatServerUrl}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',  // Forward session cookie
+        credentials: 'include',
         body: JSON.stringify({ message, history }),
     });
 }
 ```
 
-**Backend -- `SecurityConfiguration.java`:**
+**Chat Server -- `ChatServerSecurityConfig.java` (local dev only, `NotOnCloudCondition`):**
 
-Add CORS configuration to allow the chat server to relay cookies:
-```java
-.authorizeExchange(authorizeExchangeSpec -> {
-    authorizeExchangeSpec
-        .pathMatchers("/whoami").authenticated()
-        .anyExchange().permitAll();
-})
-// Add CORS for chat server relay
-.cors(corsSpec -> {
-    corsSpec.configurationSource(exchange -> {
-        var config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-            "http://localhost:3000",
-            "http://localhost:8081"
-        ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-        config.setAllowCredentials(true);
-        config.setAllowedHeaders(List.of("*"));
-        return config;
-    });
-})
-```
-
-**Chat Server -- `ChatServerSecurityConfig.java`:**
-```java
-@Configuration
-public class ChatServerSecurityConfig {
-
-    @Bean
-    public CorsWebFilter corsFilter() {
-        var config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000"));
-        config.setAllowedMethods(List.of("POST", "OPTIONS"));
-        config.setAllowCredentials(true);
-        config.setAllowedHeaders(List.of("*"));
-
-        var source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return new CorsWebFilter(source);
-    }
-}
-```
+CORS config for local dev -- unchanged, allows `credentials: true` from `localhost:3000`.
 
 ### Step 2: Create the Adoption MCP Tool (in the Backend)
 
@@ -223,19 +259,38 @@ Because the tool runs inside the backend process, it has direct access to the re
 
 ### Step 3: Update the Chat Controller to Pass Auth Context
 
-The controller extracts the session cookie from the incoming request and makes it available to the MCP tools:
+The controller reads the `X-User-Name` header (set by the gateway in cloud) and the `SESSION` cookie (for local dev fallback), passing both to the service:
 
 ```java
 @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 public Flux<String> chat(
         @RequestBody ChatRequest request,
+        @RequestHeader(name = "X-User-Name", required = false) String claimUsername,
         @CookieValue(name = "SESSION", required = false) String sessionCookie
 ) {
     return chatService.chat(
         request.message(),
         request.history(),
-        sessionCookie  // Passed through to MCP tools
+        claimUsername,     // From gateway ClaimHeader (cloud)
+        sessionCookie      // Fallback for local dev
     );
+}
+```
+
+`ChatService.resolveUsername()` prefers the ClaimHeader value and only falls back to the cookie-based `/whoami` call when the header is absent:
+
+```java
+private Mono<String> resolveUsername(String claimUsername, String sessionCookie) {
+    if (claimUsername != null && !claimUsername.isBlank()) {
+        return Mono.just(claimUsername);
+    }
+    // Local dev fallback: resolve via backend /whoami with session cookie
+    return backendClient.get()
+            .uri("/whoami")
+            .cookie("SESSION", sessionCookie)
+            .retrieve()
+            .bodyToMono(String.class)
+            .onErrorResume(e -> Mono.just(""));
 }
 ```
 
@@ -403,18 +458,19 @@ describe('adoption via chat', () => {
 | Criteria | How It's Met |
 |----------|-------------|
 | Intent Recognition: LLM identifies "adopt" intent and extracts animalId/name | System prompt defines the adoption flow. LLM calls `getAvailableAnimals` to resolve name to ID, then calls `adoptAnimal` with the correct ID. |
-| API Action: MCP server triggers adoption request creation | `AdoptionMcpTools.adoptAnimal()` is defined in the backend (MCP server) and has direct repository access. The chat server's MCP client invokes it via the MCP protocol. The tool creates the adoption request directly in the database. |
-| Security: Chat relays user's SSO/JWT token | Frontend sends `credentials: 'include'` with the chat request. Chat server extracts the user identity from the session and passes it as a parameter to the `adoptAnimal` MCP tool. The tool runs in the backend with direct repository access, so the adopter name is set from the relayed identity. |
+| API Action: MCP server triggers adoption request creation | `AnimalRescueMcpTools.adoptAnimal()` is defined in the backend (MCP server) and has direct repository access. The chat server's MCP client invokes it via the MCP protocol. The tool creates the adoption request directly in the database. |
+| Security: User identity forwarded via ClaimHeader | **Cloud**: API Gateway's `ClaimHeader` filter extracts `user_name` from the JWT and forwards it as `X-User-Name` header to both backend and chat server. The backend's `CloudFoundrySecurityConfiguration` reads this header and populates a `Principal`. The chat server reads the header directly to enrich the LLM prompt with user context. **Local dev**: Session cookie fallback via `/whoami` is preserved. |
 | Confirmation: Chat displays success or failure | The `adoptAnimal` tool returns a human-readable result string. The LLM incorporates this into its streamed response. Errors (auth failure, invalid animal) are reported clearly. |
 
 ## Risks and Mitigations
 
 | Risk | Mitigation |
 |------|-----------|
-| Cookie forwarding across origins (CORS) | Explicit CORS config on both backend and chat server. `SameSite=Lax` cookies work for same-site requests in local dev. For production behind a gateway, all services share the same origin. |
+| `X-User-Name` header spoofing | In production, the API Gateway is the only entry point and strips/replaces incoming headers before setting ClaimHeader values. Direct access to backend/chat-server is blocked by network policy. For defense in depth, consider adding `RemoveRequestHeader=X-User-Name` before `ClaimHeader` in the gateway route config. |
+| CORS in local dev (cookie fallback) | Explicit CORS config on both backend and chat server for local dev only (`NotOnCloudCondition`). `SameSite=Lax` cookies work for same-site requests. In production behind the gateway, all services share the same origin. |
 | LLM calls adoptAnimal prematurely (without email) | System prompt explicitly requires gathering email before calling the tool. The tool parameter `email` is required. If the LLM omits it, the backend will reject the request (validation). |
 | LLM hallucinates an animal ID | System prompt requires looking up the real ID via `getAvailableAnimals` first. The backend returns 400 for non-existent IDs, and the tool surfaces this error. |
-| Session cookie name varies by environment | Local dev uses Spring's default `SESSION` cookie. Cloud deployments use JWT tokens via `Authorization` header. The chat server should support both (check for cookie first, then header). |
+| Local dev vs cloud auth divergence | The codebase uses the existing `NotOnCloudCondition` / `@ConditionalOnCloudPlatform` pattern to cleanly separate the two auth flows. `ChatService.resolveUsername()` checks for ClaimHeader first, then falls back to cookie resolution. |
 | Adoption succeeds but animal cards don't refresh | `App.js` calls `fetchAnimals()` after detecting a successful adoption in the streamed response. As a fallback, the user can manually refresh. |
 | Multi-turn conversation state | The full chat history is sent with each request, so the LLM has context from previous turns (e.g. the user said "Chocobo" three messages ago). History size should be capped (e.g. last 20 messages) to stay within token limits. |
 | Rate limiting / abuse | The chat server should rate-limit adoption tool calls (e.g. max 5 per minute per session) to prevent accidental duplicate submissions. |

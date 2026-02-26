@@ -82,7 +82,6 @@ public class ChatService {
 	public ChatService(ChatClient.Builder chatClientBuilder,
 			ToolCallbackProvider[] toolCallbackProviders,
 			@Value("${animal-rescue.backend-url:http://localhost:8080}") String backendUrl) {
-		LOGGER.info("backendUrl: " + backendUrl);
 		this.backendClient = WebClient.create(backendUrl);
 		this.chatClient = chatClientBuilder
 				.defaultSystem(SYSTEM_PROMPT)
@@ -90,10 +89,16 @@ public class ChatService {
 				.build();
 	}
 
-	public Flux<String> chat(String userMessage, List<ChatMessage> history, String sessionCookie) {
+	/**
+	 * @param claimUsername username from the gateway's ClaimHeader filter (cloud),
+	 *                     or {@code null} when running locally
+	 * @param sessionCookie session cookie for local dev cookie-based auth fallback
+	 */
+	public Flux<String> chat(String userMessage, List<ChatMessage> history,
+			String claimUsername, String sessionCookie) {
 		LOGGER.info("Processing chat message: {}", userMessage);
 
-		return resolveUsername(sessionCookie)
+		return resolveUsername(claimUsername, sessionCookie)
 				.defaultIfEmpty("")
 				.flatMapMany(username -> {
 					List<Message> messages = buildMessages(history);
@@ -120,9 +125,15 @@ public class ChatService {
 		return sb.toString();
 	}
 
-	private Mono<String> resolveUsername(String sessionCookie) {
-		if (sessionCookie == null || sessionCookie.isEmpty()) {
-			return Mono.just("");
+	/**
+	 * Resolves the username, preferring the gateway-provided ClaimHeader value.
+	 * Falls back to resolving via the backend's {@code /whoami} endpoint using the
+	 * session cookie (local dev only).
+	 */
+	private Mono<String> resolveUsername(String claimUsername, String sessionCookie) {
+		if (claimUsername != null && !claimUsername.isBlank()) {
+			LOGGER.debug("Username from ClaimHeader: {}", claimUsername);
+			return Mono.just(claimUsername);
 		}
 		return backendClient.get()
 				.uri("/whoami")
