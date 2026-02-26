@@ -8,14 +8,14 @@ Sample app for Spring Cloud Gateway, enhanced with AI-powered chat using Spring 
 - Routing traffic to configured internal routes with container-to-container networking
 - Gateway routes configured through service bindings
 - Simplified route configuration
-- SSO login and token relay on behalf of routed services
+- SSO login and `ClaimHeader` filter to forward user identity to backend services
 - Circuit breaker filter
 
 ### AI Chat (Spring AI + MCP)
 - Conversational chat sidebar powered by Spring AI and OpenAI-compatible models
 - MCP server on the backend exposing tools: `getAvailableAnimals`, `adoptAnimal`, `getPendingAdopters`
 - MCP client in the chat-server that discovers and invokes backend tools via Streamable HTTP transport
-- Authentication-aware: the chat relays the user's session to enforce login requirements for write operations
+- Authentication-aware: in cloud, the gateway forwards user identity via `ClaimHeader`; locally, the chat server resolves the user via session cookie
 - Rate limiting on the `/chat` endpoint with friendly 429 handling in the UI
 
 ## Architecture
@@ -77,7 +77,7 @@ The application consists of three services:
 
 The backend uses form login for local development with two test accounts: `alice / test` and `bob / test`.
 
-In a real deployment with Spring Cloud Gateway, OAuth2 login is managed by the gateway and your app receives an OpenID ID Token via the `TokenRelay` filter in the `Authorization` header.
+In a real deployment with Spring Cloud Gateway on Tanzu Platform, OAuth2 login is managed by the gateway and the `ClaimHeader` filter forwards the authenticated user's JWT claims (e.g. `user_name`, `sub`) as HTTP headers (`X-User-Name`, `X-User-Sub`) to backend services.
 
 ### Tests
 
@@ -123,9 +123,10 @@ Other useful commands:
 
 Gateway configuration files:
 
-- Gateway instance config: `./api-gateway-config.json`
+- Gateway instance config: `./gateway/api-gateway-config.json`
 - Frontend route config: `./frontend/api-route-config.json`
 - Backend route config: `./backend/api-route-config.json`
+- Chat server route config: `./chat-server/api-route-config.json`
 
 ## AI Chat Configuration
 
