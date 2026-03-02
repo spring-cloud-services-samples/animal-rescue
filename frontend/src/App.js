@@ -81,7 +81,7 @@ export default class App extends React.Component {
             .map(m => ({role: m.sender, content: m.text}));
 
         try {
-            const response = await sendChatMessage({message: text, history});
+            const response = await sendChatMessage({message: text, history, username: this.state.username});
 
             if (response.status === 429) {
                 this.updateAssistantMessage(assistantId, {

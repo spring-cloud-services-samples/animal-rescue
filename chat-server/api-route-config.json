@@ -5,7 +5,18 @@
       "description": "Streaming chat endpoint for AI-powered animal rescue assistant.",
       "path": "/chat",
       "method": "POST",
-      "filters": [ "StripPrefix=0", "RateLimit=1,10s", "ClaimHeader=user_name,X-User-Name", "ClaimHeader=sub,X-User-Sub" ],
+      "predicates": [ "Header=X-Authenticated,true" ],
+      "filters": [ "StripPrefix=0", "RateLimit=2,10s", "RemoveRequestHeader=X-Authenticated", "ClaimHeader=user_name,X-User-Name", "ClaimHeader=sub,X-User-Sub" ],
+      "order": 0,
+      "tags": ["chat"]
+    },
+    {
+      "title": "AI Chat endpoint",
+      "description": "Streaming chat endpoint for AI-powered animal rescue assistant.",
+      "path": "/chat",
+      "method": "POST",
+      "filters": [ "StripPrefix=0", "RateLimit=2,60s", "ClaimHeader=user_name,X-User-Name", "ClaimHeader=sub,X-User-Sub" ],
+      "order": 10,
       "tags": ["chat"]
     }
   ]

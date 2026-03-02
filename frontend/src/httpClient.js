@@ -22,10 +22,14 @@ export async function deleteAdoptionRequest({animalId, adoptionRequestId}) {
     return axios.delete(`${backendBaseUrl}/animals/${animalId}/adoption-requests/${adoptionRequestId}`);
 }
 
-export function sendChatMessage({message, history}) {
+export function sendChatMessage({message, history, username}) {
+    const headers = {'Content-Type': 'application/json'};
+    if (username) {
+        headers['X-Authenticated'] = 'true';
+    }
     return fetch(`${chatServerUrl}`, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers,
         credentials: 'include',
         body: JSON.stringify({message, history}),
     });

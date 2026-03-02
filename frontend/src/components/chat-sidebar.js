@@ -21,11 +21,20 @@ export default class ChatSidebar extends React.Component {
         }
         if (this.props.isOpen && !prevProps.isOpen) {
             setTimeout(() => {
-                const input = this.inputRef.current?.querySelector('input');
-                if (input) input.focus();
+                this.focusInput();
             }, 300);
         }
+        if (prevProps.isBusy && !this.props.isBusy && this.props.isOpen) {
+            setTimeout(() => {
+                this.focusInput();
+            }, 50);
+        }
     }
+
+    focusInput = () => {
+        const input = this.inputRef.current?.querySelector('input');
+        if (input) input.focus();
+    };
 
     scrollToBottom = () => {
         if (this.messagesEndRef.current) {
