@@ -100,8 +100,8 @@ E2e test output videos are saved to `./e2e/cypress/videos/`. See the [Cypress AP
 ## Deploy to Tanzu Application Service
 
 ```bash
-./scripts/cf_deploy init    # install dependencies and build artifacts
-./scripts/cf_deploy deploy  # deploy frontend, backend, chat-server, and gateway
+./scripts/tp_ear_deploy init    # install dependencies and build artifacts
+./scripts/tp_ear_deploy deploy  # deploy frontend, backend, chat-server, and gateway
 ```
 
 Visit `https://gateway-demo.${appsDomain}/rescue` to view the app.
@@ -109,16 +109,16 @@ Visit `https://gateway-demo.${appsDomain}/rescue` to view the app.
 To tear down:
 
 ```bash
-./scripts/cf_deploy destroy
+./scripts/tp_ear_deploy destroy
 ```
 
 Other useful commands:
 
 ```bash
-./scripts/cf_deploy push                          # build and push frontend and backend
-./scripts/cf_deploy dynamic_route_config_update   # update bound apps' route config
-./scripts/cf_deploy rebind                        # unbind and rebind services
-./scripts/cf_deploy upgrade                       # upgrade the gateway instance
+./scripts/tp_ear_deploy push                          # build and push frontend and backend
+./scripts/tp_ear_deploy dynamic_route_config_update   # update bound apps' route config
+./scripts/tp_ear_deploy rebind                        # unbind and rebind services
+./scripts/tp_ear_deploy upgrade                       # upgrade the gateway instance
 ```
 
 Gateway configuration files:
