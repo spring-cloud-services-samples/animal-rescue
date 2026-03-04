@@ -1,5 +1,5 @@
 plugins {
-	id 'org.springframework.boot' version '3.5.10'
+	id 'org.springframework.boot' version '4.0.3'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'java'
 	id 'jacoco'
@@ -8,27 +8,20 @@ plugins {
 group = 'io.spring.cloud.samples.animalrescue'
 version = '0.0.1-SNAPSHOT'
 
-// Java version configuration
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
 
-configurations {
-	developmentOnly
-	runtimeClasspath {
-		extendsFrom developmentOnly
-	}
-}
-
 repositories {
 	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' }
 }
 
 dependencyManagement {
 	imports {
-		mavenBom "org.springframework.ai:spring-ai-bom:1.1.2"
+		mavenBom "org.springframework.ai:spring-ai-bom:2.0.0-M2"
 	}
 }
 
@@ -46,20 +39,27 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation "org.springframework.security:spring-security-oauth2-resource-server"
 	implementation "org.springframework.security:spring-security-oauth2-jose"
- 	implementation('io.pivotal.cfenv:java-cfenv-boot:3.4.0')
-	implementation 'org.springdoc:springdoc-openapi-starter-webflux-api:2.8.6'
+	implementation('io.pivotal.cfenv:java-cfenv-boot:4.0.0') {
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-webmvc'
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+	}
+	implementation 'org.springdoc:springdoc-openapi-starter-webflux-api:3.0.2'
 
-    implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webflux'
-    implementation 'org.springframework.ai:spring-ai-mcp-annotations'
-    implementation 'io.modelcontextprotocol.sdk:mcp'
+	implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webflux'
+	implementation 'org.springframework.ai:spring-ai-mcp-annotations'
+	implementation 'io.modelcontextprotocol.sdk:mcp'
 
-    runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'io.r2dbc:r2dbc-h2'
 
-	testImplementation('org.springframework.security:spring-security-test')
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-webflux-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
 	testImplementation 'io.projectreactor:reactor-test'
- 	testImplementation('io.pivotal.cfenv:java-cfenv-test-support:3.4.0')
+	testImplementation('io.pivotal.cfenv:java-cfenv-test-support:4.0.0') {
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-webmvc'
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-webmvc-test'
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+	}
 }
 
 test {
@@ -69,5 +69,3 @@ test {
 		events = ["passed", "skipped", "failed"]
 	}
 }
-
-

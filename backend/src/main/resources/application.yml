@@ -9,6 +9,8 @@ management:
         include: "*"
 
 spring:
+  main:
+    web-application-type: reactive
   ai:
     mcp:
       server:
