@@ -16,8 +16,9 @@ import org.springframework.web.reactive.function.BodyInserters;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
@@ -51,6 +52,7 @@ class AnimalControllerTest {
 		webTestClient
 			.get()
 			.uri("/animals")
+			.header("API-Version", "1.0")
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody()
@@ -64,6 +66,37 @@ class AnimalControllerTest {
 			.jsonPath("$[0].adoptionRequests[0].adopterName").isNotEmpty()
 			.jsonPath("$[0].adoptionRequests[0].email").isNotEmpty()
 			.jsonPath("$[0].adoptionRequests[0].notes").isNotEmpty();
+	}
+
+	@Test
+	void getAnimalsPaginatedFirstPage() {
+		webTestClient
+			.get()
+			.uri("/animals?page=0&size=3")
+			.header("API-Version", "2.0")
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.jsonPath("$.animals.length()").isEqualTo(3)
+			.jsonPath("$.totalCount").isEqualTo(10)
+			.jsonPath("$.hasMore").isEqualTo(true)
+			.jsonPath("$.animals[0].id").isEqualTo(1)
+			.jsonPath("$.animals[0].name").isEqualTo("Chocobo")
+			.jsonPath("$.animals[0].adoptionRequests").isNotEmpty();
+	}
+
+	@Test
+	void getAnimalsPaginatedLastPage() {
+		webTestClient
+			.get()
+			.uri("/animals?page=3&size=3")
+			.header("API-Version", "2.0")
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.jsonPath("$.animals.length()").isEqualTo(1)
+			.jsonPath("$.totalCount").isEqualTo(10)
+			.jsonPath("$.hasMore").isEqualTo(false);
 	}
 
 	@Nested
@@ -86,9 +119,9 @@ class AnimalControllerTest {
 				.jsonPath("$[0].id").isEqualTo(1)
 				.jsonPath("$[0].name").isEqualTo("Chocobo")
 				.jsonPath("$[0].adoptionRequests.length()").isEqualTo(currentAdoptionRequestCountForAnimalId1 + 1)
-				.jsonPath("$[0].adoptionRequests[*].adopterName").value(hasItem("test-user-1"))
-				.jsonPath("$[0].adoptionRequests[*].email").value(hasItem(testEmail))
-				.jsonPath("$[0].adoptionRequests[*].notes").value(hasItem(testNotes));
+				.jsonPath("$[0].adoptionRequests[*].adopterName").value(names -> assertThat((List<String>) names).contains("test-user-1"))
+				.jsonPath("$[0].adoptionRequests[*].email").value(emails -> assertThat((List<String>) emails).contains(testEmail))
+				.jsonPath("$[0].adoptionRequests[*].notes").value(notes -> assertThat((List<String>) notes).contains(testNotes));
 		}
 
 		@Test

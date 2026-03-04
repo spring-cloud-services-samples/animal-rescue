@@ -14,7 +14,7 @@ import java.security.Principal;
 @RestController
 public class SecurityController {
 
-	@GetMapping("/whoami")
+	@GetMapping(value = "/whoami", version = "1.0+")
 	@Operation(
 		summary = "Retrieve user information",
 		description = "Retrieve the current authenticated user's information.",

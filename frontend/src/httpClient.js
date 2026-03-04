@@ -3,9 +3,12 @@ import axios from 'axios';
 const backendBaseUrl = process.env.REACT_APP_BACKEND_BASE_URI || '';
 const chatServerUrl = process.env.REACT_APP_CHAT_SERVER_URI || '/chat';
 
-export async function getAnimals() {
+export async function getAnimals(page = 0, size = 3) {
     return axios
-        .get(`${backendBaseUrl}/animals`)
+        .get(`${backendBaseUrl}/animals`, {
+            params: { page, size },
+            headers: { 'API-Version': '2.0' },
+        })
         .then(res => res.data);
 }
 

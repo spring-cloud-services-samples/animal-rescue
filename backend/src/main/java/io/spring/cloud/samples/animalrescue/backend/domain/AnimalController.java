@@ -15,6 +15,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
@@ -30,7 +31,7 @@ public class AnimalController {
 		this.adoptionRequestRepository = adoptionRequestRepository;
 	}
 
-	@GetMapping("/animals")
+	@GetMapping(value = "/animals", version = "1.0+")
 	@Operation(
 		summary = "Retrieve pets for adoption.",
 		description = "Retrieve all of the animals who are up for pet adoption.",
@@ -46,7 +47,36 @@ public class AnimalController {
 						.doOnNext(animal::setAdoptionRequests));
 	}
 
-	@PostMapping("/animals/{id}/adoption-requests")
+	@GetMapping(value = "/animals", version = "2.0")
+	@Operation(
+		summary = "Retrieve pets for adoption (paginated).",
+		description = "Retrieve animals for adoption with pagination support.",
+		tags = {"pet adoption"}
+	)
+	public Mono<AnimalPage> getAnimalsPaginated(
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "3") int size
+	) {
+		LOGGER.info("Received paginated get animals request (page={}, size={})", page, size);
+		Mono<Long> countMono = animalRepository.count();
+		Mono<List<Animal>> animalsMono = animalRepository.findAll()
+			.skip((long) page * size)
+			.take(size)
+			.delayUntil(animal -> adoptionRequestRepository.findByAnimal(animal.getId())
+				.collect(Collectors.toSet())
+				.doOnNext(animal::setAdoptionRequests))
+			.collectList();
+
+		return Mono.zip(countMono, animalsMono)
+			.map(tuple -> {
+				long totalCount = tuple.getT1();
+				List<Animal> animals = tuple.getT2();
+				boolean hasMore = (long) (page + 1) * size < totalCount;
+				return new AnimalPage(animals, totalCount, hasMore);
+			});
+	}
+
+	@PostMapping(value = "/animals/{id}/adoption-requests", version = "1.0+")
 	@ResponseStatus(HttpStatus.CREATED)
 	@Operation(
 		summary = "Pet adoption API",
@@ -74,7 +104,7 @@ public class AnimalController {
 				.then();
 	}
 
-	@PutMapping("/animals/{animalId}/adoption-requests/{adoptionRequestId}")
+	@PutMapping(value = "/animals/{animalId}/adoption-requests/{adoptionRequestId}", version = "1.0+")
 	@Operation(
 		summary = "Pet adoption API",
 		description = "Update pet adoption requests.",
@@ -106,7 +136,7 @@ public class AnimalController {
 				.then();
 	}
 
-	@DeleteMapping("/animals/{animalId}/adoption-requests/{adoptionRequestId}")
+	@DeleteMapping(value = "/animals/{animalId}/adoption-requests/{adoptionRequestId}", version = "1.0+")
 	@Operation(
 		summary = "Pet adoption API",
 		description = "Delete pet adoption requests.",

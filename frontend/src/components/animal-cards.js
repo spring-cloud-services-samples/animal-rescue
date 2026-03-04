@@ -1,5 +1,5 @@
 import React from 'react';
-import {Card} from 'semantic-ui-react';
+import {Button, Card} from 'semantic-ui-react';
 import AnimalCard from "./animal-card";
 import * as PropTypes from "prop-types";
 
@@ -12,9 +12,18 @@ export default class AnimalCards extends React.Component {
                         username={this.props.username}/>
         ));
         return (
-            <Card.Group centered>
-                {cards}
-            </Card.Group>
+            <div>
+                <Card.Group centered>
+                    {cards}
+                </Card.Group>
+                {this.props.hasMore && (
+                    <div style={{textAlign: 'center', margin: '20px 0'}}>
+                        <Button color='green' onClick={this.props.onLoadMore}>
+                            Load More
+                        </Button>
+                    </div>
+                )}
+            </div>
         );
     }
 }
@@ -24,4 +33,6 @@ AnimalCards.propTypes = {
     animals: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.number.isRequired,
     })),
+    hasMore: PropTypes.bool,
+    onLoadMore: PropTypes.func,
 };

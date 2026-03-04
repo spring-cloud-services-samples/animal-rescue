@@ -29,47 +29,17 @@ push() {
 }
 
 bind_all() {
-  # Bind backend app
-  if gatewayDetailContains "$BACKEND_APP_NAME"; then
-    unbind $BACKEND_APP_NAME
-  fi
+  cf bind-service $BACKEND_APP_NAME $GATEWAY_NAME
+  cf bind-service $FRONTEND_APP_NAME $GATEWAY_NAME
+  cf bind-service $CHAT_SERVER_APP_NAME $GATEWAY_NAME
 
-  cf bind-service $BACKEND_APP_NAME $GATEWAY_NAME -c ./backend/api-route-config.json
+  #while gatewayDetailContains "create in progress"; do
+    #echo "Waiting for bindings to finish..."
+    #sleep 1
+  #done
 
-  # Bind frontend app
-  if gatewayDetailContains "$FRONTEND_APP_NAME"; then
-    unbind $FRONTEND_APP_NAME
-  fi
-
-  cf bind-service $FRONTEND_APP_NAME $GATEWAY_NAME -c ./frontend/api-route-config.json
-
-  # Bind chat-server app
-  if gatewayDetailContains "$CHAT_SERVER_APP_NAME"; then
-    unbind $CHAT_SERVER_APP_NAME
-  fi
-
-  cf bind-service $CHAT_SERVER_APP_NAME $GATEWAY_NAME -c ./chat-server/api-route-config.json
-  while gatewayDetailContains "create in progress"; do
-    echo "Waiting for bindings to finish..."
-    sleep 1
-  done
-
-  cf restart $BACKEND_APP_NAME
-  cf restart $CHAT_SERVER_APP_NAME
-}
-
-unbind() {
-  cf unbind-service "$1" "$GATEWAY_NAME"
-  while gatewayDetailContains "$1"; do
-    echo "Waiting for unbinding $1 to finish..."
-    sleep 1
-  done
-}
-
-unbind_all() {
-  unbind $FRONTEND_APP_NAME
-  unbind $BACKEND_APP_NAME
-  unbind $CHAT_SERVER_APP_NAME
+  #cf restart $BACKEND_APP_NAME
+  #cf restart $CHAT_SERVER_APP_NAME
 }
 
 routes_update_for_app() {
@@ -127,6 +97,12 @@ deploy_all() {
   cf add-network-policy $CHAT_SERVER_APP_NAME $BACKEND_APP_NAME --port 8080 --protocol tcp
   bind_all
   routes_update_all
+}
+
+unbind_all() {
+  cf unbind-service $FRONTEND_APP_NAME $GATEWAY_NAME
+  cf unbind-service $BACKEND_APP_NAME $GATEWAY_NAME
+  cf unbind-service $CHAT_SERVER_APP_NAME $GATEWAY_NAME
 }
 
 destroy_all() {

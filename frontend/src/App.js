@@ -23,6 +23,8 @@ export default class App extends React.Component {
         this.state = {
             username: '',
             animals: [],
+            page: 0,
+            hasMore: false,
             userStatus: PENDING,
             chatMessages: [],
             isSidebarOpen: false,
@@ -31,8 +33,21 @@ export default class App extends React.Component {
     }
 
     fetchAnimals() {
-        getAnimals().then(animals => this.setState({animals}));
+        getAnimals(0).then(data => this.setState({
+            animals: data.animals,
+            page: 0,
+            hasMore: data.hasMore,
+        }));
     }
+
+    loadMore = () => {
+        const nextPage = this.state.page + 1;
+        getAnimals(nextPage).then(data => this.setState(prev => ({
+            animals: [...prev.animals, ...data.animals],
+            page: nextPage,
+            hasMore: data.hasMore,
+        })));
+    };
 
     getUsername = () => {
         getUsername().then(name => this.setState({
@@ -85,7 +100,7 @@ export default class App extends React.Component {
 
             if (response.status === 429) {
                 this.updateAssistantMessage(assistantId, {
-                    text: "Whoa there, chatterbox! 🐾 You're talking faster than a parrot on espresso. Give me a moment to catch my breath and try again in a few seconds!",
+                    text: "Whoa there, chatterbox! 🐾 You're talking faster than a parrot on espresso. Give me a moment to catch my breath and try again in a few seconds! Or you can sign in to chat more.",
                     isStreaming: false,
                 });
                 this.setState({isChatBusy: false});
@@ -171,7 +186,9 @@ export default class App extends React.Component {
                 <div className={"App-body"}>
                     <AppContext.Provider value={{refresh: () => this.fetchAnimals()}}>
                         <AnimalCards username={this.state.username}
-                                     animals={this.state.animals}/>
+                                     animals={this.state.animals}
+                                     hasMore={this.state.hasMore}
+                                     onLoadMore={this.loadMore}/>
                     </AppContext.Provider>
                 </div>
                 <ChatSidebar
