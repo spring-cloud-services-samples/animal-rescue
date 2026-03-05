@@ -52,7 +52,7 @@ The application consists of three services:
 ## Table of Contents
 
 * [Development](#development)
-* [Deploy to Tanzu Application Service](#deploy-to-tanzu-application-service)
+* [Deploy to Tanzu Platform](#deploy-to-tanzu-platform)
 * [AI Chat Configuration](#ai-chat-configuration)
 * [Gateway Frontend Config](#gateway-frontend-config)
 * [Application Walkthrough](#application-walkthrough)
@@ -97,7 +97,7 @@ For interactive e2e testing:
 
 E2e test output videos are saved to `./e2e/cypress/videos/`. See the [Cypress API docs](https://docs.cypress.io/api/api/table-of-contents.html) for more information.
 
-## Deploy to Tanzu Application Service
+## Deploy to Tanzu Platform
 
 ```bash
 ./scripts/tp_ear_deploy init    # install dependencies and build artifacts
