@@ -1,6 +1,7 @@
 plugins {
 	id 'org.springframework.boot' version '4.0.3'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.gorylenko.gradle-git-properties' version '2.5.0'
 	id 'java'
 	id 'jacoco'
 }
@@ -16,7 +17,7 @@ java {
 
 repositories {
 	mavenCentral()
-	maven { url 'https://repo.spring.io/milestone' }
+	maven { url = 'https://repo.spring.io/milestone' }
 }
 
 dependencyManagement {
@@ -60,6 +61,10 @@ dependencies {
 		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-webmvc-test'
 		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
 	}
+}
+
+gitProperties {
+	dotGitDirectory = rootProject.layout.projectDirectory.dir(".git")
 }
 
 test {

@@ -1,6 +1,18 @@
 server:
   port: 8081
 
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    git:
+      mode: full
+
 spring:
   ai:
     openai:

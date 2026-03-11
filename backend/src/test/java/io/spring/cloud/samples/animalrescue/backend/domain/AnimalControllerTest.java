@@ -16,9 +16,8 @@ import org.springframework.web.reactive.function.BodyInserters;
 import java.util.HashMap;
 import java.util.Map;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
@@ -119,9 +118,9 @@ class AnimalControllerTest {
 				.jsonPath("$[0].id").isEqualTo(1)
 				.jsonPath("$[0].name").isEqualTo("Chocobo")
 				.jsonPath("$[0].adoptionRequests.length()").isEqualTo(currentAdoptionRequestCountForAnimalId1 + 1)
-				.jsonPath("$[0].adoptionRequests[*].adopterName").value(names -> assertThat((List<String>) names).contains("test-user-1"))
-				.jsonPath("$[0].adoptionRequests[*].email").value(emails -> assertThat((List<String>) emails).contains(testEmail))
-				.jsonPath("$[0].adoptionRequests[*].notes").value(notes -> assertThat((List<String>) notes).contains(testNotes));
+				.jsonPath("$[0].adoptionRequests[*].adopterName").value(names -> assertThat(names).asInstanceOf(LIST).contains("test-user-1"))
+				.jsonPath("$[0].adoptionRequests[*].email").value(emails -> assertThat(emails).asInstanceOf(LIST).contains(testEmail))
+				.jsonPath("$[0].adoptionRequests[*].notes").value(notes -> assertThat(notes).asInstanceOf(LIST).contains(testNotes));
 		}
 
 		@Test
